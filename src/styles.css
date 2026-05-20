@@ -3066,7 +3066,13 @@ body,
 }
 
 .hero-panel::before {
-  background: rgba(255, 255, 255, 0.42);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.68) 0%,
+    rgba(255, 255, 255, 0.42) 28%,
+    rgba(255, 255, 255, 0.08) 48%,
+    transparent 64%
+  );
 }
 
 .hero-panel::after,
@@ -3102,7 +3108,13 @@ body,
 
 @media (max-width: 760px) {
   .hero-panel::before {
-    background: rgba(255, 255, 255, 0.52);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.74) 0%,
+      rgba(255, 255, 255, 0.42) 34%,
+      rgba(255, 255, 255, 0.08) 58%,
+      transparent 76%
+    );
   }
 }
 
