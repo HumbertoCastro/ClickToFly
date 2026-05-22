@@ -6,7 +6,7 @@ type LogoProps = {
 
 export function Logo({ compact = false }: LogoProps) {
   return (
-    <a className={`brand ${compact ? 'brand-compact' : ''}`} href="#inicio" aria-label="Click To Fly">
+    <a className={`brand ${compact ? 'brand-compact' : ''}`} href="/#inicio" aria-label="Click To Fly">
       <span className="brand-mark" aria-hidden="true">
         <span className="brand-swoosh" />
         <Plane />

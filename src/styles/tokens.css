@@ -1,0 +1,74 @@
+/* Hallmark: macrostructure=editorial opportunity board; tone=luxo funcional; anchor=teal */
+:root {
+  --font-sans: Inter, "Plus Jakarta Sans", Manrope, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --color-paper: oklch(98.4% 0.008 220);
+  --color-paper-soft: oklch(95.8% 0.018 210);
+  --color-paper-warm: oklch(96.6% 0.014 85);
+  --color-surface: oklch(100% 0 0);
+  --color-surface-subtle: oklch(97.2% 0.011 220);
+  --color-surface-strong: oklch(93.4% 0.018 220);
+
+  --color-ink: oklch(21.4% 0.045 247);
+  --color-ink-strong: oklch(15.8% 0.04 247);
+  --color-ink-soft: oklch(37.6% 0.04 242);
+  --color-muted: oklch(55.2% 0.032 236);
+  --color-muted-strong: oklch(44% 0.036 238);
+
+  --color-line: oklch(88.2% 0.019 224);
+  --color-line-strong: oklch(77.6% 0.026 224);
+  --color-teal: oklch(72% 0.142 188);
+  --color-teal-strong: oklch(61.8% 0.153 190);
+  --color-teal-soft: oklch(92.8% 0.065 188);
+  --color-teal-ink: oklch(28% 0.06 196);
+  --color-gold: oklch(78.5% 0.105 82);
+  --color-coral: oklch(67.4% 0.151 32);
+  --color-danger: oklch(58% 0.18 28);
+  --color-success: oklch(62.8% 0.13 154);
+  --color-night: oklch(18.8% 0.047 247);
+  --color-night-soft: oklch(26.2% 0.05 246);
+  --color-hero-scrim: oklch(13.8% 0.043 247 / 0.86);
+  --color-hero-scrim-soft: oklch(13.8% 0.043 247 / 0.54);
+  --color-hero-scrim-clear: oklch(13.8% 0.043 247 / 0.18);
+  --color-hero-scrim-none: oklch(13.8% 0.043 247 / 0);
+  --color-hero-copy: oklch(97.8% 0.008 220 / 0.88);
+  --color-hero-glass: oklch(100% 0 0 / 0.72);
+  --color-hero-chip: oklch(100% 0 0 / 0.14);
+  --color-hero-line: oklch(100% 0 0 / 0.26);
+  --color-quote-glow: oklch(76% 0.13 188 / 0.32);
+  --color-quote-glow-soft: oklch(86% 0.065 188 / 0.34);
+  --color-quote-glass: oklch(100% 0 0 / 0.72);
+
+  --shadow-xs: 0 1px 2px oklch(18% 0.04 245 / 0.08);
+  --shadow-sm: 0 10px 30px oklch(18% 0.04 245 / 0.1);
+  --shadow-md: 0 22px 60px oklch(18% 0.04 245 / 0.14);
+  --shadow-lg: 0 34px 90px oklch(18% 0.04 245 / 0.18);
+  --shadow-teal: 0 18px 44px oklch(66% 0.14 188 / 0.28);
+
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-xl: 34px;
+  --radius-pill: 999px;
+
+  --page-max: 1180px;
+  --page-gutter: 24px;
+  --section-space: 112px;
+
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-emphatic: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-fast: 140ms;
+  --motion-base: 220ms;
+  --motion-slow: 360ms;
+  --motion-slower: 620ms;
+
+  --primary: var(--color-ink);
+  --primary-dark: var(--color-ink-strong);
+  --accent: var(--color-teal);
+  --accent-dark: var(--color-teal-strong);
+  --text: var(--color-ink);
+  --muted: var(--color-muted);
+  --line: var(--color-line);
+  --surface: var(--color-surface);
+}

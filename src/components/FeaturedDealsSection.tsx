@@ -7,8 +7,8 @@ export function FeaturedDealsSection() {
     <section className="deals-section section-pad" id="promocoes">
       <div className="container">
         <SectionHeader
-          eyebrow="Promocoes encontradas"
-          title="Promocoes que mostram o poder de uma boa oportunidade"
+          eyebrow="Promoções encontradas"
+          title="Promoções que mostram o poder de uma boa oportunidade"
           description="Exemplos de ofertas encontradas pela Click To Fly para clientes que queriam viajar melhor pagando menos."
         />
 
@@ -19,7 +19,7 @@ export function FeaturedDealsSection() {
         </div>
         <p className="deal-note">
           Valores exibidos como exemplos de oportunidades encontradas. Disponibilidade e tarifas
-          variam conforme data, companhia aerea e regras da oferta.
+          variam conforme data, companhia aérea e regras da oferta.
         </p>
       </div>
     </section>

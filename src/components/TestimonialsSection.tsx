@@ -13,7 +13,7 @@ export function TestimonialsSection() {
         <div className="testimonial-grid">
           {testimonials.map((testimonial) => (
             <article className="testimonial-card reveal" key={testimonial.name}>
-              <div className="stars" aria-label="Avaliacao 5 estrelas">
+              <div className="stars" aria-label="Avaliação 5 estrelas">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <Star key={index} />
                 ))}

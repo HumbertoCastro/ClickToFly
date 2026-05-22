@@ -11,13 +11,13 @@ export function Footer() {
         <div>
           <Logo />
           <p>
-            Agencia de viagens focada em oportunidades reais, curadoria de promocoes e
+            Agência de viagens focada em oportunidades reais, curadoria de promoções e
             planejamento personalizado.
           </p>
         </div>
 
-        <nav aria-label="Links do rodape">
-          <strong>Navegacao</strong>
+        <nav aria-label="Links do rodapé">
+          <strong>Navegação</strong>
           {navItems.map((item) => (
             <a key={item.href} href={item.href}>
               {item.label}
@@ -28,7 +28,7 @@ export function Footer() {
         <div className="footer-contact">
           <strong>Contato</strong>
           <a href={whatsappHref} target="_blank" rel="noreferrer">
-            <MessageCircle /> Grupo de promocoes
+            <MessageCircle /> Grupo de promoções
           </a>
           <a href="tel:+5531975863351">
             <Phone /> +55 (31) 97586-3351
@@ -42,8 +42,8 @@ export function Footer() {
         </div>
       </div>
       <div className="container footer-bottom">
-        <span>© 2026 Click To Fly. Todos os direitos reservados.</span>
-        <span>Promocoes sujeitas a disponibilidade e regras tarifarias.</span>
+        <span>Copyright 2026 Click To Fly. Todos os direitos reservados.</span>
+        <span>Promoções sujeitas a disponibilidade e regras tarifárias.</span>
       </div>
     </footer>
   );

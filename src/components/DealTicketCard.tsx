@@ -34,7 +34,7 @@ export function DealTicketCard({ deal }: DealTicketCardProps) {
 
       <div className="ticket-meta">
         <span>
-          <small>Preco medio</small>
+          <small>Preço médio</small>
           <strong>{deal.averagePrice}</strong>
         </span>
         <span>
@@ -42,7 +42,7 @@ export function DealTicketCard({ deal }: DealTicketCardProps) {
           <strong className="saving">{deal.savings}</strong>
         </span>
         <span>
-          <small>Periodo</small>
+          <small>Período</small>
           <strong>{deal.period}</strong>
         </span>
         <em>{deal.status}</em>

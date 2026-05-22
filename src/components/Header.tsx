@@ -23,7 +23,7 @@ export function Header() {
       <div className="container header-inner">
         <Logo compact />
 
-        <nav className="desktop-nav" aria-label="Navegacao principal">
+        <nav className="desktop-nav" aria-label="Navegação principal">
           {navItems.map((item) => (
             <a key={item.href} href={item.href}>
               {item.label}
@@ -47,7 +47,7 @@ export function Header() {
       </div>
 
       <div className={`mobile-menu ${open ? 'is-open' : ''}`}>
-        <nav aria-label="Navegacao mobile">
+        <nav aria-label="Navegação mobile">
           {navItems.map((item) => (
             <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
               {item.label}

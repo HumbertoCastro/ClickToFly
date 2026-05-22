@@ -20,12 +20,16 @@ const initialValues: BudgetFormValues = {
   notes: '',
 };
 
-const steps = ['Seus dados', 'Detalhes da viagem', 'Preferencias', 'Revisao'];
+const steps = ['Contato', 'Roteiro', 'Preferências', 'Revisão'];
 const serviceOptions = ['Hospedagem', 'Transporte', 'Passeios', 'Seguro viagem'];
 
 type ErrorMap = Partial<Record<keyof BudgetFormValues, string>>;
 
-export function BudgetFormSection() {
+type BudgetFormSectionProps = {
+  variant?: 'landing' | 'page';
+};
+
+export function BudgetFormSection({ variant = 'landing' }: BudgetFormSectionProps) {
   const [values, setValues] = useState<BudgetFormValues>(initialValues);
   const [activeStep, setActiveStep] = useState(0);
   const [errors, setErrors] = useState<ErrorMap>({});
@@ -41,20 +45,20 @@ export function BudgetFormSection() {
       ['Ida', values.departureDate],
       ['Volta', values.returnDate],
       ['Adultos', values.adults],
-      ['Criancas', values.children],
+      ['Crianças', values.children],
       ['Bagagem', values.checkedBag],
       ['Flexibilidade', values.flexibleDates],
-      ['Servicos', values.services.length ? values.services.join(', ') : 'Nenhum adicional selecionado'],
+      ['Serviços', values.services.length ? values.services.join(', ') : 'Nenhum adicional selecionado'],
     ],
     [values],
   );
-  const destinationSummary = values.destination || 'Destino ainda nao definido';
+  const destinationSummary = values.destination || 'Destino ainda não definido';
   const dateSummary =
     values.departureDate || values.returnDate
-      ? `${values.departureDate || 'Ida'} ate ${values.returnDate || 'volta'}`
+      ? `${values.departureDate || 'Ida'} até ${values.returnDate || 'volta'}`
       : 'Datas a definir';
-  const travelersSummary = `${values.adults} adulto(s), ${values.children} crianca(s)`;
-  const servicesSummary = values.services.length ? values.services.join(', ') : 'Servicos adicionais opcionais';
+  const travelersSummary = `${values.adults} adulto(s), ${values.children} criança(s)`;
+  const servicesSummary = values.services.length ? values.services.join(', ') : 'Serviços adicionais opcionais';
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
@@ -79,8 +83,8 @@ export function BudgetFormSection() {
     }
 
     if (activeStep === 2) {
-      if (!values.checkedBag) nextErrors.checkedBag = 'Selecione uma opcao.';
-      if (!values.flexibleDates) nextErrors.flexibleDates = 'Selecione uma opcao.';
+      if (!values.checkedBag) nextErrors.checkedBag = 'Selecione uma opção.';
+      if (!values.flexibleDates) nextErrors.flexibleDates = 'Selecione uma opção.';
     }
 
     setErrors(nextErrors);
@@ -108,28 +112,28 @@ export function BudgetFormSection() {
   };
 
   return (
-    <section className="budget-section section-pad" id="orcamento">
+    <section className={`budget-section section-pad ${variant === 'page' ? 'budget-section-page' : ''}`} id="orcamento">
       <div className="container">
         <SectionHeader
-          eyebrow="Planeje sua viagem"
-          title="Planeje sua proxima viagem com a Click To Fly"
-          description="Preencha um pre-planejamento rapido para nossa equipe buscar opcoes alinhadas ao seu destino, datas e orcamento."
+          eyebrow="Orçamento personalizado"
+          title="Monte um pacote com atendimento consultivo"
+          description="Responda um pré-planejamento rápido para nossa equipe buscar opções alinhadas ao seu destino, datas, perfil de viagem e orçamento."
         />
 
         <div className="budget-card reveal">
           {submitted ? (
             <div className="success-message" role="status">
               <CheckCircle2 />
-              <h3>Recebemos seu pre-planejamento.</h3>
+              <h3>Recebemos seu pré-planejamento.</h3>
               <p>
-                A equipe Click To Fly entrara em contato para buscar as melhores opcoes para sua
+                A equipe Click To Fly entrará em contato para buscar as melhores opções para sua
                 viagem.
               </p>
             </div>
           ) : (
             <div className="budget-product">
               <form className="budget-form" onSubmit={handleSubmit} noValidate>
-                <div className="stepper" aria-label="Etapas do formulario">
+                <div className="stepper" aria-label="Etapas do formulário">
                   {steps.map((step, index) => (
                     <span key={step} className={index <= activeStep ? 'is-active' : ''}>
                       <em>{index + 1}</em>
@@ -149,11 +153,11 @@ export function BudgetFormSection() {
                 {activeStep === 1 ? (
                   <div className="form-grid">
                     <InputField label="Origem" name="origin" value={values.origin} required error={errors.origin} onChange={handleChange} placeholder="Cidade ou aeroporto" />
-                    <InputField label="Destino" name="destination" value={values.destination} required error={errors.destination} onChange={handleChange} placeholder="Cidade, pais ou aeroporto" />
+                    <InputField label="Destino" name="destination" value={values.destination} required error={errors.destination} onChange={handleChange} placeholder="Cidade, país ou aeroporto" />
                     <DateField label="Data de ida" name="departureDate" value={values.departureDate} required error={errors.departureDate} onChange={handleChange} />
                     <DateField label="Data de volta" name="returnDate" value={values.returnDate} required error={errors.returnDate} onChange={handleChange} />
                     <SelectField label="Adultos" name="adults" value={values.adults} onChange={handleChange} required options={['1', '2', '3', '4', '5+']} />
-                    <SelectField label="Criancas" name="children" value={values.children} onChange={handleChange} required options={['0', '1', '2', '3', '4+']} />
+                    <SelectField label="Crianças" name="children" value={values.children} onChange={handleChange} required options={['0', '1', '2', '3', '4+']} />
                   </div>
                 ) : null}
 
@@ -166,29 +170,29 @@ export function BudgetFormSection() {
                       required
                       error={errors.checkedBag}
                       onChange={handleChange}
-                      options={['Sim', 'Nao', 'Ainda nao sei']}
+                      options={['Sim', 'Não', 'Ainda não sei']}
                     />
                     <SelectField
-                      label="Possui flexibilidade de datas proximas?"
+                      label="Possui flexibilidade de datas próximas?"
                       name="flexibleDates"
                       value={values.flexibleDates}
                       required
                       error={errors.flexibleDates}
                       onChange={handleChange}
-                      options={['Sim', 'Nao', 'Talvez']}
+                      options={['Sim', 'Não', 'Talvez']}
                     />
                     <CheckboxGroup
-                      label="Servicos adicionais"
+                      label="Serviços adicionais"
                       options={serviceOptions}
                       value={values.services}
                       onChange={(services) => setValues((current) => ({ ...current, services }))}
                     />
                     <TextareaField
-                      label="Observacao"
+                      label="Observação"
                       name="notes"
                       value={values.notes}
                       onChange={handleChange}
-                      placeholder="Conte preferencias de horario, companhia, conexoes, datas alternativas ou objetivo da viagem."
+                      placeholder="Conte preferências de horário, companhia, conexões, datas alternativas ou objetivo da viagem."
                     />
                   </div>
                 ) : null}
@@ -198,12 +202,12 @@ export function BudgetFormSection() {
                     {summaryItems.map(([label, value]) => (
                       <div key={label}>
                         <span>{label}</span>
-                        <strong>{value || 'Nao informado'}</strong>
+                        <strong>{value || 'Não informado'}</strong>
                       </div>
                     ))}
                     {values.notes ? (
                       <div className="review-full">
-                        <span>Observacao</span>
+                        <span>Observação</span>
                         <strong>{values.notes}</strong>
                       </div>
                     ) : null}
@@ -218,7 +222,7 @@ export function BudgetFormSection() {
                   <button className="form-button primary" type="submit">
                     {activeStep === steps.length - 1 ? (
                       <>
-                        Solicitar orcamento
+                        Solicitar orçamento
                         <Send />
                       </>
                     ) : (
@@ -231,8 +235,8 @@ export function BudgetFormSection() {
                 </div>
               </form>
 
-              <aside className="budget-summary-panel" aria-label="Resumo da solicitacao">
-                <span>Sua solicitacao</span>
+              <aside className="budget-summary-panel" aria-label="Resumo da solicitação">
+                <span>Sua solicitação</span>
                 <h3>{destinationSummary}</h3>
                 <dl>
                   <div>
@@ -248,7 +252,7 @@ export function BudgetFormSection() {
                     <dd>{values.checkedBag || 'A definir'}</dd>
                   </div>
                   <div>
-                    <dt>Servicos adicionais</dt>
+                    <dt>Serviços adicionais</dt>
                     <dd>{servicesSummary}</dd>
                   </div>
                 </dl>

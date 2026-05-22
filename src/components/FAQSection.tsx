@@ -6,7 +6,7 @@ export function FAQSection() {
   return (
     <section className="faq-section section-pad">
       <div className="container narrow-container">
-        <SectionHeader eyebrow="FAQ" title="Duvidas frequentes antes de entrar no grupo" />
+        <SectionHeader eyebrow="FAQ" title="Dúvidas frequentes antes de entrar no grupo" />
         <div className="faq-list">
           {faqItems.map((item, index) => (
             <details className="faq-item reveal" key={item.question} open={index === 0}>
@@ -14,7 +14,9 @@ export function FAQSection() {
                 {item.question}
                 <ChevronDown />
               </summary>
-              <p>{item.answer}</p>
+              <div className="faq-answer">
+                <p>{item.answer}</p>
+              </div>
             </details>
           ))}
         </div>
