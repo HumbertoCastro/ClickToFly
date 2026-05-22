@@ -1,49 +1,69 @@
-import { Instagram, Mail, MessageCircle, Phone } from 'lucide-react';
+import { Instagram, Mail, MessageCircle } from 'lucide-react';
+import hcWebSolutionsIcon from '../assets/hc-web-solutions-icon.png';
 import { navItems, whatsappMessage, whatsappNumber } from '../data';
+import { withBasePath } from '../lib/routing';
 import { Logo } from './Logo';
 
 const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+const madeByHref = 'https://www.hcwebsolutions.com.br/';
+const directContactLinks = [
+  { label: 'WhatsApp', href: whatsappHref, icon: MessageCircle, external: true },
+  { label: 'E-mail', href: 'mailto:contato@clicktofly.com.br', icon: Mail },
+  { label: 'Instagram', href: 'https://www.instagram.com/', icon: Instagram, external: true },
+];
 
 export function Footer() {
   return (
-    <footer className="footer">
-      <div className="container footer-grid">
-        <div>
+    <footer className="footer" aria-label="Rodapé Click To Fly">
+      <div className="container footer-minimal">
+        <div className="footer-brand-line">
           <Logo />
-          <p>
-            Agência de viagens focada em oportunidades reais, curadoria de promoções e
-            planejamento personalizado.
-          </p>
+          <p>Agência de viagens focada em oportunidades reais e planejamento personalizado.</p>
         </div>
 
-        <nav aria-label="Links do rodapé">
-          <strong>Navegação</strong>
-          {navItems.map((item) => (
-            <a key={item.href} href={item.href}>
-              {item.label}
-            </a>
-          ))}
-        </nav>
+        <div className="footer-link-bar">
+          <nav className="footer-direct-links" aria-label="Links diretos">
+            {navItems.map((item) => (
+              <a key={item.href} href={withBasePath(item.href)}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
 
-        <div className="footer-contact">
-          <strong>Contato</strong>
-          <a href={whatsappHref} target="_blank" rel="noreferrer">
-            <MessageCircle /> Grupo de promoções
-          </a>
-          <a href="tel:+5531975863351">
-            <Phone /> +55 (31) 97586-3351
-          </a>
-          <a href="mailto:contato@clicktofly.com.br">
-            <Mail /> contato@clicktofly.com.br
-          </a>
-          <a href="https://www.instagram.com/" target="_blank" rel="noreferrer">
-            <Instagram /> Instagram
+          <div className="footer-contact-links" aria-label="Contato">
+            {directContactLinks.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target={item.external ? '_blank' : undefined}
+                  rel={item.external ? 'noreferrer' : undefined}
+                >
+                  <Icon />
+                  {item.label}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="footer-meta">
+          <span>Copyright 2026 Click To Fly. Todos os direitos reservados.</span>
+          <a
+            className="footer-made-by"
+            href={madeByHref}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Made By HC Web Solutions"
+          >
+            <span>Made By:</span>
+            <span className="footer-made-mark" aria-hidden="true">
+              <img src={hcWebSolutionsIcon} alt="" />
+            </span>
           </a>
         </div>
-      </div>
-      <div className="container footer-bottom">
-        <span>Copyright 2026 Click To Fly. Todos os direitos reservados.</span>
-        <span>Promoções sujeitas a disponibilidade e regras tarifárias.</span>
       </div>
     </footer>
   );
