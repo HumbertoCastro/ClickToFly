@@ -1,0 +1,48 @@
+{
+  "domain": "preview.hcwebsolutions.com.br",
+  "pagesProjectName": "hcwebsolutions-preview",
+  "previousPagesProjectName": "hcwebsolutions",
+  "productionBranch": "main",
+  "basePath": "/projetos",
+  "outputDir": "preview-dist",
+  "projects": [
+    {
+      "slug": "akatu",
+      "name": "Akatu",
+      "description": "Landing page de apresentacao da Akatu.",
+      "dir": "akatu-landing"
+    },
+    {
+      "slug": "analitica",
+      "name": "Analitica",
+      "description": "Redesign de landing page para validacao visual.",
+      "dir": "analitica-redesign",
+      "routes": ["/produtos"]
+    },
+    {
+      "slug": "briefing",
+      "name": "Briefing Builder",
+      "description": "Prototipo da ferramenta de briefing.",
+      "dir": "briefing-project"
+    },
+    {
+      "slug": "clicktofly",
+      "name": "ClickToFly",
+      "description": "Landing page de captacao para ofertas de viagem.",
+      "dir": "clicktofly",
+      "routes": ["/orcamento"]
+    },
+    {
+      "slug": "dgad",
+      "name": "DGAD",
+      "description": "Landing page do DGAD LifeForce 360 em homologacao.",
+      "dir": "DGAD",
+      "routes": [
+        "/codigo-completo",
+        "/sobre",
+        "/politica-de-privacidade",
+        "/pagamento-e-reembolso"
+      ]
+    }
+  ]
+}

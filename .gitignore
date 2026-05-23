@@ -1,0 +1,9 @@
+node_modules/
+dist/
+preview-dist/
+.env.cloudflare
+*.tsbuildinfo
+*.log
+.chrome-qa*/
+.hallmark/
+qa-*.png

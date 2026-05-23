@@ -1,0 +1,16 @@
+{
+  "name": "hcsolutions-preview-deploy",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build:previews": "node scripts/build-previews.mjs",
+    "cf:login": "wrangler login",
+    "cf:whoami": "wrangler whoami",
+    "setup:previews": "node scripts/deploy-preview.mjs --setup-only",
+    "deploy:previews": "node scripts/deploy-preview.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.93.1"
+  }
+}
