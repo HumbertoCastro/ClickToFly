@@ -20,6 +20,32 @@ const getFlightPoint = (THREE: ThreeModule, progress: number) => {
   return new THREE.Vector3(x, y, z);
 };
 
+const getFlightTangent = (THREE: ThreeModule, progress: number, range = 0.024) => {
+  const before = getFlightPoint(THREE, clamp(progress - range, 0, 1));
+  const after = getFlightPoint(THREE, clamp(progress + range, 0, 1));
+  const tangent = after.sub(before);
+
+  if (tangent.lengthSq() === 0) {
+    tangent.set(1, 0, 0);
+  }
+
+  return tangent.normalize();
+};
+
+const getTurnAmount = (THREE: ThreeModule, progress: number, range = 0.055) => {
+  const current = getFlightPoint(THREE, progress);
+  const before = getFlightPoint(THREE, clamp(progress - range, 0, 1));
+  const after = getFlightPoint(THREE, clamp(progress + range, 0, 1));
+  const previousDirection = current.clone().sub(before);
+  const nextDirection = after.sub(current);
+
+  if (previousDirection.lengthSq() === 0 || nextDirection.lengthSq() === 0) {
+    return 0;
+  }
+
+  return previousDirection.normalize().cross(nextDirection.normalize()).y;
+};
+
 const makeMaterial = (THREE: ThreeModule, color: string, roughness = 0.42, metalness = 0.04) =>
   new THREE.MeshStandardMaterial({ color, roughness, metalness });
 
@@ -156,6 +182,14 @@ export function ScrollPlaneScene({ activeIndex, progress }: ScrollPlaneSceneProp
       scene.add(trail);
       scene.add(plane);
 
+      const forwardAxis = new THREE.Vector3(1, 0, 0);
+      const worldUp = new THREE.Vector3(0, 1, 0);
+      const xAxis = new THREE.Vector3();
+      const yAxis = new THREE.Vector3();
+      const zAxis = new THREE.Vector3();
+      const orientationMatrix = new THREE.Matrix4();
+      const rollQuaternion = new THREE.Quaternion();
+
       const resize = () => {
         const rect = canvas.getBoundingClientRect();
         const width = Math.max(1, Math.floor(rect.width));
@@ -177,13 +211,25 @@ export function ScrollPlaneScene({ activeIndex, progress }: ScrollPlaneSceneProp
         lastProgress += (targetProgress - lastProgress) * 0.08;
 
         const current = getFlightPoint(THREE, lastProgress);
-        const next = getFlightPoint(THREE, clamp(lastProgress + 0.012, 0, 1));
-        const delta = next.sub(current);
+        const tangent = getFlightTangent(THREE, lastProgress);
+        const turnAmount = getTurnAmount(THREE, lastProgress);
+        const bankAngle = clamp(-turnAmount * 1.45, -0.32, 0.32);
 
         plane.position.copy(current);
-        plane.rotation.y = -Math.atan2(delta.z, delta.x);
-        plane.rotation.z = -0.2 + Math.sin(lastProgress * Math.PI * 1.15) * 0.34;
-        plane.rotation.x = 0.1 + Math.cos(lastProgress * Math.PI * 1.8) * 0.16;
+        xAxis.copy(tangent);
+        yAxis.copy(worldUp).addScaledVector(xAxis, -worldUp.dot(xAxis));
+
+        if (yAxis.lengthSq() < 0.0001) {
+          yAxis.set(0, 0, 1);
+        }
+
+        yAxis.normalize();
+        zAxis.crossVectors(xAxis, yAxis).normalize();
+        yAxis.crossVectors(zAxis, xAxis).normalize();
+        orientationMatrix.makeBasis(xAxis, yAxis, zAxis);
+        plane.quaternion.setFromRotationMatrix(orientationMatrix);
+        rollQuaternion.setFromAxisAngle(forwardAxis, bankAngle);
+        plane.quaternion.multiply(rollQuaternion);
         plane.scale.setScalar(0.62 + activeRef.current * 0.012);
 
         trail.rotation.z = Math.sin(lastProgress * Math.PI) * 0.035;

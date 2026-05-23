@@ -578,6 +578,11 @@
   object-fit: cover;
 }
 
+body.has-plane-cursor,
+body.has-plane-cursor * {
+  cursor: none !important;
+}
+
 .plane-cursor-trail-layer {
   position: fixed;
   inset: 0;
@@ -602,8 +607,16 @@
   z-index: 9998;
   width: 28px;
   height: 28px;
+  opacity: 0;
   pointer-events: none;
+  visibility: hidden;
+  transition: opacity var(--motion-base) var(--ease-standard);
   will-change: transform;
+}
+
+.plane-cursor.is-visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .plane-cursor img {

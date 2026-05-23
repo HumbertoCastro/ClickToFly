@@ -1,4 +1,5 @@
 import { ArrowRight, CalendarCheck, Luggage, MapPinned, PlaneTakeoff } from 'lucide-react';
+import { withBasePath } from '../lib/routing';
 import { PrimaryButton, SecondaryButton } from './Buttons';
 
 export function QuoteCtaSection() {
@@ -13,10 +14,10 @@ export function QuoteCtaSection() {
             Click To Fly usa esse briefing para buscar opções com atendimento consultivo.
           </p>
           <div className="quote-cta-actions">
-            <PrimaryButton href="/orcamento" icon={<ArrowRight />}>
+            <PrimaryButton href={withBasePath('/orcamento')} icon={<ArrowRight />}>
               Montar meu pacote
             </PrimaryButton>
-            <SecondaryButton href="/#promocoes">Ver promoções primeiro</SecondaryButton>
+            <SecondaryButton href={withBasePath('/#promocoes')}>Ver promoções primeiro</SecondaryButton>
           </div>
         </div>
 

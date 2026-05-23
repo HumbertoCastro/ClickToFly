@@ -27,6 +27,7 @@ const normalizeAngleDelta = (current: number, target: number) => {
 export function PlaneCursor() {
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<number | null>(null);
+  const hasCursorMovedRef = useRef(false);
   const trailIdRef = useRef(0);
   const lastTrailRef = useRef({ x: 0, y: 0, time: 0 });
   const stateRef = useRef<CursorState>({
@@ -54,6 +55,11 @@ export function PlaneCursor() {
     document.body.classList.add('has-plane-cursor');
 
     const handleMouseMove = (event: MouseEvent) => {
+      if (!hasCursorMovedRef.current) {
+        hasCursorMovedRef.current = true;
+        cursorRef.current?.classList.add('is-visible');
+      }
+
       const state = stateRef.current;
       const dx = event.clientX - state.targetX;
       const dy = event.clientY - state.targetY;

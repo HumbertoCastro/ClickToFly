@@ -12,9 +12,10 @@ import { QuoteCtaSection } from './components/QuoteCtaSection';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { TrustSection } from './components/TrustSection';
 import { WhatsAppGroupSection } from './components/WhatsAppGroupSection';
+import { getAppPathname } from './lib/routing';
 
 export function App() {
-  const isBudgetPage = window.location.pathname.replace(/\/$/, '') === '/orcamento';
+  const isBudgetPage = getAppPathname() === '/orcamento';
 
   return (
     <>

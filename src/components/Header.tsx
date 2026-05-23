@@ -1,6 +1,7 @@
 import { Menu, MessageCircle, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { navItems, whatsappMessage, whatsappNumber } from '../data';
+import { withBasePath } from '../lib/routing';
 import { Logo } from './Logo';
 
 const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
@@ -25,7 +26,7 @@ export function Header() {
 
         <nav className="desktop-nav" aria-label="Navegação principal">
           {navItems.map((item) => (
-            <a key={item.href} href={item.href}>
+            <a key={item.href} href={withBasePath(item.href)}>
               {item.label}
             </a>
           ))}
@@ -49,7 +50,7 @@ export function Header() {
       <div className={`mobile-menu ${open ? 'is-open' : ''}`}>
         <nav aria-label="Navegação mobile">
           {navItems.map((item) => (
-            <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
+            <a key={item.href} href={withBasePath(item.href)} onClick={() => setOpen(false)}>
               {item.label}
             </a>
           ))}

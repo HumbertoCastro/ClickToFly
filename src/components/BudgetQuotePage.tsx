@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, MessageCircle } from 'lucide-react';
 import quoteHeroGlobe from '../assets/quote-hero-globe-cutout.png';
 import { whatsappMessage, whatsappNumber } from '../data';
+import { withBasePath } from '../lib/routing';
 import { BudgetFormSection } from './BudgetFormSection';
 import { PrimaryButton, SecondaryButton } from './Buttons';
 
@@ -12,7 +13,7 @@ export function BudgetQuotePage() {
       <section className="quote-page-hero" id="inicio">
         <div className="container quote-page-hero-grid">
           <div className="quote-page-hero-copy reveal">
-            <a className="quote-back-link" href="/#orcamento">
+            <a className="quote-back-link" href={withBasePath('/#orcamento')}>
               <ArrowLeft />
               Voltar para a página inicial
             </a>
