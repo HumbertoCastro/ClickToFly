@@ -4,6 +4,10 @@
   "previousPagesProjectName": "hcwebsolutions",
   "productionBranch": "main",
   "basePath": "/projetos",
+  "feedback": {
+    "basePath": "/feedback",
+    "dir": "client-feedback"
+  },
   "outputDir": "preview-dist",
   "projects": [
     {
@@ -13,24 +17,13 @@
       "dir": "akatu-landing"
     },
     {
-      "slug": "analitica",
-      "name": "Analitica",
-      "description": "Redesign de landing page para validacao visual.",
-      "dir": "analitica-redesign",
-      "routes": ["/produtos"]
-    },
-    {
-      "slug": "briefing",
-      "name": "Briefing Builder",
-      "description": "Prototipo da ferramenta de briefing.",
-      "dir": "briefing-project"
-    },
-    {
       "slug": "clicktofly",
       "name": "ClickToFly",
       "description": "Landing page de captacao para ofertas de viagem.",
       "dir": "clicktofly",
-      "routes": ["/orcamento"]
+      "routes": [
+        "/orcamento"
+      ]
     },
     {
       "slug": "dgad",
@@ -42,6 +35,27 @@
         "/sobre",
         "/politica-de-privacidade",
         "/pagamento-e-reembolso"
+      ]
+    },
+    {
+      "slug": "sua-saude",
+      "name": "Sua Saude",
+      "description": "Landing page institucional para clinica medica adulta.",
+      "dir": "sua-saude"
+    },
+    {
+      "slug": "dois-irmaos",
+      "name": "Dois Irmaos",
+      "description": "Landing page de apresentacao para Dois Irmaos Tratamento Estetico.",
+      "dir": "dois-irmaos"
+    },
+    {
+      "slug": "analitica",
+      "name": "Analitica",
+      "description": "Redesign de landing page para validacao visual.",
+      "dir": "analitica-redesign",
+      "routes": [
+        "/produtos"
       ]
     }
   ]

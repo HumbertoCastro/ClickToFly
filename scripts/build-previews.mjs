@@ -3,12 +3,15 @@ import { existsSync } from 'node:fs';
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { renderAdminIndex } from './render-admin-index.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 const configPath = path.join(rootDir, 'preview.config.json');
 const config = JSON.parse(await readFile(configPath, 'utf8'));
 const basePath = normalizeBasePath(config.basePath);
+const feedbackBasePath = normalizeBasePath(config.feedback?.basePath || '/feedback');
+const feedbackDir = path.resolve(rootDir, config.feedback?.dir || 'client-feedback');
 const outputDir = path.resolve(rootDir, config.outputDir || 'preview-dist');
 
 assertInsideRoot(outputDir);
@@ -78,11 +81,13 @@ for (const project of selectedProjects) {
   await materializeProjectRoutes(project, targetDir);
 }
 
-await writeFile(path.join(outputDir, 'index.html'), renderIndex(config, projects), 'utf8');
-await writeFile(path.join(outputDir, trimSlashes(basePath), 'index.html'), renderIndex(config, projects), 'utf8');
+await buildFeedbackApp();
+
+await writeFile(path.join(outputDir, 'index.html'), renderAdminIndex({ projects, basePath }), 'utf8');
+await writeFile(path.join(outputDir, trimSlashes(basePath), 'index.html'), renderAdminIndex({ projects, basePath }), 'utf8');
 await writeFile(path.join(outputDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n', 'utf8');
 await writeFile(path.join(outputDir, '_headers'), renderHeaders(), 'utf8');
-await writeFile(path.join(outputDir, '_redirects'), renderRedirects(basePath, projects), 'utf8');
+await writeFile(path.join(outputDir, '_redirects'), renderRedirects(basePath, projects, feedbackBasePath), 'utf8');
 
 console.log(
   `Preview build complete: ${path.relative(rootDir, outputDir)} (${fullBuild ? 'all projects' : selectedProjects.map((project) => project.slug).join(', ')})`,
@@ -196,6 +201,38 @@ function trimSlashes(value) {
 
 function toPosixPath(value) {
   return value.split(path.sep).join('/');
+}
+
+async function buildFeedbackApp() {
+  const feedbackPackagePath = path.join(feedbackDir, 'package.json');
+
+  if (!existsSync(feedbackPackagePath)) {
+    throw new Error(`Feedback app not found: ${feedbackPackagePath}`);
+  }
+
+  const targetDir = path.join(outputDir, trimSlashes(feedbackBasePath));
+  const relativeOutDir = toPosixPath(path.relative(feedbackDir, targetDir));
+
+  assertInsideRoot(feedbackDir);
+  assertInsideRoot(targetDir);
+
+  if (shouldInstall(feedbackDir)) {
+    run('npm', ['ci', '--prefix', feedbackDir]);
+  }
+
+  await rm(targetDir, { recursive: true, force: true });
+  await mkdir(targetDir, { recursive: true });
+
+  run('npm', [
+    'run',
+    'build',
+    '--prefix',
+    feedbackDir,
+    '--',
+    `--base=${withTrailingSlash(feedbackBasePath)}`,
+    `--outDir=${relativeOutDir}`,
+    '--emptyOutDir',
+  ]);
 }
 
 async function materializeProjectRoutes(project, targetDir) {
@@ -553,14 +590,20 @@ function renderHeaders() {
 `;
 }
 
-function renderRedirects(basePath, projects) {
+function renderRedirects(basePath, projects, feedbackPath) {
   const lines = [
     `${basePath} ${basePath}/ 301`,
+    `${feedbackPath} ${feedbackPath}/ 301`,
     ...projects.map((project) => `${basePath}/${project.slug} ${basePath}/${project.slug}/ 301`),
+    `${feedbackPath}/* ${feedbackPath}/index.html 200`,
     ...projects.map((project) => `${basePath}/${project.slug}/* ${basePath}/${project.slug}/index.html 200`),
   ];
 
   return `${lines.join('\n')}\n`;
+}
+
+function withTrailingSlash(value) {
+  return value.endsWith('/') ? value : `${value}/`;
 }
 
 function escapeHtml(value) {

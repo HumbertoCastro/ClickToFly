@@ -6,10 +6,12 @@ Este projeto raiz gera um pacote unico para Cloudflare Pages em `preview-dist`.
 
 - `https://preview.hcwebsolutions.com.br/`
 - `https://preview.hcwebsolutions.com.br/projetos/akatu/`
-- `https://preview.hcwebsolutions.com.br/projetos/analitica/`
-- `https://preview.hcwebsolutions.com.br/projetos/briefing/`
 - `https://preview.hcwebsolutions.com.br/projetos/clicktofly/`
 - `https://preview.hcwebsolutions.com.br/projetos/dgad/`
+- `https://preview.hcwebsolutions.com.br/projetos/sua-saude/`
+- `https://preview.hcwebsolutions.com.br/projetos/dois-irmaos/`
+- `https://preview.hcwebsolutions.com.br/projetos/analitica/`
+- `https://preview.hcwebsolutions.com.br/feedback/?token=<token>`
 
 ## Cloudflare Pages
 
@@ -110,6 +112,30 @@ Para publicar sem passos manuais:
 ```bash
 npm run deploy:previews
 ```
+
+## Feedback de clientes
+
+O build de previews tambem publica a plataforma de feedback em `/feedback/`.
+A tela `/projetos/` e o indice do dominio funcionam como admin protegido por senha para emitir esses links.
+
+Tambem e possivel gerar um link assinado pelo terminal:
+
+```powershell
+$env:FEEDBACK_TOKEN_SECRET='use-um-segredo-longo'
+npm run feedback:link -- --project clicktofly --route / --client "Nome do Cliente"
+```
+
+Configure no Cloudflare Pages:
+
+- `RESEND_API_KEY` como secret
+- `FEEDBACK_TOKEN_SECRET` como secret
+- `PREVIEW_ADMIN_PASSWORD` como secret
+- `PREVIEW_ADMIN_SECRET` como secret, ou deixe cair para `FEEDBACK_TOKEN_SECRET`
+- `FEEDBACK_EMAIL_TO=dedebarbos@hotmail.com`
+- `FEEDBACK_EMAIL_FROM=feedback@hcwebsolutions.com.br`
+
+O remetente `FEEDBACK_EMAIL_FROM` precisa estar verificado no Resend.
+Clientes nao precisam da senha admin; eles recebem apenas `/feedback/?token=<token>`.
 
 ## Protecao
 

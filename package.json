@@ -4,9 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "build:feedback": "npm run build --prefix client-feedback -- --base=/feedback/ --outDir=../preview-dist/feedback --emptyOutDir",
     "build:previews": "node scripts/build-previews.mjs",
     "cf:login": "wrangler login",
     "cf:whoami": "wrangler whoami",
+    "feedback:link": "node scripts/create-feedback-link.mjs",
     "setup:previews": "node scripts/deploy-preview.mjs --setup-only",
     "deploy:previews": "node scripts/deploy-preview.mjs"
   },
