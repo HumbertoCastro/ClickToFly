@@ -2,6 +2,7 @@ node_modules/
 dist/
 preview-dist/
 .env.cloudflare
+.wrangler/
 *.tsbuildinfo
 *.log
 .chrome-qa*/
