@@ -1,6 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;520;620;700;820;900&display=swap");
+
 /* Hallmark: macrostructure=editorial opportunity board; tone=luxo funcional; anchor=teal */
 :root {
-  --font-sans: Inter, "Plus Jakarta Sans", Manrope, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: Geist, "Plus Jakarta Sans", Manrope, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --color-paper: oklch(98.4% 0.008 220);
   --color-paper-soft: oklch(95.8% 0.018 210);
