@@ -12,12 +12,12 @@ import {
   Plane,
   Search,
   ShieldCheck,
-  Sparkles,
   TicketPercent,
 } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { useMemo, useRef, useState } from 'react';
-import heroPlaneImage from '../../MainImage.png';
+import cabinWindowImage from '../assets/clicktofly-cabin-window.png';
+import heroSkyImage from '../assets/clicktofly-hero-sky.png';
 import ctaCloudSkyImage from '../assets/cta-cloud-sky.png';
 import {
   clickAdvantages,
@@ -91,9 +91,70 @@ export function TasteLandingPage() {
 
       gsap
         .timeline({ defaults: { duration: 0.9, ease: 'power3.out' } })
-        .from('.taste-hero-word', { y: 72, opacity: 0, stagger: 0.08 })
-        .from('.taste-hero-copy p, .taste-hero-actions', { y: 28, opacity: 0, stagger: 0.12 }, '-=0.35')
-        .from('.taste-hero-panel', { y: 44, opacity: 0, scale: 0.94 }, '-=0.45');
+        .from('.flight-window-title-left, .flight-window-title-right', {
+          y: 72,
+          opacity: 0,
+          stagger: 0.08,
+        })
+        .from(
+          '.flight-window-description, .flight-window-cta',
+          { y: 28, opacity: 0, stagger: 0.12 },
+          '-=0.35',
+        )
+        .from('.flight-window-scene', { opacity: 0.82 }, '-=0.55');
+
+      const setFlightProgress = (progress: number) => {
+        const fadeProgress = Math.min(1, Math.max(0, (progress - 0.08) / 0.38));
+        const earlyFade = Math.min(1, Math.max(0, (progress - 0.04) / 0.38));
+        const cabinFade = Math.min(1, Math.max(0, (progress - 0.18) / 0.28));
+
+        gsap.set('.flight-window-scene', {
+          opacity: 1 - cabinFade * 0.94,
+          scale: 1.04 + progress * 5.46,
+          xPercent: progress * -2,
+          y: `${progress * 42}vh`,
+          transformOrigin: '50% 50%',
+        });
+        gsap.set('.flight-window-sky', { y: `${progress * 4}vh` });
+        gsap.set('.flight-window-sky-image', {
+          yPercent: -16 + progress * 8,
+          scale: 1.1 + progress * 0.18,
+        });
+        gsap.set('.flight-window-title-left', {
+          x: `${progress * -54}vw`,
+          y: `${progress * -8}vh`,
+          scale: 1 + progress * 0.18,
+        });
+        gsap.set('.flight-window-title-right', {
+          x: `${progress * 54}vw`,
+          y: `${progress * 10}vh`,
+          scale: 1 + progress * 0.18,
+        });
+        gsap.set('.flight-window-description', {
+          x: `${progress * -18}vw`,
+          y: progress * 54,
+          opacity: 1 - earlyFade,
+        });
+        gsap.set('.flight-window-cta', {
+          y: progress * 64,
+          opacity: 1 - earlyFade,
+        });
+        gsap.set('.flight-window-center-mark', {
+          opacity: 1 - fadeProgress,
+          scale: 1 + progress * 0.2,
+        });
+        gsap.set('.flight-window-vignette', { opacity: 0.12 + progress * 0.12 });
+      };
+
+      setFlightProgress(0);
+
+      const flightTrigger = ScrollTrigger.create({
+        trigger: '.flight-window-scroll',
+        start: 'top top',
+        end: 'bottom bottom',
+        onRefresh: (self) => setFlightProgress(self.progress),
+        onUpdate: (self) => setFlightProgress(self.progress),
+      });
 
       gsap.from('.taste-bento-card', {
         y: 76,
@@ -156,7 +217,10 @@ export function TasteLandingPage() {
         },
       });
 
-      return () => journeyTrigger.kill();
+      return () => {
+        flightTrigger.kill();
+        journeyTrigger.kill();
+      };
     },
     { dependencies: [journeySteps.length], scope: rootRef },
   );
@@ -181,41 +245,40 @@ export function TasteLandingPage() {
 
   return (
     <main className="taste-main" ref={rootRef}>
-      <section className="taste-hero" id="inicio">
-        <div className="taste-hero-media" style={{ backgroundImage: `url(${heroPlaneImage})` }} aria-hidden="true" />
-        <div className="taste-hero-wash" aria-hidden="true" />
-
-        <div className="container taste-hero-inner">
-          <div className="taste-hero-copy">
-            <h1 aria-label="Viagens raras no momento certo.">
-              <span className="taste-hero-word">Viagens raras</span>
-              <span className="taste-hero-word">no momento certo.</span>
-            </h1>
-            <p>
-              Curadoria de tarifas, pacotes e atendimento humano para transformar uma boa
-              oportunidade em uma viagem decidida com clareza.
-            </p>
-            <div className="taste-hero-actions" aria-label="Ações principais">
-              <PrimaryButton href={whatsappHref} target="_blank" rel="noreferrer" icon={<MessageCircle />}>
-                Entrar no grupo
-              </PrimaryButton>
-              <SecondaryButton href={withBasePath('/orcamento')} icon={<ArrowRight />}>
-                Planejar viagem
-              </SecondaryButton>
+      <section className="flight-window-hero" id="inicio" aria-label="Click To Fly">
+        <div className="flight-window-scroll">
+          <div className="flight-window-sticky">
+            <div className="flight-window-sky" aria-hidden="true">
+              <img className="flight-window-sky-image" src={heroSkyImage} alt="" />
+              <div className="flight-window-sky-glow" />
             </div>
-          </div>
-
-          <div className="taste-hero-panel" aria-label="Fluxo de curadoria Click To Fly">
-            <span>
-              <Sparkles />
-              Curadoria ativa
-            </span>
-            <strong>{deals[1].origin} para {deals[1].destination}</strong>
-            <p>Preço encontrado, período e economia analisados antes de chegar até você.</p>
-            <div>
-              <em>{deals[1].foundPrice}</em>
-              <small>janela acompanhada pela equipe</small>
+            <div className="flight-window-scene" aria-hidden="true">
+              <img className="flight-window-cabin" src={cabinWindowImage} alt="" />
+              <div className="flight-window-depth" />
             </div>
+            <div className="flight-window-vignette" aria-hidden="true" />
+
+            <div className="flight-window-copy">
+              <h1 className="flight-window-heading" aria-label="Click To Fly">
+                <span className="flight-window-title-left">Click To</span>
+                <span className="flight-window-title-right">Fly</span>
+              </h1>
+              <p className="flight-window-description">
+                Curadoria humana de ofertas aereas, pacotes e alertas para embarcar com
+                clareza.
+              </p>
+            </div>
+
+            <div className="flight-window-center-mark" aria-hidden="true">
+              Click To Fly
+            </div>
+            <a className="flight-window-cta" href={whatsappHref} target="_blank" rel="noreferrer">
+              <span>Entrar no grupo</span>
+              <span className="flight-window-cta-icon">
+                <Plane />
+              </span>
+            </a>
+
           </div>
         </div>
       </section>
