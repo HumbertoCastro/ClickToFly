@@ -25,3 +25,20 @@ Configure no Cloudflare Pages:
 - `FEEDBACK_EMAIL_FROM=feedback@hcwebsolutions.com.br`.
 
 O remetente precisa estar verificado no Resend antes do envio real.
+
+## Inbox privada de feedback
+
+O email recebido agora deve funcionar como notificacao curta. O detalhe real fica salvo no D1 e abre em `/feedback/admin/?submission=<id>`, usando a mesma senha admin dos previews.
+
+Setup do D1 na raiz `Z:\HCSolutions`:
+
+```powershell
+npx wrangler d1 create hc_feedback_inbox
+# copie o database_id retornado para wrangler.toml
+npx wrangler d1 migrations apply hc_feedback_inbox
+```
+
+Binding esperado:
+
+- `FEEDBACK_DB` apontando para o banco `hc_feedback_inbox`.
+- Migration em `migrations/0001_feedback_submissions.sql`.

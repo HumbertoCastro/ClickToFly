@@ -5,3 +5,11 @@ compatibility_date = "2026-05-22"
 [vars]
 FEEDBACK_EMAIL_TO = "dedebarbos@hotmail.com"
 FEEDBACK_EMAIL_FROM = "feedback@hcwebsolutions.com.br"
+
+# Replace database_id after running:
+# npx wrangler d1 create hc_feedback_inbox
+[[d1_databases]]
+binding = "FEEDBACK_DB"
+database_name = "hc_feedback_inbox"
+database_id = "2a1dca2e-e35b-44c0-9a51-1910c69f908b"
+migrations_dir = "migrations"

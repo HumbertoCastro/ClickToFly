@@ -233,6 +233,8 @@ async function buildFeedbackApp() {
     `--outDir=${relativeOutDir}`,
     '--emptyOutDir',
   ]);
+
+  await materializeFeedbackRoutes(targetDir);
 }
 
 async function materializeProjectRoutes(project, targetDir) {
@@ -252,6 +254,16 @@ async function materializeProjectRoutes(project, targetDir) {
     await mkdir(routeDir, { recursive: true });
     await copyFile(sourceIndex, routeIndex);
   }
+}
+
+async function materializeFeedbackRoutes(targetDir) {
+  const sourceIndex = path.join(targetDir, 'index.html');
+  const adminDir = path.join(targetDir, 'admin');
+  const adminIndex = path.join(adminDir, 'index.html');
+
+  assertInsideRoot(adminDir);
+  await mkdir(adminDir, { recursive: true });
+  await copyFile(sourceIndex, adminIndex);
 }
 
 function shouldInstall(projectDir) {

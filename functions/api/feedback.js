@@ -1,3 +1,7 @@
+import {
+  createFeedbackSubmission,
+  updateFeedbackEmailStatus,
+} from '../_shared/feedback-db.js';
 import { json, methodNotAllowed } from '../_shared/responses.js';
 import { verifyReviewToken } from '../_shared/token.js';
 
@@ -38,18 +42,58 @@ export async function onRequestPost({ request, env }) {
     return json({ error: validation.error }, { status: 400 });
   }
 
+  let stored;
+
+  try {
+    stored = await createFeedbackSubmission(env, validation.submission, payload);
+  } catch {
+    return json({ error: 'Nao foi possivel salvar o feedback.' }, { status: 500 });
+  }
+
+  if (!stored.ok) {
+    return json({ error: stored.error }, { status: 500 });
+  }
+
+  const adminUrl = new URL(
+    `/feedback/admin/?submission=${encodeURIComponent(stored.id)}`,
+    request.url,
+  ).toString();
   const to = env.FEEDBACK_EMAIL_TO || 'dedebarbos@hotmail.com';
   const from = env.FEEDBACK_EMAIL_FROM || 'feedback@hcwebsolutions.com.br';
-  const subject = `Feedback ${payload.projectName} - ${payload.client}`;
-  const html = renderFeedbackHtml(validation.submission, payload);
-  const text = renderFeedbackText(validation.submission, payload);
+  const subject = `Novo feedback ${payload.projectName} - ${payload.client}`;
+  const emailContext = {
+    adminUrl,
+    submissionId: stored.id,
+    createdAt: stored.createdAt,
+  };
+  const html = renderFeedbackHtml(validation.submission, payload, emailContext);
+  const text = renderFeedbackText(validation.submission, payload, emailContext);
 
   if (env.FEEDBACK_MOCK_EMAIL === '1') {
-    return json({ ok: true, messageId: 'mock-email', to, subject });
+    await updateFeedbackEmailStatus(env, stored.id, 'mock', 'mock-email');
+    return json({
+      ok: true,
+      submissionId: stored.id,
+      messageId: 'mock-email',
+      emailStatus: 'mock',
+      adminUrl,
+      to,
+      subject,
+    });
   }
 
   if (!env.RESEND_API_KEY) {
-    return json({ error: 'RESEND_API_KEY nao configurado.' }, { status: 500 });
+    await updateFeedbackEmailStatus(env, stored.id, 'error', 'missing-resend-key');
+    return json(
+      {
+        ok: true,
+        submissionId: stored.id,
+        messageId: 'stored-no-email',
+        emailStatus: 'error',
+        warning: 'RESEND_API_KEY nao configurado. Feedback salvo no painel admin.',
+      },
+      { status: 202 },
+    );
   }
 
   const resendResponse = await fetch('https://api.resend.com/emails', {
@@ -70,18 +114,27 @@ export async function onRequestPost({ request, env }) {
   const resendPayload = await resendResponse.json().catch(() => ({}));
 
   if (!resendResponse.ok) {
+    await updateFeedbackEmailStatus(env, stored.id, 'error', 'resend-error');
+
     return json(
       {
-        error:
+        ok: true,
+        submissionId: stored.id,
+        messageId: 'stored-no-email',
+        emailStatus: 'error',
+        warning:
           resendPayload?.message ||
           resendPayload?.error ||
-          'Resend recusou o envio do feedback.',
+          'Resend recusou o envio do feedback. Feedback salvo no painel admin.',
       },
-      { status: 502 },
+      { status: 202 },
     );
   }
 
-  return json({ ok: true, messageId: resendPayload.id || 'resend-email' });
+  const messageId = resendPayload.id || 'resend-email';
+  await updateFeedbackEmailStatus(env, stored.id, 'sent', messageId);
+
+  return json({ ok: true, submissionId: stored.id, messageId, emailStatus: 'sent' });
 }
 
 export function onRequestGet() {
@@ -173,6 +226,7 @@ function normalizeItem(item) {
     selector: cleanText(item.selector, 500),
     comment,
     bounds,
+    target: normalizeTarget(item.target, bounds),
     route: cleanText(item.route, 200),
     createdAt: cleanText(item.createdAt, 80),
     originalText: cleanText(item.originalText, 4000),
@@ -182,37 +236,68 @@ function normalizeItem(item) {
   };
 }
 
-function renderFeedbackHtml(submission, tokenPayload) {
-  const rows = submission.items
-    .map((item, index) => {
-      const details = [
-        item.originalText
-          ? `<p><strong>Texto atual:</strong><br>${escapeHtml(item.originalText)}</p>`
-          : '',
-        item.suggestedText
-          ? `<p><strong>Texto sugerido:</strong><br>${escapeHtml(item.suggestedText)}</p>`
-          : '',
-        item.comment ? `<p><strong>Comentario:</strong><br>${escapeHtml(item.comment)}</p>` : '',
-        item.imageSrc
-          ? `<p><strong>Imagem:</strong><br><a href="${escapeAttr(item.imageSrc)}">${escapeHtml(
-              item.imageSrc,
-            )}</a></p>`
-          : '',
-      ].join('');
+function normalizeTarget(target, fallbackBounds) {
+  if (!target || typeof target !== 'object') {
+    return undefined;
+  }
 
-      return `
-        <article style="border:1px solid #d9dee5;border-radius:8px;padding:16px;margin:0 0 14px;background:#ffffff;">
-          <h2 style="font-size:16px;margin:0 0 8px;">${index + 1}. ${escapeHtml(labelType(item.type))}</h2>
-          <p style="margin:0 0 10px;color:#68717d;">${escapeHtml(item.label)}</p>
-          ${details}
-          <p style="font-size:12px;color:#68717d;margin:12px 0 0;">Selector: ${escapeHtml(
-            item.selector,
-          )}<br>Bounds: ${item.bounds.x}, ${item.bounds.y}, ${item.bounds.width}x${
-            item.bounds.height
-          }</p>
-        </article>`;
-    })
-    .join('');
+  const selectorCandidates = Array.isArray(target.selectorCandidates)
+    ? target.selectorCandidates
+        .map((selector) => cleanText(selector, 500))
+        .filter(Boolean)
+        .slice(0, 12)
+    : [];
+  const primarySelector = cleanText(target.primarySelector, 500) || selectorCandidates[0] || '';
+  const capturedBounds = normalizeBounds(target.capturedBounds, fallbackBounds);
+  const normalized = {
+    version: 1,
+    primarySelector,
+    selectorCandidates: selectorCandidates.includes(primarySelector)
+      ? selectorCandidates
+      : [primarySelector, ...selectorCandidates].filter(Boolean).slice(0, 12),
+    sectionSelector: cleanText(target.sectionSelector, 500),
+    tagName: cleanText(target.tagName, 80).toLowerCase(),
+    textFingerprint: cleanText(target.textFingerprint, 220),
+    imageSrc: cleanText(target.imageSrc, 1000),
+    clickOffsetRatio: normalizeClickOffset(target.clickOffsetRatio),
+    capturedBounds,
+  };
+
+  if (!normalized.primarySelector && normalized.selectorCandidates.length === 0) {
+    return undefined;
+  }
+
+  return normalized;
+}
+
+function normalizeBounds(value, fallback) {
+  const bounds = {
+    x: safeNumber(value?.x),
+    y: safeNumber(value?.y),
+    width: safeNumber(value?.width),
+    height: safeNumber(value?.height),
+  };
+
+  if (bounds.width <= 0 || bounds.height <= 0) {
+    return fallback;
+  }
+
+  return bounds;
+}
+
+function normalizeClickOffset(value) {
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  return {
+    x: clampRatio(value.x),
+    y: clampRatio(value.y),
+  };
+}
+
+function renderFeedbackHtml(submission, tokenPayload, emailContext) {
+  const summary = summarizeItems(submission.items);
 
   return `<!doctype html>
 <html>
@@ -220,7 +305,7 @@ function renderFeedbackHtml(submission, tokenPayload) {
     <main style="max-width:760px;margin:0 auto;padding:24px;">
       <section style="background:#111316;color:#ffffff;border-radius:8px;padding:20px;margin-bottom:14px;">
         <p style="margin:0 0 8px;color:#cbd3df;">HC Web Solutions</p>
-        <h1 style="font-size:24px;line-height:1.15;margin:0;">Feedback de ${escapeHtml(
+        <h1 style="font-size:24px;line-height:1.15;margin:0;">Novo feedback de ${escapeHtml(
           tokenPayload.client,
         )}</h1>
         <p style="margin:12px 0 0;color:#d9dee5;">Projeto: ${escapeHtml(
@@ -230,36 +315,53 @@ function renderFeedbackHtml(submission, tokenPayload) {
       <section style="background:#ffffff;border:1px solid #d9dee5;border-radius:8px;padding:16px;margin-bottom:14px;">
         <p><strong>Revisor:</strong> ${escapeHtml(submission.reviewer.name || 'Nao informado')}</p>
         <p><strong>Email:</strong> ${escapeHtml(submission.reviewer.email || 'Nao informado')}</p>
-        <p><strong>Enviado em:</strong> ${escapeHtml(submission.createdAt)}</p>
+        <p><strong>Enviado em:</strong> ${escapeHtml(emailContext.createdAt)}</p>
         <p><strong>Viewport:</strong> ${submission.viewport.width}x${submission.viewport.height}</p>
       </section>
-      ${rows}
+      <section style="background:#ffffff;border:1px solid #d9dee5;border-radius:8px;padding:18px;margin-bottom:14px;">
+        <h2 style="font-size:18px;margin:0 0 10px;">${submission.items.length} ponto(s) de melhoria</h2>
+        <p style="margin:0 0 12px;color:#68717d;line-height:1.45;">
+          O detalhe visual esta salvo no painel privado. Abra o link abaixo para ver o site com os marcadores exatamente onde o cliente pediu alteracoes.
+        </p>
+        <p style="margin:0;color:#3a4048;line-height:1.55;">${escapeHtml(summary)}</p>
+        <p style="margin:18px 0 0;">
+          <a href="${escapeAttr(emailContext.adminUrl)}" style="display:inline-block;background:#235ed8;color:#ffffff;text-decoration:none;border-radius:8px;padding:12px 16px;font-weight:700;">
+            Abrir feedback visual
+          </a>
+        </p>
+        <p style="font-size:12px;color:#68717d;margin:14px 0 0;">ID: ${escapeHtml(emailContext.submissionId)}</p>
+      </section>
     </main>
   </body>
 </html>`;
 }
 
-function renderFeedbackText(submission, tokenPayload) {
+function renderFeedbackText(submission, tokenPayload, emailContext) {
   const lines = [
-    `Feedback de ${tokenPayload.client}`,
+    `Novo feedback de ${tokenPayload.client}`,
     `Projeto: ${tokenPayload.projectName}`,
     `Rota: ${tokenPayload.route}`,
     `Revisor: ${submission.reviewer.name || 'Nao informado'}`,
     `Email: ${submission.reviewer.email || 'Nao informado'}`,
+    `Pontos: ${submission.items.length}`,
+    `Resumo: ${summarizeItems(submission.items)}`,
+    `Abrir feedback visual: ${emailContext.adminUrl}`,
+    `ID: ${emailContext.submissionId}`,
     '',
   ];
 
-  submission.items.forEach((item, index) => {
-    lines.push(`${index + 1}. ${labelType(item.type)} - ${item.label}`);
-    if (item.originalText) lines.push(`Texto atual: ${item.originalText}`);
-    if (item.suggestedText) lines.push(`Texto sugerido: ${item.suggestedText}`);
-    if (item.comment) lines.push(`Comentario: ${item.comment}`);
-    if (item.imageSrc) lines.push(`Imagem: ${item.imageSrc}`);
-    lines.push(`Selector: ${item.selector}`);
-    lines.push('');
-  });
-
   return lines.join('\n');
+}
+
+function summarizeItems(items) {
+  const counts = items.reduce((acc, item) => {
+    acc[item.type] = (acc[item.type] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(counts)
+    .map(([type, count]) => `${count} ${labelType(type).toLowerCase()}`)
+    .join(', ');
 }
 
 function labelType(type) {
@@ -286,6 +388,16 @@ function cleanEmail(value) {
 function safeNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? Math.max(0, Math.round(number)) : 0;
+}
+
+function clampRatio(value) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return 0;
+  }
+
+  return Math.min(1, Math.max(0, Number(number.toFixed(4))));
 }
 
 function escapeHtml(value) {

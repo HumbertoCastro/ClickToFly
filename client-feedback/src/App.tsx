@@ -2,28 +2,45 @@ import {
   ArrowUpRight,
   Check,
   CircleDot,
+  Clock3,
   Eraser,
   Image as ImageIcon,
+  Inbox,
+  KeyRound,
+  ListFilter,
   Loader2,
   MessageSquare,
   MousePointer2,
   PanelLeft,
   PenLine,
+  RefreshCw,
+  Search,
   Send,
+  ShieldCheck,
   Trash2,
   Type,
   X,
 } from 'lucide-react';
+import type { FormEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { draftFromElement, isDomElement, resolveElement } from './feedbackTarget';
+import {
+  draftFromElement,
+  getElementBounds,
+  isDomElement,
+  resolveElement,
+  resolveFeedbackElement,
+} from './feedbackTarget';
 import { clearStoredDraft, loadStoredDraft, saveStoredDraft } from './storage';
 import type {
+  AdminFeedbackSubmission,
+  AdminSubmissionSummary,
   DraftFeedback,
   ElementBounds,
   FeedbackItem,
   FeedbackItemType,
   FeedbackMode,
   FeedbackSubmission,
+  FeedbackStatus,
   ReviewSession,
 } from './types';
 
@@ -31,6 +48,8 @@ type LoadState =
   | { status: 'loading' }
   | { status: 'ready'; session: ReviewSession }
   | { status: 'error'; message: string };
+
+type AdminAuthState = 'checking' | 'login' | 'ready';
 
 type Reviewer = {
   name: string;
@@ -43,6 +62,13 @@ type FrameViewport = {
   width: number;
   height: number;
   accessible: boolean;
+};
+
+type HighlightResolutionSource = 'target' | 'legacy' | 'signature' | 'fallback';
+
+type ResolvedHighlightTarget = {
+  bounds: ElementBounds;
+  source: HighlightResolutionSource;
 };
 
 const MODES: Array<{
@@ -64,12 +90,27 @@ const TYPE_LABELS: Record<FeedbackItemType, string> = {
   'image-removal': 'Remover imagem',
 };
 
+const STATUS_LABELS: Record<FeedbackStatus, string> = {
+  new: 'Novo',
+  viewed: 'Visto',
+  in_progress: 'Em andamento',
+  resolved: 'Resolvido',
+};
+
+const STATUS_OPTIONS: Array<{ value: FeedbackStatus | ''; label: string }> = [
+  { value: '', label: 'Todos' },
+  { value: 'new', label: STATUS_LABELS.new },
+  { value: 'viewed', label: STATUS_LABELS.viewed },
+  { value: 'in_progress', label: STATUS_LABELS.in_progress },
+  { value: 'resolved', label: STATUS_LABELS.resolved },
+];
+
 const EMPTY_REVIEWER: Reviewer = {
   name: '',
   email: '',
 };
 
-function App() {
+function ClientFeedbackApp() {
   const token = useMemo(() => getTokenFromLocation(), []);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const modeRef = useRef<FeedbackMode>('text');
@@ -237,7 +278,10 @@ function App() {
           return;
         }
 
-        const nextDraft = draftFromElement(event.target, activeMode, session.route);
+        const nextDraft = draftFromElement(event.target, activeMode, session.route, {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        });
 
         if (!nextDraft) {
           return;
@@ -574,11 +618,707 @@ function App() {
   );
 }
 
-function LoadingScreen() {
+function AdminFeedbackApp() {
+  const initialSubmissionId = useMemo(() => getSubmissionIdFromLocation(), []);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const metricsRafRef = useRef<number | null>(null);
+  const targetRafRef = useRef<number | null>(null);
+  const adminFrameCleanupRef = useRef<(() => void) | null>(null);
+
+  const [authState, setAuthState] = useState<AdminAuthState>('checking');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginBusy, setLoginBusy] = useState(false);
+  const [submissions, setSubmissions] = useState<AdminSubmissionSummary[]>([]);
+  const [selectedId, setSelectedId] = useState(initialSubmissionId);
+  const [detail, setDetail] = useState<AdminFeedbackSubmission | null>(null);
+  const [activeItemId, setActiveItemId] = useState('');
+  const [filters, setFilters] = useState<{ status: FeedbackStatus | ''; project: string }>({
+    status: '',
+    project: '',
+  });
+  const [listState, setListState] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [detailState, setDetailState] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [adminMessage, setAdminMessage] = useState('');
+  const [resolvedTargets, setResolvedTargets] = useState<Record<string, ResolvedHighlightTarget>>(
+    {},
+  );
+  const [frameViewport, setFrameViewport] = useState<FrameViewport>({
+    scrollX: 0,
+    scrollY: 0,
+    width: 0,
+    height: 0,
+    accessible: true,
+  });
+
+  const selectedSummary = useMemo(
+    () => submissions.find((submission) => submission.id === selectedId) || null,
+    [selectedId, submissions],
+  );
+
+  const resolveAdminTargets = useCallback(() => {
+    const iframe = iframeRef.current;
+
+    if (!iframe || !detail) {
+      setResolvedTargets({});
+      return;
+    }
+
+    if (targetRafRef.current !== null) {
+      window.cancelAnimationFrame(targetRafRef.current);
+    }
+
+    targetRafRef.current = window.requestAnimationFrame(() => {
+      targetRafRef.current = null;
+
+      try {
+        const doc = iframe.contentDocument;
+
+        if (!doc) {
+          throw new Error('Frame indisponivel.');
+        }
+
+        const nextTargets = detail.items.reduce<Record<string, ResolvedHighlightTarget>>(
+          (acc, item) => {
+            const resolution = resolveFeedbackElement(item, doc);
+            const bounds = resolution.element ? getElementBounds(resolution.element) : null;
+
+            acc[item.id] = bounds
+              ? {
+                  bounds,
+                  source: resolution.source,
+                }
+              : {
+                  bounds: item.bounds,
+                  source: 'fallback',
+                };
+
+            return acc;
+          },
+          {},
+        );
+
+        setResolvedTargets(nextTargets);
+      } catch {
+        setFrameViewport((current) => ({ ...current, accessible: false }));
+        setResolvedTargets(
+          detail.items.reduce<Record<string, ResolvedHighlightTarget>>((acc, item) => {
+            acc[item.id] = {
+              bounds: item.bounds,
+              source: 'fallback',
+            };
+
+            return acc;
+          }, {}),
+        );
+      }
+    });
+  }, [detail]);
+
+  const updateFrameMetrics = useCallback(() => {
+    const iframe = iframeRef.current;
+
+    if (!iframe) {
+      return;
+    }
+
+    if (metricsRafRef.current !== null) {
+      window.cancelAnimationFrame(metricsRafRef.current);
+    }
+
+    metricsRafRef.current = window.requestAnimationFrame(() => {
+      metricsRafRef.current = null;
+
+      try {
+        const frameWindow = iframe.contentWindow;
+
+        setFrameViewport({
+          scrollX: Math.round(frameWindow?.scrollX || 0),
+          scrollY: Math.round(frameWindow?.scrollY || 0),
+          width: Math.round(frameWindow?.innerWidth || iframe.clientWidth),
+          height: Math.round(frameWindow?.innerHeight || iframe.clientHeight),
+          accessible: true,
+        });
+      } catch {
+        setFrameViewport((current) => ({ ...current, accessible: false }));
+      }
+    });
+  }, []);
+
+  const refreshAdminFrame = useCallback(() => {
+    updateFrameMetrics();
+    resolveAdminTargets();
+  }, [resolveAdminTargets, updateFrameMetrics]);
+
+  const attachAdminFrameHandlers = useCallback(() => {
+    adminFrameCleanupRef.current?.();
+    adminFrameCleanupRef.current = null;
+
+    const iframe = iframeRef.current;
+
+    if (!iframe || !detail) {
+      return;
+    }
+
+    try {
+      const doc = iframe.contentDocument;
+      const win = iframe.contentWindow;
+
+      if (!doc || !win) {
+        throw new Error('Frame indisponivel.');
+      }
+
+      const scheduleRefresh = () => refreshAdminFrame();
+      const imageElements = Array.from(doc.images).filter((image) => !image.complete);
+
+      scheduleRefresh();
+      window.setTimeout(scheduleRefresh, 80);
+      window.setTimeout(scheduleRefresh, 320);
+      void doc.fonts?.ready.then(scheduleRefresh).catch(() => {});
+
+      win.addEventListener('scroll', scheduleRefresh, { passive: true });
+      win.addEventListener('resize', scheduleRefresh);
+      imageElements.forEach((image) => {
+        image.addEventListener('load', scheduleRefresh);
+        image.addEventListener('error', scheduleRefresh);
+      });
+
+      adminFrameCleanupRef.current = () => {
+        win.removeEventListener('scroll', scheduleRefresh);
+        win.removeEventListener('resize', scheduleRefresh);
+        imageElements.forEach((image) => {
+          image.removeEventListener('load', scheduleRefresh);
+          image.removeEventListener('error', scheduleRefresh);
+        });
+      };
+    } catch {
+      setFrameViewport((current) => ({ ...current, accessible: false }));
+    }
+  }, [detail, refreshAdminFrame]);
+
+  const updateSubmissionStatus = useCallback(
+    async (id: string, status: FeedbackStatus, replaceDetail = true) => {
+      setAdminMessage('');
+
+      try {
+        const response = await fetch('/api/admin/feedback-submissions/status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({ id, status }),
+        });
+        const payload = (await response.json().catch(() => ({}))) as {
+          submission?: AdminFeedbackSubmission;
+          error?: string;
+        };
+
+        if (!response.ok || !payload.submission) {
+          throw new Error(payload.error || 'Nao foi possivel atualizar o status.');
+        }
+
+        if (replaceDetail) {
+          setDetail(payload.submission);
+        }
+
+        setSubmissions((current) =>
+          current.map((entry) =>
+            entry.id === payload.submission?.id
+              ? {
+                  ...entry,
+                  status: payload.submission.status,
+                  viewedAt: payload.submission.viewedAt,
+                  resolvedAt: payload.submission.resolvedAt,
+                }
+              : entry,
+          ),
+        );
+      } catch (error) {
+        setAdminMessage(
+          error instanceof Error ? error.message : 'Nao foi possivel atualizar o status.',
+        );
+      }
+    },
+    [],
+  );
+
+  const loadList = useCallback(async () => {
+    setListState('loading');
+    setAdminMessage('');
+
+    try {
+      const params = new URLSearchParams({ limit: '80' });
+
+      if (filters.status) {
+        params.set('status', filters.status);
+      }
+
+      if (filters.project.trim()) {
+        params.set('project', filters.project.trim());
+      }
+
+      const response = await fetch(`/api/admin/feedback-submissions?${params.toString()}`, {
+        headers: { Accept: 'application/json' },
+        credentials: 'same-origin',
+      });
+      const payload = (await response.json().catch(() => ({}))) as {
+        submissions?: AdminSubmissionSummary[];
+        error?: string;
+      };
+
+      if (!response.ok || !Array.isArray(payload.submissions)) {
+        throw new Error(payload.error || 'Nao foi possivel carregar a inbox.');
+      }
+
+      setSubmissions(payload.submissions);
+
+      if (!selectedId && payload.submissions[0]) {
+        setSelectedId(payload.submissions[0].id);
+      }
+
+      setListState('idle');
+    } catch (error) {
+      setListState('error');
+      setAdminMessage(error instanceof Error ? error.message : 'Nao foi possivel carregar a inbox.');
+    }
+  }, [filters.project, filters.status, selectedId]);
+
+  const loadDetail = useCallback(
+    async (id: string) => {
+      setDetailState('loading');
+      setAdminMessage('');
+
+      try {
+        const response = await fetch(
+          `/api/admin/feedback-submissions?id=${encodeURIComponent(id)}`,
+          {
+            headers: { Accept: 'application/json' },
+            credentials: 'same-origin',
+          },
+        );
+        const payload = (await response.json().catch(() => ({}))) as {
+          submission?: AdminFeedbackSubmission;
+          error?: string;
+        };
+
+        if (!response.ok || !payload.submission) {
+          throw new Error(payload.error || 'Nao foi possivel abrir este feedback.');
+        }
+
+        setDetail(payload.submission);
+        setActiveItemId(payload.submission.items[0]?.id || '');
+        setDetailState('idle');
+
+        if (payload.submission.status === 'new') {
+          void updateSubmissionStatus(payload.submission.id, 'viewed');
+        }
+      } catch (error) {
+        setDetailState('error');
+        setAdminMessage(
+          error instanceof Error ? error.message : 'Nao foi possivel abrir este feedback.',
+        );
+      }
+    },
+    [updateSubmissionStatus],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkSession() {
+      try {
+        const response = await fetch('/api/admin/session', {
+          headers: { Accept: 'application/json' },
+          credentials: 'same-origin',
+        });
+        const payload = (await response.json().catch(() => ({}))) as {
+          authenticated?: boolean;
+        };
+
+        if (!cancelled) {
+          setAuthState(response.ok && payload.authenticated ? 'ready' : 'login');
+        }
+      } catch {
+        if (!cancelled) {
+          setAuthState('login');
+        }
+      }
+    }
+
+    void checkSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (authState !== 'ready') {
+      return;
+    }
+
+    void loadList();
+  }, [authState, loadList]);
+
+  useEffect(() => {
+    if (authState !== 'ready' || !selectedId) {
+      return;
+    }
+
+    void loadDetail(selectedId);
+  }, [authState, loadDetail, selectedId]);
+
+  useEffect(() => {
+    setResolvedTargets({});
+    adminFrameCleanupRef.current?.();
+    adminFrameCleanupRef.current = null;
+
+    if (!detail) {
+      return undefined;
+    }
+
+    const timeout = window.setTimeout(attachAdminFrameHandlers, 0);
+
+    return () => {
+      window.clearTimeout(timeout);
+      adminFrameCleanupRef.current?.();
+      adminFrameCleanupRef.current = null;
+
+      if (targetRafRef.current !== null) {
+        window.cancelAnimationFrame(targetRafRef.current);
+        targetRafRef.current = null;
+      }
+    };
+  }, [attachAdminFrameHandlers, detail?.id]);
+
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoginBusy(true);
+    setLoginError('');
+
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ password }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.error || 'Nao foi possivel entrar.');
+      }
+
+      setPassword('');
+      setAuthState('ready');
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message : 'Nao foi possivel entrar.');
+    } finally {
+      setLoginBusy(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await fetch('/api/admin/logout', {
+      method: 'POST',
+      credentials: 'same-origin',
+    }).catch(() => {});
+    setAuthState('login');
+    setDetail(null);
+    setSubmissions([]);
+  };
+
+  const selectItem = (item: FeedbackItem) => {
+    setActiveItemId(item.id);
+
+    try {
+      const doc = iframeRef.current?.contentDocument;
+      const resolution = doc ? resolveFeedbackElement(item, doc) : null;
+
+      if (resolution?.element) {
+        resolution.element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest',
+        });
+      } else {
+        iframeRef.current?.contentWindow?.scrollTo({
+          top: Math.max(item.bounds.y - 96, 0),
+          behavior: 'smooth',
+        });
+      }
+
+      window.setTimeout(refreshAdminFrame, 160);
+      window.setTimeout(refreshAdminFrame, 360);
+    } catch {
+      setFrameViewport((current) => ({ ...current, accessible: false }));
+    }
+  };
+
+  const visibleHighlights = useMemo(() => {
+    if (!detail) {
+      return [];
+    }
+
+    return detail.items.map((item, index) => ({
+      id: item.id,
+      index: index + 1,
+      type: item.type,
+      bounds: resolvedTargets[item.id]?.bounds || item.bounds,
+      source: resolvedTargets[item.id]?.source || 'fallback',
+      active: item.id === activeItemId,
+    }));
+  }, [activeItemId, detail, resolvedTargets]);
+
+  if (authState === 'checking') {
+    return <LoadingScreen label="Validando acesso privado" />;
+  }
+
+  if (authState === 'login') {
+    return (
+      <AdminLoginScreen
+        busy={loginBusy}
+        error={loginError}
+        password={password}
+        onPasswordChange={setPassword}
+        onSubmit={handleLogin}
+      />
+    );
+  }
+
+  return (
+    <main className="admin-shell">
+      <aside className="admin-inbox" aria-label="Inbox de feedbacks">
+        <header className="admin-brand">
+          <span className="brand-mark">HC</span>
+          <div>
+            <p>Feedback privado</p>
+            <strong>Inbox visual</strong>
+          </div>
+          <button type="button" className="admin-icon-button" onClick={handleLogout} aria-label="Sair">
+            <X size={18} />
+          </button>
+        </header>
+
+        <section className="admin-filter-panel" aria-label="Filtros">
+          <label>
+            <span>
+              <ListFilter size={14} aria-hidden="true" />
+              Status
+            </span>
+            <select
+              value={filters.status}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  status: event.target.value as FeedbackStatus | '',
+                }))
+              }
+            >
+              {STATUS_OPTIONS.map((option) => (
+                <option key={option.value || 'all'} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>
+              <Search size={14} aria-hidden="true" />
+              Projeto
+            </span>
+            <input
+              value={filters.project}
+              onChange={(event) =>
+                setFilters((current) => ({ ...current, project: event.target.value }))
+              }
+              placeholder="clicktofly"
+            />
+          </label>
+          <button type="button" className="admin-refresh-button" onClick={() => void loadList()}>
+            <RefreshCw size={16} className={listState === 'loading' ? 'spin' : ''} />
+            Atualizar
+          </button>
+        </section>
+
+        <section className="admin-list" aria-label="Feedbacks recebidos">
+          <div className="admin-list-title">
+            <span>
+              <Inbox size={15} aria-hidden="true" />
+              Recebidos
+            </span>
+            <strong>{submissions.length}</strong>
+          </div>
+
+          {submissions.length === 0 ? (
+            <div className="admin-empty">
+              <Inbox size={22} aria-hidden="true" />
+              <p>{listState === 'loading' ? 'Carregando feedbacks.' : 'Nenhum feedback encontrado.'}</p>
+            </div>
+          ) : (
+            <div className="admin-submission-stack">
+              {submissions.map((submission) => (
+                <button
+                  key={submission.id}
+                  type="button"
+                  className={`admin-submission-card ${
+                    submission.id === selectedId ? 'is-selected' : ''
+                  } status-${submission.status}`}
+                  onClick={() => setSelectedId(submission.id)}
+                >
+                  <span className="submission-status">{STATUS_LABELS[submission.status]}</span>
+                  <strong>{submission.client}</strong>
+                  <span>{submission.projectName}</span>
+                  <small>
+                    {submission.itemCount} ponto(s) - {formatIsoDate(submission.createdAt)}
+                  </small>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      </aside>
+
+      <section className="admin-detail" aria-label="Detalhe visual do feedback">
+        <header className="admin-detail-toolbar">
+          <div>
+            <p>Feedback recebido</p>
+            <h1>{detail?.client || selectedSummary?.client || 'Selecione um feedback'}</h1>
+          </div>
+          {detail ? (
+            <div className="admin-toolbar-actions">
+              <select
+                value={detail.status}
+                onChange={(event) =>
+                  void updateSubmissionStatus(detail.id, event.target.value as FeedbackStatus)
+                }
+                aria-label="Alterar status"
+              >
+                {STATUS_OPTIONS.filter((option) => option.value).map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <a href={detail.previewUrl} target="_blank" rel="noreferrer" className="admin-open-link">
+                <ArrowUpRight size={16} />
+                Preview
+              </a>
+            </div>
+          ) : null}
+        </header>
+
+        {adminMessage ? <p className="admin-alert">{adminMessage}</p> : null}
+
+        {!detail && detailState !== 'loading' ? (
+          <section className="admin-detail-empty">
+            <ShieldCheck size={28} aria-hidden="true" />
+            <strong>Escolha um feedback na inbox</strong>
+            <p>O detalhe abre com o preview do site e os pontos marcados pelo cliente.</p>
+          </section>
+        ) : null}
+
+        {detailState === 'loading' ? (
+          <section className="admin-detail-empty">
+            <Loader2 className="spin" size={28} aria-hidden="true" />
+            <strong>Carregando feedback visual</strong>
+          </section>
+        ) : null}
+
+        {detail && detailState !== 'loading' ? (
+          <div className="admin-workspace">
+            <section className="admin-preview-column">
+              <div className="admin-meta-row">
+                <span>
+                  <Clock3 size={14} aria-hidden="true" />
+                  {formatIsoDate(detail.createdAt)}
+                </span>
+                <span>{detail.projectName}</span>
+                <span>{detail.route}</span>
+                <span>{detail.itemCount} ponto(s)</span>
+              </div>
+
+              <div className="admin-preview-frame">
+                <iframe
+                  ref={iframeRef}
+                  title={`Feedback ${detail.projectName}`}
+                  src={detail.previewUrl}
+                  onLoad={attachAdminFrameHandlers}
+                />
+
+                <div className="overlay-layer" aria-hidden="true">
+                  {visibleHighlights.map((marker) => (
+                    <div
+                      key={marker.id}
+                      className={`highlight highlight-${marker.type} ${
+                        marker.active ? 'is-active' : ''
+                      } ${marker.source === 'fallback' ? 'is-fallback' : ''}`}
+                      style={boundsToStyle(marker.bounds, frameViewport)}
+                    >
+                      <span>{marker.index}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <aside className="admin-item-panel" aria-label="Pedidos do cliente">
+              <div className="admin-reviewer-card">
+                <span>Cliente/revisor</span>
+                <strong>{detail.reviewer.name || detail.client}</strong>
+                <p>{detail.reviewer.email || 'Email nao informado'}</p>
+              </div>
+
+              <div className="admin-item-stack">
+                {detail.items.map((item, index) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`admin-item-card card-${item.type} ${
+                      item.id === activeItemId ? 'is-active' : ''
+                    }`}
+                    onClick={() => selectItem(item)}
+                  >
+                    <span className="admin-item-index">{index + 1}</span>
+                    <div>
+                      <strong>{TYPE_LABELS[item.type]}</strong>
+                      <p>{item.label}</p>
+                    </div>
+                    {item.suggestedText ? <blockquote>{item.suggestedText}</blockquote> : null}
+                    {item.comment ? <p className="admin-item-comment">{item.comment}</p> : null}
+                    {item.imageSrc ? <small>Imagem: {shorten(item.imageSrc, 92)}</small> : null}
+                    <small className="admin-target-state">
+                      Ancoragem:{' '}
+                      {resolvedTargets[item.id]?.source === 'target'
+                        ? 'DOM atual'
+                        : resolvedTargets[item.id]?.source === 'legacy'
+                          ? 'selector legado'
+                          : resolvedTargets[item.id]?.source === 'signature'
+                            ? 'assinatura do elemento'
+                            : 'coordenada salva'}
+                    </small>
+                    <small>
+                      Selector: {shorten(item.selector, 120)} | Bounds: {item.bounds.x},{' '}
+                      {item.bounds.y}, {item.bounds.width}x{item.bounds.height}
+                    </small>
+                  </button>
+                ))}
+              </div>
+            </aside>
+          </div>
+        ) : null}
+      </section>
+    </main>
+  );
+}
+
+function LoadingScreen({ label = 'Validando revisao' }: { label?: string }) {
   return (
     <div className="state-screen">
       <Loader2 className="spin" size={28} aria-hidden="true" />
-      <strong>Validando revisao</strong>
+      <strong>{label}</strong>
     </div>
   );
 }
@@ -590,6 +1330,52 @@ function ErrorScreen({ message }: { message: string }) {
       <strong>Revisao indisponivel</strong>
       <p>{message}</p>
     </div>
+  );
+}
+
+function AdminLoginScreen({
+  busy,
+  error,
+  password,
+  onPasswordChange,
+  onSubmit,
+}: {
+  busy: boolean;
+  error: string;
+  password: string;
+  onPasswordChange: (value: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  return (
+    <main className="admin-login-shell">
+      <section className="admin-login-card">
+        <span className="admin-login-mark">
+          <ShieldCheck size={24} aria-hidden="true" />
+        </span>
+        <p>Area privada</p>
+        <h1>Inbox visual de feedbacks</h1>
+        <form onSubmit={onSubmit}>
+          <label>
+            <span>
+              <KeyRound size={14} aria-hidden="true" />
+              Senha admin
+            </span>
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => onPasswordChange(event.target.value)}
+              required
+            />
+          </label>
+          <button type="submit" className="admin-login-button" disabled={busy}>
+            {busy ? <Loader2 className="spin" size={18} /> : <ShieldCheck size={18} />}
+            Entrar
+          </button>
+          {error ? <p className="admin-login-error">{error}</p> : null}
+        </form>
+      </section>
+    </main>
   );
 }
 
@@ -774,6 +1560,14 @@ function getTokenFromLocation() {
   return new URLSearchParams(window.location.search).get('token') || '';
 }
 
+function getSubmissionIdFromLocation() {
+  return new URLSearchParams(window.location.search).get('submission') || '';
+}
+
+function isAdminRoute() {
+  return window.location.pathname.replace(/\/+$/, '').endsWith('/feedback/admin');
+}
+
 function formatDate(value: number) {
   return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
@@ -782,8 +1576,34 @@ function formatDate(value: number) {
   }).format(new Date(value * 1000));
 }
 
+function formatIsoDate(value: string) {
+  if (!value) {
+    return 'Data indisponivel';
+  }
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(value));
+}
+
+function shorten(value: string, maxLength: number) {
+  if (!value || value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, maxLength - 1)}...`;
+}
+
 function createId() {
   return globalThis.crypto?.randomUUID?.() || `feedback-${Date.now()}-${Math.random()}`;
+}
+
+function App() {
+  return isAdminRoute() ? <AdminFeedbackApp /> : <ClientFeedbackApp />;
 }
 
 export default App;

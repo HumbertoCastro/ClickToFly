@@ -6,11 +6,28 @@ export type FeedbackItemType =
   | 'image-comment'
   | 'image-removal';
 
+export type FeedbackStatus = 'new' | 'viewed' | 'in_progress' | 'resolved';
+
 export type ElementBounds = {
   x: number;
   y: number;
   width: number;
   height: number;
+};
+
+export type FeedbackTarget = {
+  version: 1;
+  primarySelector: string;
+  selectorCandidates: string[];
+  sectionSelector?: string;
+  tagName: string;
+  textFingerprint?: string;
+  imageSrc?: string;
+  clickOffsetRatio?: {
+    x: number;
+    y: number;
+  };
+  capturedBounds: ElementBounds;
 };
 
 export type FeedbackItem = {
@@ -20,6 +37,7 @@ export type FeedbackItem = {
   selector: string;
   comment: string;
   bounds: ElementBounds;
+  target?: FeedbackTarget;
   route: string;
   createdAt: string;
   originalText?: string;
@@ -42,6 +60,34 @@ export type FeedbackSubmission = {
   };
   items: FeedbackItem[];
   createdAt: string;
+};
+
+export type AdminSubmissionSummary = {
+  id: string;
+  projectSlug: string;
+  projectName: string;
+  client: string;
+  route: string;
+  reviewer: {
+    name: string;
+    email: string;
+  };
+  itemCount: number;
+  status: FeedbackStatus;
+  createdAt: string;
+  viewedAt: string;
+  resolvedAt: string;
+  emailStatus: string;
+  emailMessageId: string;
+};
+
+export type AdminFeedbackSubmission = AdminSubmissionSummary & {
+  previewUrl: string;
+  viewport: {
+    width: number;
+    height: number;
+  };
+  items: FeedbackItem[];
 };
 
 export type ReviewSession = {
