@@ -11,6 +11,7 @@ Este projeto raiz gera um pacote unico para Cloudflare Pages em `preview-dist`.
 - `https://preview.hcwebsolutions.com.br/projetos/sua-saude/`
 - `https://preview.hcwebsolutions.com.br/projetos/dois-irmaos/`
 - `https://preview.hcwebsolutions.com.br/projetos/analitica/`
+- `https://preview.hcwebsolutions.com.br/projetos/dublin9/`
 - `https://preview.hcwebsolutions.com.br/feedback/?token=<token>`
 
 ## Cloudflare Pages
@@ -136,6 +137,68 @@ Configure no Cloudflare Pages:
 
 O remetente `FEEDBACK_EMAIL_FROM` precisa estar verificado no Resend.
 Clientes nao precisam da senha admin; eles recebem apenas `/feedback/?token=<token>`.
+
+## Portal de edicao do cliente
+
+O portal autenticado para clientes fica em:
+
+```txt
+https://preview.hcwebsolutions.com.br/feedback/client/
+```
+
+Ele e separado do feedback por token. O cliente entra com email/senha via Supabase Auth, ve apenas os projetos liberados em `client_project_access` e publica somente campos declarados em `editable_fields`.
+
+Configure no build local do app `client-feedback`:
+
+```txt
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_ANON_KEY=sua-chave-anon-publica
+```
+
+Configure no Cloudflare Pages:
+
+- `SUPABASE_URL`
+- `SUPABASE_JWT_AUDIENCE=authenticated`, opcional
+- `SUPABASE_REQUIRE_AAL2=1`, opcional para exigir MFA AAL2
+- binding R2 `CLIENT_ASSETS_BUCKET` para o bucket `hc-client-assets`
+
+Crie o bucket e aplique as migrations:
+
+```powershell
+npx wrangler r2 bucket create hc-client-assets
+npx wrangler d1 migrations apply hc_feedback_inbox
+```
+
+Se o deploy falhar com:
+
+```txt
+Failed to publish your Function. Got error: R2 bucket 'hc-client-assets' not found.
+```
+
+isso significa que o `wrangler.toml` esta declarando o binding R2
+`CLIENT_ASSETS_BUCKET`, mas o bucket ainda nao existe na conta Cloudflare usada
+pelo deploy. A Cloudflare valida os bindings das Pages Functions durante o
+publish inteiro, mesmo em deploy parcial como `npm run deploy:previews --
+dublin9`.
+
+Para resolver definitivamente, crie o bucket com um token que tenha permissao
+Account > Workers R2 Storage > Write e depois mantenha o binding no
+`wrangler.toml`:
+
+```toml
+[[r2_buckets]]
+binding = "CLIENT_ASSETS_BUCKET"
+bucket_name = "hc-client-assets"
+```
+
+Se o token atual retornar `Authentication error [code: 10000]` ao listar ou
+criar buckets R2, ele nao tem permissao R2 suficiente. Nesse caso, remova ou
+deixe fora temporariamente o bloco `[[r2_buckets]]` do `wrangler.toml` para
+publicar as landings e o feedback sem upload de assets do portal do cliente. As
+rotas de assets do portal respondem erro controlado enquanto o binding nao
+existir.
+
+O deploy nao roda a cada edicao. As paginas publicadas recebem `hc-content-runtime.js`, que busca `/api/public/content?project=<slug>` e aplica apenas os campos aprovados no manifesto.
 
 ## Protecao
 
