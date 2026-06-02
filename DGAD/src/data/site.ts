@@ -204,6 +204,23 @@ export const videos: VideoAsset[] = [
   },
 ];
 
+export const customerFeedbackVideos: VideoAsset[] = [
+  {
+    id: "feedback-cliente-01",
+    title: "Cliente satisfeito",
+    description: "Depoimento em vídeo enviado por cliente sobre a experiência com o Código do Guerreiro.",
+    src: toAssetUrl("/assets/feedbacks/depoimento-cliente-01.mp4"),
+    poster: toAssetUrl("/assets/dgad-proof-01.jpeg"),
+  },
+  {
+    id: "feedback-cliente-02",
+    title: "Relato de aplicação",
+    description: "Feedback em vídeo de cliente satisfeito, preservado como prova social direta dentro da página.",
+    src: toAssetUrl("/assets/feedbacks/depoimento-cliente-02.mp4"),
+    poster: toAssetUrl("/assets/dgad-proof-03.jpeg"),
+  },
+];
+
 export const stickyChapters = [
   {
     title: "Motivação falha.",

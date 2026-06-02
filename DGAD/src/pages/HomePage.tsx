@@ -22,7 +22,7 @@ import { LandingHero } from "@/components/landing/LandingHero";
 import { LandingOfferSection } from "@/components/landing/LandingOfferSection";
 import { LandingPracticeTimeline } from "@/components/landing/LandingPracticeTimeline";
 import { Reveal } from "@/components/Reveal";
-import { mediaAssets, offer, pillars, videos } from "@/data/site";
+import { customerFeedbackVideos, mediaAssets, offer, pillars } from "@/data/site";
 import { toAppHref } from "@/lib/routing";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -176,6 +176,7 @@ const faqs = [
 export function HomePage() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [activeBook, setActiveBook] = useState<number | null>(null);
+  const [activeFeedbackVideo, setActiveFeedbackVideo] = useState<string | null>(null);
   const selectedBook = activeBook === null ? null : ebookPreviews[activeBook];
 
   const renderEbookCard = (book: EbookPreview, index: number, clone = false) => {
@@ -551,22 +552,41 @@ export function HomePage() {
       <section className="lf-section proof-section" aria-labelledby="proof-title">
         <Reveal className="lf-section__headline">
           <p className="section-kicker">Provas sociais</p>
-          <h2 id="proof-title">Mostre o que mudou, não apenas quem gostou.</h2>
-          <p>Vídeos, prints e comentários entram como evidências rápidas para reforçar a decisão.</p>
+          <h2 id="proof-title">Feedbacks reais de clientes satisfeitos.</h2>
+          <p>Relatos em vídeo e comentários curtos entram como evidência direta antes da decisão.</p>
         </Reveal>
-        <div className="proof-grid">
-          {videos.slice(0, 3).map((video) => (
-            <article key={video.id} className="proof-video motion-scale">
-              <video
-                aria-label={video.title}
-                controls
-                controlsList="nodownload"
-                playsInline
-                preload="metadata"
-                poster={video.poster}
-                src={video.src}
-              />
-              <div>
+        <div className="proof-grid proof-grid--feedback">
+          {customerFeedbackVideos.map((video) => (
+            <article key={video.id} className="proof-video proof-video--feedback motion-scale">
+              <div className="proof-video__media">
+                {activeFeedbackVideo === video.id ? (
+                  <video
+                    aria-label={video.title}
+                    autoPlay
+                    controls
+                    controlsList="nodownload"
+                    playsInline
+                    preload="metadata"
+                    poster={video.poster}
+                  >
+                    <source src={video.src} type="video/mp4" />
+                  </video>
+                ) : (
+                  <button
+                    type="button"
+                    className="proof-video__poster"
+                    onClick={() => setActiveFeedbackVideo(video.id)}
+                    aria-label={`Assistir ${video.title}`}
+                  >
+                    <img src={video.poster} alt="" loading="lazy" decoding="async" />
+                    <span className="proof-video__play">
+                      <CirclePlay aria-hidden="true" />
+                      Assistir feedback
+                    </span>
+                  </button>
+                )}
+              </div>
+              <div className="proof-video__copy">
                 <h3>{video.title}</h3>
                 <p>{video.description}</p>
               </div>

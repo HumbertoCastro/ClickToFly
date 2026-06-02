@@ -31,6 +31,7 @@ import {
   resolveFeedbackElement,
 } from './feedbackTarget';
 import { clearStoredDraft, loadStoredDraft, saveStoredDraft } from './storage';
+import { ClientPortalApp } from './ClientPortal';
 import type {
   AdminFeedbackSubmission,
   AdminSubmissionSummary,
@@ -1568,6 +1569,10 @@ function isAdminRoute() {
   return window.location.pathname.replace(/\/+$/, '').endsWith('/feedback/admin');
 }
 
+function isClientPortalRoute() {
+  return window.location.pathname.replace(/\/+$/, '').endsWith('/feedback/client');
+}
+
 function formatDate(value: number) {
   return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
@@ -1603,6 +1608,10 @@ function createId() {
 }
 
 function App() {
+  if (isClientPortalRoute()) {
+    return <ClientPortalApp />;
+  }
+
   return isAdminRoute() ? <AdminFeedbackApp /> : <ClientFeedbackApp />;
 }
 

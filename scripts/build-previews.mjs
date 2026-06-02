@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { renderClientContentRuntime } from './render-client-content-runtime.mjs';
 import { renderAdminIndex } from './render-admin-index.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -79,6 +80,7 @@ for (const project of selectedProjects) {
   ]);
 
   await materializeProjectRoutes(project, targetDir);
+  await installClientContentRuntime(project, targetDir, projectBase);
 }
 
 await buildFeedbackApp();
@@ -260,10 +262,47 @@ async function materializeFeedbackRoutes(targetDir) {
   const sourceIndex = path.join(targetDir, 'index.html');
   const adminDir = path.join(targetDir, 'admin');
   const adminIndex = path.join(adminDir, 'index.html');
+  const clientDir = path.join(targetDir, 'client');
+  const clientIndex = path.join(clientDir, 'index.html');
 
   assertInsideRoot(adminDir);
+  assertInsideRoot(clientDir);
   await mkdir(adminDir, { recursive: true });
+  await mkdir(clientDir, { recursive: true });
   await copyFile(sourceIndex, adminIndex);
+  await copyFile(sourceIndex, clientIndex);
+}
+
+async function installClientContentRuntime(project, targetDir, projectBase) {
+  const runtimeName = 'hc-content-runtime.js';
+  const runtimePath = path.join(targetDir, runtimeName);
+  const scriptTag = `<script src="${withTrailingSlash(projectBase)}${runtimeName}" defer></script>`;
+  const indexPaths = [
+    path.join(targetDir, 'index.html'),
+    ...(project.routes || []).map((route) =>
+      path.join(targetDir, trimSlashes(route), 'index.html'),
+    ),
+  ];
+
+  await writeFile(runtimePath, renderClientContentRuntime(project.slug), 'utf8');
+
+  for (const indexPath of indexPaths) {
+    if (!existsSync(indexPath)) {
+      continue;
+    }
+
+    const html = await readFile(indexPath, 'utf8');
+
+    if (html.includes(runtimeName)) {
+      continue;
+    }
+
+    const nextHtml = html.includes('</body>')
+      ? html.replace('</body>', `  ${scriptTag}\n  </body>`)
+      : `${html}\n${scriptTag}\n`;
+
+    await writeFile(indexPath, nextHtml, 'utf8');
+  }
 }
 
 function shouldInstall(projectDir) {

@@ -58,6 +58,12 @@
       "routes": [
         "/produtos"
       ]
+    },
+    {
+      "slug": "dublin9",
+      "name": "Dublin 9",
+      "description": "Landing page premium de divulgacao da Dublin 9.",
+      "dir": "dublin9-landing"
     }
   ]
 }
