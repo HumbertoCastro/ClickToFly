@@ -2,6 +2,7 @@ import { Menu, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { navItems, offer } from "@/data/site";
+import { getRoutePathFromHref, toAppHref } from "@/lib/routing";
 
 type SiteHeaderProps = {
   currentPath: string;
@@ -9,11 +10,12 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ currentPath }: SiteHeaderProps) {
   const [open, setOpen] = useState(false);
+  const isActiveLink = (href: string) => !href.includes("#") && currentPath === getRoutePathFromHref(href);
 
   return (
     <header className="fixed inset-x-0 top-0 isolate z-40 border-b border-border/60 bg-background/78 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <a href="/" className="group flex items-center gap-3" aria-label="Ir para a home DGAD">
+        <a href={toAppHref("/")} className="group flex items-center gap-3" aria-label="Ir para a home DGAD">
           <span className="brand-sigil">Δ</span>
           <span className="flex flex-col leading-none">
             <strong className="font-serif text-lg tracking-[0.16em] text-primary">DGAD</strong>
@@ -27,8 +29,8 @@ export function SiteHeader({ currentPath }: SiteHeaderProps) {
           {navItems.map((item) => (
             <a
               key={item.href}
-              href={item.href}
-              className={currentPath === item.href ? "nav-link nav-link--active" : "nav-link"}
+              href={toAppHref(item.href)}
+              className={isActiveLink(item.href) ? "nav-link nav-link--active" : "nav-link"}
             >
               {item.label}
             </a>
@@ -64,8 +66,10 @@ export function SiteHeader({ currentPath }: SiteHeaderProps) {
             {navItems.map((item) => (
               <a
                 key={item.href}
-                href={item.href}
-                className={currentPath === item.href ? "mobile-nav-link mobile-nav-link--active" : "mobile-nav-link"}
+                href={toAppHref(item.href)}
+                className={
+                  isActiveLink(item.href) ? "mobile-nav-link mobile-nav-link--active" : "mobile-nav-link"
+                }
                 onClick={() => setOpen(false)}
               >
                 {item.label}

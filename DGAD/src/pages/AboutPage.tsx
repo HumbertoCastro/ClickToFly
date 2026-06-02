@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { OfferPanel } from "@/components/OfferPanel";
 import { Reveal } from "@/components/Reveal";
-import { contactInfo, offer, pillars } from "@/data/site";
+import { contactInfo, mediaAssets, offer, pillars } from "@/data/site";
 
 export function AboutPage() {
   return (
@@ -20,7 +20,7 @@ export function AboutPage() {
 
       <section className="creator-section" aria-labelledby="about-creator-title">
         <div className="creator-media">
-          <img src="/assets/paulo-matos.webp" alt="Paulo Matos, criador do DGAD" />
+          <img src={mediaAssets.creator.portrait} alt="Paulo Matos, criador do DGAD" />
         </div>
         <Reveal className="creator-copy">
           <p className="section-kicker">Criador</p>

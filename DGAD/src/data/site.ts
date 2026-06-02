@@ -1,3 +1,5 @@
+import { toAssetUrl } from "@/lib/routing";
+
 export type BookPillar = {
   id: string;
   title: string;
@@ -62,30 +64,30 @@ export const socialLinks: SocialLink[] = [
 ];
 
 export const mediaAssets = {
-  heroDesktop: "/assets/generated/dgad-hero-premium-desktop.webp",
-  heroMobile: "/assets/generated/dgad-hero-premium-mobile.webp",
-  productBundle: "/assets/generated/dgad-product-bundle-v2.webp",
-  finalCta: "/assets/generated/dgad-final-cta-v2.webp",
-  ebookCover: "/assets/optimized/dgad-book-cover-carousel.webp",
-  productFallback: "/assets/optimized/dgad-capas.webp",
-  deltaMark: "/assets/optimized/dgad-delta-warrior.webp",
+  heroDesktop: toAssetUrl("/assets/generated/dgad-hero-premium-desktop.webp"),
+  heroMobile: toAssetUrl("/assets/generated/dgad-hero-premium-mobile.webp"),
+  productBundle: toAssetUrl("/assets/generated/dgad-product-bundle-v2.webp"),
+  finalCta: toAssetUrl("/assets/generated/dgad-final-cta-v2.webp"),
+  ebookCover: toAssetUrl("/assets/optimized/dgad-book-cover-carousel.webp"),
+  productFallback: toAssetUrl("/assets/optimized/dgad-capas.webp"),
+  deltaMark: toAssetUrl("/assets/optimized/dgad-delta-warrior.webp"),
   creator: {
-    portrait: "/assets/paulo-matos.webp",
-    casual: "/assets/paulo-casual.webp",
-    family: "/assets/paulo-family.webp",
-    video: "/assets/paulo-life-force-360.mp4",
-    videoPoster: "/assets/paulo-matos.webp",
-    discipline: "/assets/dgad-warrior-cover.jpeg",
-    project: "/assets/guerreiro-dgad.jpeg",
+    portrait: toAssetUrl("/assets/paulo-matos.webp"),
+    casual: toAssetUrl("/assets/paulo-casual.webp"),
+    family: toAssetUrl("/assets/paulo-family.webp"),
+    video: toAssetUrl("/assets/paulo-life-force-360.mp4"),
+    videoPoster: toAssetUrl("/assets/paulo-matos.webp"),
+    discipline: toAssetUrl("/assets/dgad-warrior-cover.jpeg"),
+    project: toAssetUrl("/assets/guerreiro-dgad.jpeg"),
   },
   benefits: {
-    saude: "/assets/optimized/benefit-saude.webp",
-    familia: "/assets/optimized/benefit-familia.webp",
-    espiritualidade: "/assets/optimized/benefit-espiritualidade.webp",
-    financas: "/assets/optimized/benefit-financas.webp",
-    trabalho: "/assets/optimized/benefit-trabalho.webp",
-    rotina: "/assets/optimized/benefit-rotina.webp",
-    disciplina: "/assets/optimized/benefit-disciplina.webp",
+    saude: toAssetUrl("/assets/optimized/benefit-saude.webp"),
+    familia: toAssetUrl("/assets/optimized/benefit-familia.webp"),
+    espiritualidade: toAssetUrl("/assets/optimized/benefit-espiritualidade.webp"),
+    financas: toAssetUrl("/assets/optimized/benefit-financas.webp"),
+    trabalho: toAssetUrl("/assets/optimized/benefit-trabalho.webp"),
+    rotina: toAssetUrl("/assets/optimized/benefit-rotina.webp"),
+    disciplina: toAssetUrl("/assets/optimized/benefit-disciplina.webp"),
   },
 } as const;
 
@@ -177,28 +179,28 @@ export const videos: VideoAsset[] = [
     title: "Prova do Código",
     description: "Material em vídeo do projeto DGAD, preservado da página atual.",
     src: "https://bestbuy-topproducts.com/wp-content/uploads/2026/05/PROVA_CODIGO_01-3.mp4",
-    poster: "/assets/dgad-proof-01.jpeg",
+    poster: toAssetUrl("/assets/dgad-proof-01.jpeg"),
   },
   {
     id: "vt-03",
     title: "Disciplina aplicada",
     description: "Vídeo de apoio usado na comunicação do LifeForce 360°.",
     src: "https://bestbuy-topproducts.com/wp-content/uploads/2026/05/VT_03-3.mp4",
-    poster: "/assets/dgad-proof-02.jpeg",
+    poster: toAssetUrl("/assets/dgad-proof-02.jpeg"),
   },
   {
     id: "vt-04",
     title: "Decisão e rotina",
     description: "Peça audiovisual do DGAD integrada ao novo fluxo de venda.",
     src: "https://bestbuy-topproducts.com/wp-content/uploads/2026/05/VT_04-3.mp4",
-    poster: "/assets/dgad-proof-03.jpeg",
+    poster: toAssetUrl("/assets/dgad-proof-03.jpeg"),
   },
   {
     id: "codigo-02",
     title: "O Código Completo",
     description: "Vídeo complementar para apresentar o método ao visitante.",
     src: "https://bestbuy-topproducts.com/wp-content/uploads/2026/05/CODIGO_02-4.mp4",
-    poster: "/assets/guerreiro-dgad.jpeg",
+    poster: toAssetUrl("/assets/guerreiro-dgad.jpeg"),
   },
 ];
 

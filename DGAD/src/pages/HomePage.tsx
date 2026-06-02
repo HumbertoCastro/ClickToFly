@@ -23,6 +23,7 @@ import { LandingOfferSection } from "@/components/landing/LandingOfferSection";
 import { LandingPracticeTimeline } from "@/components/landing/LandingPracticeTimeline";
 import { Reveal } from "@/components/Reveal";
 import { mediaAssets, offer, pillars, videos } from "@/data/site";
+import { toAppHref } from "@/lib/routing";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -417,7 +418,11 @@ export function HomePage() {
               <img src={mediaAssets.creator.family} alt="Paulo Matos em um momento com a família" />
               <figcaption>Família como eixo do método.</figcaption>
             </figure>
-            <a className="founder-video-teaser" href="/criador" aria-label="Assistir Paulo explicando o LifeForce 360º">
+            <a
+              className="founder-video-teaser"
+              href={toAppHref("/criador")}
+              aria-label="Assistir Paulo explicando o LifeForce 360º"
+            >
               <CirclePlay aria-hidden="true" />
               <span>Vídeo do criador</span>
               <strong>Paulo explica o projeto e o código LifeForce 360º</strong>
@@ -442,7 +447,7 @@ export function HomePage() {
           </div>
           <div className="founder-actions">
             <Button asChild size="lg" variant="outline" className="h-12 w-fit px-5 active:scale-[0.96]">
-              <a href="/criador">
+              <a href={toAppHref("/criador")}>
                 Ver a página do criador
                 <ArrowRight data-icon="inline-end" />
               </a>

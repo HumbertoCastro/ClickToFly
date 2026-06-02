@@ -5,6 +5,7 @@ import { LogoIntro } from "@/components/LogoIntro";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { routeMeta } from "@/data/site";
+import { getRoutePath, toAppHref } from "@/lib/routing";
 import { AboutPage } from "@/pages/AboutPage";
 import { CodigoCompletoPage } from "@/pages/CodigoCompletoPage";
 import { CreatorPage } from "@/pages/CreatorPage";
@@ -22,11 +23,7 @@ const routes = {
 } as const;
 
 function normalizePath(pathname: string) {
-  if (pathname === "/pagamente-e-reembolso") {
-    return "/pagamento-e-reembolso";
-  }
-
-  return pathname.replace(/\/$/, "") || "/";
+  return getRoutePath(pathname);
 }
 
 export default function App() {
@@ -38,8 +35,12 @@ export default function App() {
   );
 
   useEffect(() => {
-    if (window.location.pathname === "/pagamente-e-reembolso") {
-      window.history.replaceState(null, "", "/pagamento-e-reembolso");
+    const isLegacyRefundPath =
+      getRoutePath(window.location.pathname) === "/pagamento-e-reembolso" &&
+      window.location.pathname.includes("pagamente");
+
+    if (isLegacyRefundPath) {
+      window.history.replaceState(null, "", toAppHref("/pagamento-e-reembolso"));
     }
   }, []);
 

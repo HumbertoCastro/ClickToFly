@@ -95,7 +95,7 @@ export function CodigoCompletoPage() {
 
       <section className="creator-section sales-creator" aria-labelledby="sales-creator-title">
         <div className="creator-media">
-          <img src="/assets/paulo-matos.webp" alt="Paulo Matos, criador do LifeForce 360°" />
+          <img src={mediaAssets.creator.portrait} alt="Paulo Matos, criador do LifeForce 360°" />
         </div>
         <Reveal className="creator-copy">
           <p className="section-kicker">Paulo Matos</p>

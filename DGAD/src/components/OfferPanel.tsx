@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { offer } from "@/data/site";
+import { toAppHref } from "@/lib/routing";
 
 type OfferPanelProps = {
   compact?: boolean;
@@ -46,7 +47,7 @@ export function OfferPanel({ compact = false, emphasis = "default" }: OfferPanel
           </Button>
         {!compact ? (
           <Button asChild size="lg" variant="outline" className="h-12 flex-1">
-            <a href="/codigo-completo">
+            <a href={toAppHref("/codigo-completo")}>
               Ver detalhes
               <ArrowRight data-icon="inline-end" />
             </a>

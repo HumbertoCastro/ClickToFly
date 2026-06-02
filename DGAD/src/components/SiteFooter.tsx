@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { contactInfo, navItems, socialLinks } from "@/data/site";
+import { toAppHref } from "@/lib/routing";
 
 export function SiteFooter() {
   return (
@@ -22,14 +23,14 @@ export function SiteFooter() {
         <div className="site-footer__column">
           <h2 className="footer-heading">Navegação</h2>
           {navItems.map((item) => (
-            <a key={item.href} href={item.href} className="footer-link">
+            <a key={item.href} href={toAppHref(item.href)} className="footer-link">
               {item.label}
             </a>
           ))}
-          <a href="/politica-de-privacidade" className="footer-link">
+          <a href={toAppHref("/politica-de-privacidade")} className="footer-link">
             Privacidade
           </a>
-          <a href="/pagamento-e-reembolso" className="footer-link">
+          <a href={toAppHref("/pagamento-e-reembolso")} className="footer-link">
             Pagamento
           </a>
         </div>
