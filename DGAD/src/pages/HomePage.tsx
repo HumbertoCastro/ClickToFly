@@ -1,4 +1,10 @@
-import { useRef, useState, type CSSProperties } from "react";
+import {
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -178,9 +184,65 @@ const faqs = [
 
 export function HomePage() {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const ebookDragState = useRef({
+    pointerId: null as number | null,
+    startX: 0,
+    startScrollLeft: 0,
+    didDrag: false,
+  });
   const [activeBook, setActiveBook] = useState<number | null>(null);
   const [activeFeedbackVideo, setActiveFeedbackVideo] = useState<string | null>(null);
   const selectedBook = activeBook === null ? null : ebookPreviews[activeBook];
+
+  const handleEbookCarouselPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    ebookDragState.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startScrollLeft: event.currentTarget.scrollLeft,
+      didDrag: false,
+    };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
+  const handleEbookCarouselPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const dragState = ebookDragState.current;
+
+    if (dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const deltaX = event.clientX - dragState.startX;
+
+    if (Math.abs(deltaX) > 6) {
+      dragState.didDrag = true;
+      event.preventDefault();
+    }
+
+    if (dragState.didDrag) {
+      event.currentTarget.scrollLeft = dragState.startScrollLeft - deltaX;
+    }
+  };
+
+  const stopEbookCarouselDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const dragState = ebookDragState.current;
+
+    if (dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    dragState.pointerId = null;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+
+    if (dragState.didDrag) {
+      window.setTimeout(() => {
+        ebookDragState.current.didDrag = false;
+      }, 80);
+    }
+  };
 
   const renderEbookCard = (book: EbookPreview, index: number, clone = false) => {
     const active = activeBook === index;
@@ -189,13 +251,26 @@ export function HomePage() {
       <article
         key={`${book.title}-${clone ? "clone" : "main"}`}
         className={active ? "ebook-card ebook-card--active" : "ebook-card"}
-        onMouseEnter={() => setActiveBook(index)}
+        onMouseEnter={() => {
+          if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+            setActiveBook(index);
+          }
+        }}
         onFocus={() => {
           if (!clone) {
             setActiveBook(index);
           }
         }}
-        onClick={() => setActiveBook(index)}
+        onClick={(event: ReactMouseEvent<HTMLElement>) => {
+          if (ebookDragState.current.didDrag) {
+            event.preventDefault();
+            event.stopPropagation();
+            ebookDragState.current.didDrag = false;
+            return;
+          }
+
+          setActiveBook(index);
+        }}
         onKeyDown={(event) => {
           if (!clone && (event.key === "Enter" || event.key === " ")) {
             event.preventDefault();
@@ -471,7 +546,14 @@ export function HomePage() {
           E-books DGΔD
         </h2>
         <div className="ebook-stage" onMouseLeave={() => setActiveBook(null)}>
-          <div className="ebook-carousel" aria-label="Carrossel dos sete e-books">
+          <div
+            className="ebook-carousel"
+            aria-label="Carrossel dos sete e-books"
+            onPointerCancel={stopEbookCarouselDrag}
+            onPointerDown={handleEbookCarouselPointerDown}
+            onPointerMove={handleEbookCarouselPointerMove}
+            onPointerUp={stopEbookCarouselDrag}
+          >
             <div className="ebook-carousel__track">
               <div className="ebook-carousel__group">{ebookPreviews.map((book, index) => renderEbookCard(book, index))}</div>
               <div className="ebook-carousel__group ebook-carousel__group--clone" aria-hidden="true">

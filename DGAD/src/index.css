@@ -3864,8 +3864,12 @@ header.fixed {
 
   .ebook-carousel {
     overflow-x: auto;
+    overflow-y: visible;
     overscroll-behavior-inline: contain;
     scroll-snap-type: inline mandatory;
+    scroll-padding-inline: 0.15rem;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
     mask-image: none;
     padding-inline: 0.15rem;
   }
@@ -3884,26 +3888,27 @@ header.fixed {
   }
 
   .ebook-stage:has(.ebook-expanded-card) {
-    min-height: 37rem;
+    min-height: auto;
   }
 
   .ebook-card {
     flex-basis: min(78vw, 21rem);
     height: 31rem;
     scroll-snap-align: center;
+    scroll-snap-stop: always;
   }
 
   .ebook-expanded-card {
-    position: absolute;
-    top: 0.35rem;
-    left: 50%;
-    width: min(90vw, 27rem);
-    max-width: none;
+    position: relative;
+    top: auto;
+    left: auto;
+    width: min(100%, 27rem);
+    max-width: 100%;
     height: auto;
-    min-height: 36rem;
+    min-height: 0;
     flex-direction: column;
-    margin: 0;
-    transform: translateX(-50%);
+    margin: 0.9rem auto 0;
+    transform: none;
   }
 
   .ebook-expanded-card .ebook-card__cover {
@@ -3926,7 +3931,12 @@ header.fixed {
   }
 
   .ebook-card__text {
-    max-height: 6.8rem;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .ebook-card__text::after {
+    display: none;
   }
 
   .ebook-card__bundle {
@@ -4383,6 +4393,22 @@ a {
 .premium-hero .lf-hero__actions,
 .premium-hero .lf-hero__seals {
   justify-content: flex-start;
+}
+
+.home-landing > .lf-section,
+.home-landing > .final-cta,
+.site-footer {
+  border-top: 0;
+  border-bottom: 0;
+}
+
+.site-footer {
+  box-shadow: 0 -30px 90px oklch(0 0 0 / 36%);
+}
+
+.home-landing > .lf-section--light,
+.home-landing > .future-section {
+  box-shadow: none;
 }
 
 .lf-section--light {
