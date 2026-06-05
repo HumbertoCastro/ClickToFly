@@ -17,12 +17,12 @@ export function LandingHero() {
           </h1>
           <p className="lf-hero__lead">
             Um sistema prático criado para quem cansou de começar e parar. Evolua saúde, família, finanças,
-            trabalho e espiritualidade através do Delta Positivo.
+            trabalho e espiritualidade por meio do Delta Positivo.
           </p>
           <div className="lf-hero__actions">
             <Button asChild size="lg" className="cta-button h-12 px-5 active:scale-[0.96]">
               <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-                Quero começar minha evolução
+                Comprar a coleção completa
                 <ArrowRight data-icon="inline-end" />
               </a>
             </Button>

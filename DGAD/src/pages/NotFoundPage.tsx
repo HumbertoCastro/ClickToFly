@@ -8,7 +8,7 @@ export function NotFoundPage() {
     <section className="simple-hero" aria-labelledby="not-found-title">
       <Reveal>
         <h1 id="not-found-title">Página não encontrada</h1>
-        <p>O caminho solicitado não existe no projeto DGAD.</p>
+        <p>O caminho solicitado não existe no projeto DGΔD.</p>
         <Button asChild size="lg" variant="outline" className="h-12 w-fit">
           <a href={toAppHref("/")}>
             <ArrowLeft data-icon="inline-start" />

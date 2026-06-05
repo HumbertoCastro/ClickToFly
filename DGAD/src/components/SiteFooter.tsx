@@ -1,6 +1,9 @@
 import { ArrowUpRight } from "lucide-react";
 import { contactInfo, navItems, socialLinks } from "@/data/site";
-import { toAppHref } from "@/lib/routing";
+import { toAppHref, toAssetUrl } from "@/lib/routing";
+
+const madeByHref = "https://www.hcwebsolutions.com.br/";
+const madeByIcon = toAssetUrl("/assets/hc-web-solutions-icon.png");
 
 export function SiteFooter() {
   return (
@@ -10,14 +13,13 @@ export function SiteFooter() {
           <div className="flex items-center gap-3">
             <span className="brand-sigil">Δ</span>
             <div>
-              <strong className="site-footer__logo">DGAD</strong>
-              <p className="site-footer__tagline">Disciplina Gera Destino · LifeForce 360°</p>
+              <strong className="site-footer__logo">DGΔD</strong>
+              <p className="site-footer__tagline">Disciplina Gera Destino · LifeForce 360º</p>
             </div>
           </div>
           <p className="site-footer__text">
             Um sistema para organizar áreas essenciais da vida com disciplina, execução e responsabilidade pessoal.
           </p>
-          <p className="site-footer__copyright">© {new Date().getFullYear()} DGAD. Todos os direitos reservados.</p>
         </div>
 
         <div className="site-footer__column">
@@ -49,6 +51,24 @@ export function SiteFooter() {
               <ArrowUpRight aria-hidden="true" />
             </a>
           ))}
+        </div>
+
+        <div className="site-footer__meta">
+          <span className="site-footer__copyright">
+            © {new Date().getFullYear()} DGΔD. Todos os direitos reservados.
+          </span>
+          <a
+            className="footer-made-by"
+            href={madeByHref}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Made By HC Web Solutions"
+          >
+            <span>Made By:</span>
+            <span className="footer-made-mark" aria-hidden="true">
+              <img src={madeByIcon} alt="" />
+            </span>
+          </a>
         </div>
       </div>
     </footer>

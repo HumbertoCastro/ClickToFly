@@ -12,7 +12,7 @@ const faqs = [
   {
     question: "Para quem é esse produto?",
     answer:
-      "Para homens adultos que buscam clareza, rotina e responsabilidade pessoal para organizar as áreas essenciais da vida com mais disciplina.",
+      "Para pessoas adultas que buscam clareza, rotina e responsabilidade pessoal para organizar as áreas essenciais da vida com mais disciplina.",
   },
   {
     question: "Como funciona a garantia?",
@@ -46,7 +46,7 @@ export function CodigoCompletoPage() {
               <Button asChild size="lg" className="cta-button h-12">
                 <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
                   <ShieldCheck data-icon="inline-start" />
-                  Comprar agora
+                  Comprar a coleção completa
                 </a>
               </Button>
               <Button asChild size="lg" variant="outline" className="h-12">
@@ -60,7 +60,7 @@ export function CodigoCompletoPage() {
         </div>
         <Reveal className="sales-hero__offer" delay={0.08}>
           <figure className="sales-product-figure">
-            <img src={mediaAssets.productBundle} alt="Pacote digital DGAD com sete e-books e acesso multiplataforma" />
+            <img src={mediaAssets.productBundle} alt="Pacote digital DGΔD com sete e-books e acesso multiplataforma" />
           </figure>
           <OfferPanel compact emphasis="hero" />
         </Reveal>
@@ -71,7 +71,7 @@ export function CodigoCompletoPage() {
           <p className="section-kicker">Sobre o conteúdo</p>
           <h2 id="content-title">Um método para organizar a vida com disciplina diária.</h2>
           <p>
-            O LifeForce 360° conecta decisões, rotina e responsabilidade pessoal para mudanças reais e duradouras.
+            O LifeForce 360º conecta decisões, rotina e responsabilidade pessoal para mudanças reais e duradouras.
           </p>
         </Reveal>
         <div className="grid gap-4 md:grid-cols-3">
@@ -95,14 +95,14 @@ export function CodigoCompletoPage() {
 
       <section className="creator-section sales-creator" aria-labelledby="sales-creator-title">
         <div className="creator-media">
-          <img src={mediaAssets.creator.portrait} alt="Paulo Matos, criador do LifeForce 360°" />
+          <img src={mediaAssets.creator.portrait} alt="Paulo Matos, criador do LifeForce 360º" />
         </div>
         <Reveal className="creator-copy">
           <p className="section-kicker">Paulo Matos</p>
           <h2 id="sales-creator-title">“Esse código nasceu da prática real.”</h2>
           <p>
             Disciplina diária, decisões difíceis, família como prioridade, saúde como base e propósito como direção.
-            Essa é a lógica por trás do DGAD.
+            Essa é a lógica por trás do DGΔD.
           </p>
           <p>
             Se você busca clareza, direção e consistência, este conteúdo foi criado para organizar a ação antes que a
@@ -158,7 +158,7 @@ export function CodigoCompletoPage() {
           <p>Entre no checkout oficial, finalize a compra e receba o acesso ao conteúdo digital.</p>
           <Button asChild size="lg" className="cta-button h-12">
             <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-              Comprar agora por {offer.price}
+              Comprar a coleção completa por {offer.price}
               <ArrowRight data-icon="inline-end" />
             </a>
           </Button>

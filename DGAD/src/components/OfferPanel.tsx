@@ -42,7 +42,7 @@ export function OfferPanel({ compact = false, emphasis = "default" }: OfferPanel
         <Button asChild size="lg" className={compact ? "cta-button h-12" : "cta-button h-12 flex-1"}>
             <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
               <ShieldCheck data-icon="inline-start" />
-              Quero acessar agora
+              Comprar a coleção completa
             </a>
           </Button>
         {!compact ? (

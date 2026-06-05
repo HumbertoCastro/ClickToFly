@@ -6,7 +6,7 @@ export function LandingOfferSection() {
   return (
     <section className="lf-section offer-section" id="oferta" aria-labelledby="offer-title">
       <div className="offer-section__art motion-scale">
-        <img src={mediaAssets.productBundle} alt="Capas dos materiais digitais DGAD LifeForce 360º" />
+        <img src={mediaAssets.productBundle} alt="Capas dos materiais digitais DGΔD LifeForce 360º" />
       </div>
       <Reveal className="offer-section__copy">
         <p className="section-kicker">Oferta oficial</p>

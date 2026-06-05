@@ -10,7 +10,7 @@ export function VideoShowcase() {
         <h2 id="videos-title">A comunicação atual entra no novo site sem carregar o design antigo.</h2>
         <p>
           Os vídeos originais foram preservados e reposicionados em um fluxo de atenção mais limpo, com controles reais
-          e carregamento cuidadoso para mobile.
+          e carregamento cuidadoso em dispositivos móveis.
         </p>
       </Reveal>
 

@@ -40,13 +40,13 @@ export type SocialLink = {
 export const offer: OfferData = {
   title: "LifeForce 360º | Código do Guerreiro DGΔD",
   subtitle:
-    "Um ecossistema prático para organizar saúde, família, finanças, trabalho, espiritualidade e tempo através do Delta Positivo.",
+    "Um ecossistema prático para organizar saúde, família, finanças, trabalho, espiritualidade e tempo por meio do Delta Positivo.",
   originalPrice: "R$ 197,00",
   price: "R$ 59,90",
   installments: "Acesso imediato ao pacote completo",
   guarantee: "Garantia incondicional de 7 dias",
   access: "Pagamento seguro com acesso imediato",
-  checkoutUrl: "https://pay.hotmart.com/Q104186091H?off=684mmg8i&hotfeature=51",
+  checkoutUrl: "https://pay.hotmart.com/Q104186091H?checkoutMode=2",
 };
 
 export const navItems = [
@@ -100,31 +100,31 @@ export const routeMeta: RouteMeta[] = [
   },
   {
     path: "/codigo-completo",
-    title: "O Código Completo | DGAD LifeForce 360º",
+    title: "O Código Completo | DGΔD LifeForce 360º",
     description:
-      "Oferta oficial do DGAD LifeForce 360º com acesso imediato, garantia de 7 dias e checkout Hotmart.",
+      "Oferta oficial do DGΔD LifeForce 360º com acesso imediato, garantia de 7 dias e checkout Hotmart.",
   },
   {
     path: "/sobre",
-    title: "Sobre o DGAD | Disciplina Gera Destino",
+    title: "Sobre o DGΔD | Disciplina Gera Destino",
     description:
-      "Conheça a origem do DGAD, Paulo Matos e os pilares do ecossistema LifeForce 360º.",
+      "Conheça a origem do DGΔD, Paulo Matos e os pilares do ecossistema LifeForce 360º.",
   },
   {
     path: "/criador",
     title: "Paulo Matos | Criador do LifeForce 360º",
     description:
-      "Conheça Paulo Matos, criador do DGAD e do LifeForce 360º, e assista ao vídeo sobre a origem do projeto.",
+      "Conheça Paulo Matos, criador do DGΔD e do LifeForce 360º, e assista ao vídeo sobre a origem do projeto.",
   },
   {
     path: "/politica-de-privacidade",
-    title: "Política de Privacidade | DGAD",
-    description: "Como o DGAD coleta, utiliza e protege dados pessoais.",
+    title: "Política de Privacidade | DGΔD",
+    description: "Como o DGΔD coleta, utiliza e protege dados pessoais.",
   },
   {
     path: "/pagamento-e-reembolso",
-    title: "Pagamento e Reembolso | DGAD",
-    description: "Informações sobre pagamento, acesso, produto digital e reembolso do DGAD.",
+    title: "Pagamento e Reembolso | DGΔD",
+    description: "Informações sobre pagamento, acesso, produto digital e reembolso do DGΔD.",
   },
 ];
 
@@ -177,21 +177,21 @@ export const videos: VideoAsset[] = [
   {
     id: "prova-codigo",
     title: "Prova do Código",
-    description: "Material em vídeo do projeto DGAD, preservado da página atual.",
+    description: "Material em vídeo do projeto DGΔD, preservado da página atual.",
     src: "https://bestbuy-topproducts.com/wp-content/uploads/2026/05/PROVA_CODIGO_01-3.mp4",
     poster: toAssetUrl("/assets/dgad-proof-01.jpeg"),
   },
   {
     id: "vt-03",
     title: "Disciplina aplicada",
-    description: "Vídeo de apoio usado na comunicação do LifeForce 360°.",
+    description: "Vídeo de apoio usado na comunicação do LifeForce 360º.",
     src: "https://bestbuy-topproducts.com/wp-content/uploads/2026/05/VT_03-3.mp4",
     poster: toAssetUrl("/assets/dgad-proof-02.jpeg"),
   },
   {
     id: "vt-04",
     title: "Decisão e rotina",
-    description: "Peça audiovisual do DGAD integrada ao novo fluxo de venda.",
+    description: "Peça audiovisual do DGΔD integrada ao novo fluxo de venda.",
     src: "https://bestbuy-topproducts.com/wp-content/uploads/2026/05/VT_04-3.mp4",
     poster: toAssetUrl("/assets/dgad-proof-03.jpeg"),
   },
@@ -207,24 +207,38 @@ export const videos: VideoAsset[] = [
 export const customerFeedbackVideos: VideoAsset[] = [
   {
     id: "feedback-cliente-01",
-    title: "Cliente satisfeito",
-    description: "Depoimento em vídeo enviado por cliente sobre a experiência com o Código do Guerreiro.",
+    title: "Clareza na rotina",
+    description: "Relato de cliente sobre organização, disciplina e aplicação prática do Código do Guerreiro.",
     src: toAssetUrl("/assets/feedbacks/depoimento-cliente-01.mp4"),
     poster: toAssetUrl("/assets/dgad-proof-01.jpeg"),
   },
   {
     id: "feedback-cliente-02",
     title: "Relato de aplicação",
-    description: "Feedback em vídeo de cliente satisfeito, preservado como prova social direta dentro da página.",
+    description: "Cliente compartilha como o método ajudou a transformar intenção em atitude no dia a dia.",
     src: toAssetUrl("/assets/feedbacks/depoimento-cliente-02.mp4"),
     poster: toAssetUrl("/assets/dgad-proof-03.jpeg"),
+  },
+  {
+    id: "feedback-cliente-03",
+    title: "Disciplina em prática",
+    description: "Relato direto sobre responsabilidade, constância e decisão depois de conhecer o conteúdo.",
+    src: toAssetUrl("/assets/feedbacks/depoimento-cliente-03.mp4"),
+    poster: toAssetUrl("/assets/dgad-proof-02.jpeg"),
+  },
+  {
+    id: "feedback-cliente-04",
+    title: "Experiência do cliente",
+    description: "Depoimento sobre a experiência com a coleção e os primeiros passos de aplicação do método.",
+    src: toAssetUrl("/assets/feedbacks/depoimento-cliente-04.mp4"),
+    poster: toAssetUrl("/assets/dgad-proof-01.jpeg"),
   },
 ];
 
 export const stickyChapters = [
   {
     title: "Motivação falha.",
-    text: "Ela aparece, some e deixa a rotina desprotegida. O DGAD começa onde a vontade termina.",
+    text: "Ela aparece, some e deixa a rotina desprotegida. O DGΔD começa onde a vontade termina.",
   },
   {
     title: "Disciplina decide.",

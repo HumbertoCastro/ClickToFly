@@ -307,6 +307,60 @@
   font-size: 0.78rem;
 }
 
+.site-footer__meta {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.25rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid oklch(0.76 0.132 79 / 14%);
+}
+
+.footer-made-by {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  color: oklch(0.78 0.024 82);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    color 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
+}
+
+.footer-made-by:hover,
+.footer-made-by:focus-visible {
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.footer-made-mark {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  padding: 0.32rem;
+  border: 1px solid oklch(0.76 0.132 79 / 20%);
+  border-radius: var(--radius-md);
+  background: oklch(0.03 0.006 58);
+  box-shadow:
+    0 16px 34px oklch(0 0 0 / 26%),
+    inset 0 1px 0 oklch(1 0 0 / 8%);
+}
+
+.footer-made-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--radius-md) - 0.25rem);
+  object-fit: cover;
+}
+
 .site-footer__column {
   display: grid;
   align-content: start;
@@ -2731,6 +2785,12 @@ header.fixed {
   overflow: hidden;
   padding-block: clamp(1rem, 2vw, 1.7rem);
   mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.ebook-carousel::-webkit-scrollbar {
+  display: none;
 }
 
 .ebook-carousel__track {
@@ -2981,6 +3041,14 @@ header.fixed {
   font-variant-numeric: tabular-nums;
   line-height: 1;
   box-shadow: inset 0 1px 0 oklch(1 0 0 / 8%);
+}
+
+.ebook-card__commerce-note {
+  max-width: 54ch;
+  margin: -0.2rem 0 0;
+  color: oklch(0.78 0.024 82);
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 .ebook-card__commerce a,
@@ -3329,43 +3397,6 @@ header.fixed {
   line-height: 1.55;
 }
 
-.testimonial-rail {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.testimonial-rail article {
-  display: grid;
-  gap: 0.75rem;
-  border-radius: var(--radius-xl);
-  padding: 1rem;
-  background: oklch(0.92 0.012 92);
-  color: oklch(0.13 0.014 60);
-  box-shadow: 0 18px 44px oklch(0 0 0 / 10%);
-  transition-property: transform, box-shadow, background-color;
-  transition-duration: 240ms;
-  transition-timing-function: var(--ease-out);
-}
-
-.testimonial-rail article:hover {
-  transform: translateY(-3px);
-  background: oklch(0.96 0.01 92);
-  box-shadow: 0 24px 56px oklch(0 0 0 / 14%);
-}
-
-.testimonial-rail svg {
-  color: oklch(0.42 0.09 146);
-}
-
-.testimonial-rail p {
-  color: oklch(0.2 0.018 65);
-  line-height: 1.6;
-}
-
-.testimonial-rail strong {
-  color: oklch(0.1 0.014 58);
-}
-
 .offer-section {
   align-items: center;
 }
@@ -3397,6 +3428,7 @@ header.fixed {
 
 .future-section {
   align-items: center;
+  box-shadow: inset 0 -1px 0 oklch(0 0 0 / 8%);
 }
 
 .future-section__copy p {
@@ -3960,11 +3992,6 @@ header.fixed {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .testimonial-rail {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .movement-panel {
     padding: 1.6rem;
   }
@@ -4238,10 +4265,6 @@ header.fixed {
     justify-content: center;
   }
 
-  .testimonial-rail {
-    grid-column: 1 / -1;
-  }
-
   .final-cta {
     min-height: 78svh;
   }
@@ -4369,8 +4392,7 @@ a {
   color: var(--foreground);
 }
 
-.lf-section--light .section-kicker,
-.lf-section--light .testimonial-rail svg {
+.lf-section--light .section-kicker {
   color: var(--primary);
 }
 
@@ -4386,19 +4408,13 @@ a {
   color: oklch(0.78 0.024 82);
 }
 
-.pain-question,
-.testimonial-rail article {
+.pain-question {
   border: 1px solid oklch(0.78 0.13 78 / 14%);
   background: oklch(0.12 0.012 58 / 76%);
   color: var(--foreground);
   box-shadow:
     0 22px 70px oklch(0 0 0 / 24%),
     inset 0 1px 0 oklch(1 0 0 / 7%);
-}
-
-.testimonial-rail p,
-.testimonial-rail strong {
-  color: var(--foreground);
 }
 
 .pain-answer,

@@ -82,13 +82,13 @@ export function TimedOfferModal({ enabled = true }: TimedOfferModalProps) {
         </div>
 
         <div className="timed-offer-modal__content">
-          <p className="section-kicker">Promoção única</p>
-          <h2 id="timed-offer-title">Pacote completo DGAD por tempo limitado.</h2>
+          <p className="section-kicker">Oferta oficial</p>
+          <h2 id="timed-offer-title">Coleção completa DGΔD.</h2>
           <p id="timed-offer-description">
             Acesse agora os 7 e-books do LifeForce 360º com pagamento seguro pela Hotmart e liberação imediata.
           </p>
 
-          <div className="timed-offer-modal__price" aria-label={`Preço promocional ${offer.price}`}>
+          <div className="timed-offer-modal__price" aria-label={`Preço da coleção ${offer.price}`}>
             <span>{offer.originalPrice}</span>
             <strong>{offer.price}</strong>
             <small>{offer.guarantee}</small>
@@ -97,7 +97,7 @@ export function TimedOfferModal({ enabled = true }: TimedOfferModalProps) {
           <Button asChild size="lg" className="cta-button h-12 px-5 active:scale-[0.96]">
             <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
               <ShieldCheck data-icon="inline-start" />
-              Comprar na Hotmart
+              Comprar a coleção completa
               <ArrowRight data-icon="inline-end" />
             </a>
           </Button>

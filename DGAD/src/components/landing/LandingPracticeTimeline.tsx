@@ -85,7 +85,7 @@ export function LandingPracticeTimeline() {
           </div>
           <Button asChild size="lg" className="cta-button h-12 px-5 active:scale-[0.96]">
             <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-              Aplicar o método agora
+              Comprar a coleção completa
               <ArrowRight data-icon="inline-end" />
             </a>
           </Button>

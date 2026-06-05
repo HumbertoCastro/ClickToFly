@@ -16,6 +16,14 @@ const lifeMarkers = [
     title: "Empreendedor",
     text: "Trabalho, vendas, recomeços e decisões difíceis transformados em método.",
   },
+  {
+    title: "Formado em Marketing",
+    text: "Base estratégica para posicionar ideias, comunicar valor e transformar experiência em direção prática.",
+  },
+  {
+    title: "Pós-graduado em Vendas e Negociação",
+    text: "Formação pela FAAP, Fundação Armando Álvares Penteado, aplicada à construção de acordos, decisão e resultado.",
+  },
 ];
 
 const codePrinciples = [
@@ -49,13 +57,13 @@ export function CreatorPage() {
           <p className="section-kicker">Criador do LifeForce 360º</p>
           <h1 id="creator-title">Paulo Matos transformou disciplina vivida em um código aplicável.</h1>
           <p>
-            O DGAD não nasceu como teoria de palco. Nasceu da vida real: treino, trabalho, família, vendas, recomeços,
+            O DGΔD não nasceu como teoria de palco. Nasceu da vida real: treino, trabalho, família, vendas, recomeços,
             fé e decisões repetidas quando a motivação já tinha acabado.
           </p>
           <div className="creator-hero__actions">
             <Button asChild size="lg" className="cta-button h-12 px-5 active:scale-[0.96]">
               <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-                Entrar no Código
+                Comprar a coleção completa
                 <ArrowRight data-icon="inline-end" />
               </a>
             </Button>
@@ -154,7 +162,7 @@ export function CreatorPage() {
 
       <section className="creator-code-section" aria-labelledby="creator-code-title">
         <div className="creator-code-section__media motion-scale">
-          <img src={mediaAssets.creator.discipline} alt="Imagem editorial do Código do Guerreiro DGAD" />
+          <img src={mediaAssets.creator.discipline} alt="Imagem editorial do Código do Guerreiro DGΔD" />
         </div>
 
         <Reveal className="creator-code-section__copy">
@@ -202,13 +210,13 @@ export function CreatorPage() {
           </p>
           <Button asChild size="lg" className="cta-button h-12 w-fit px-5 active:scale-[0.96]">
             <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-              Acessar o DGAD agora
+              Comprar a coleção completa
               <ArrowRight data-icon="inline-end" />
             </a>
           </Button>
         </Reveal>
         <div className="creator-final-band__image motion-scale">
-          <img src={mediaAssets.creator.project} alt="Imagem visual do projeto DGAD LifeForce 360º" />
+          <img src={mediaAssets.creator.project} alt="Imagem visual do projeto DGΔD LifeForce 360º" />
         </div>
       </section>
     </>

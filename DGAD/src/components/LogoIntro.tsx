@@ -38,7 +38,7 @@ export function LogoIntro() {
       >
         <span>DGΔD</span>
         <small>Disciplina Gera Destino</small>
-        <small>LifeForce 360°</small>
+        <small>LifeForce 360º</small>
       </motion.div>
     </motion.div>
   );

@@ -11,8 +11,8 @@ export function LegalPage({ kind }: LegalPageProps) {
   const isPrivacy = kind === "privacy";
   const title = isPrivacy ? "Política de Privacidade" : "Pagamento e Reembolso";
   const intro = isPrivacy
-    ? "A sua privacidade é importante para nós. Esta política explica como o site DGAD coleta, utiliza e protege informações fornecidas pelos usuários."
-    : "O DGAD é um produto digital entregue online. Esta página explica pagamento, liberação de acesso e reembolso.";
+    ? "A sua privacidade é importante para nós. Esta política explica como o site DGΔD coleta, utiliza e protege informações fornecidas pelos usuários."
+    : "O DGΔD é um produto digital entregue online. Esta página explica pagamento, liberação de acesso e reembolso.";
   const sections = isPrivacy ? privacySections : refundSections;
 
   return (

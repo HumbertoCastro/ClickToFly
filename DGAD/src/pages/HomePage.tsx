@@ -11,7 +11,6 @@ import {
   Dumbbell,
   Flame,
   HeartHandshake,
-  MessageCircle,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -49,32 +48,51 @@ const ebookPreviews = [
   {
     title: "O Código do Guerreiro",
     theme: "Decisão",
-    text: "Há um momento na vida em que o silêncio é mais barulhento que qualquer multidão. É o instante em que você se encara no espelho e percebe que ninguém virá te salvar. Nem sorte. Nem milagres fáceis. Nem desculpas bem contadas. Só você, sua fé e a decisão que escolhe tomar. A maioria das pessoas sonha com uma vida melhor. Poucos decidem pagar o preço. Porque toda mudança começa com um corte. E todo corte dói. É a dor de abandonar a velha versão. O conforto. As desculpas. O amanhã eu começo. Mas é justamente aqui que algo muda...",
+    text: "Há um momento na vida em que o silêncio é mais barulhento que qualquer multidão. É o instante em que você se encara no espelho e percebe que ninguém virá salvá-lo. Nem sorte. Nem milagres fáceis. Nem desculpas bem contadas. Só você, sua fé e a decisão que escolhe tomar. A maioria das pessoas sonha com uma vida melhor. Poucos decidem pagar o preço. Porque toda mudança começa com um corte. E todo corte dói. É a dor de abandonar a velha versão. O conforto. As desculpas. O amanhã eu começo. Mas é justamente aqui que algo muda...",
+    productUrl: "https://go.hotmart.com/H104187082P?dp=1",
+    checkoutUrl: "https://pay.hotmart.com/H104187082P?checkoutMode=2",
   },
   {
     title: "Espiritualidade e Propósito",
     theme: "Chamado",
-    text: "Há um momento na vida em que o barulho do mundo já não convence mais. Os aplausos perdem o sentido. O dinheiro não basta. Até as vitórias parecem incompletas. É quando o silêncio começa a falar. E a alma, adormecida há tanto tempo, desperta. Não é o fim. É o chamado. O chamado aparece no cansaço sem explicação. Na sensação de estar cumprindo tarefas, mas não vivendo uma missão. Como se Deus colocasse a mão no ombro e dissesse: está na hora de voltar pra dentro. E é exatamente aí que essa jornada começa...",
+    text: "Há um momento na vida em que o barulho do mundo já não convence mais. Os aplausos perdem o sentido. O dinheiro não basta. Até as vitórias parecem incompletas. É quando o silêncio começa a falar. E a alma, adormecida há tanto tempo, desperta. Não é o fim. É o chamado. O chamado aparece no cansaço sem explicação. Na sensação de estar cumprindo tarefas, mas não vivendo uma missão. Como se Deus colocasse a mão no ombro e dissesse: está na hora de voltar para dentro. E é exatamente aí que essa jornada começa...",
+    productUrl: "https://go.hotmart.com/S104187309I?dp=1",
+    checkoutUrl: "https://pay.hotmart.com/S104187309I?checkoutMode=2",
   },
   {
     title: "Finanças e Prosperidade",
     theme: "Controle",
     text: "A maioria das pessoas não quer liberdade. Quer conforto. E é por isso que o dinheiro domina tanta gente. O homem que busca prosperidade sem consciência se torna escravo daquilo que conquista. Mas existe outra forma. O guerreiro financeiro entende algo diferente: dinheiro é ferramenta. Não destino. Cada real é uma decisão. Cada gasto é um voto. Cada hábito financeiro constrói ou destrói o futuro. Prosperidade não começa na conta bancária. Começa na mente. E quase ninguém percebe isso até ser tarde...",
+    productUrl: "https://go.hotmart.com/S104187414E?dp=1",
+    checkoutUrl: "https://pay.hotmart.com/S104187414E?checkoutMode=2",
   },
   {
     title: "Família e Legado",
     theme: "Presença",
-    text: "No fim da vida, quase ninguém se arrepende de não ter trabalhado mais. Se arrepende do tempo que não voltou. Dos abraços adiados. Das conversas que ficaram para depois. Da presença trocada pela pressa. Família não é apenas quem divide a casa. É quem recebe as consequências das suas escolhas. Cada palavra. Cada ausência. Cada prioridade. Você está construindo legado ou apenas sobrevivendo? Porque legado não nasce em grandes momentos. Nasce nas pequenas decisões repetidas. Nos dias comuns. E talvez seja exatamente aí que esteja o problema...",
+    text: "No fim da vida, quase ninguém se arrepende de não ter trabalhado mais. Arrepende-se do tempo que não voltou. Dos abraços adiados. Das conversas que ficaram para depois. Da presença trocada pela pressa. Família não é apenas quem divide a casa. É quem recebe as consequências das suas escolhas. Cada palavra. Cada ausência. Cada prioridade. Você está construindo legado ou apenas sobrevivendo? Porque legado não nasce em grandes momentos. Nasce nas pequenas decisões repetidas. Nos dias comuns. E talvez seja exatamente aí que esteja o problema...",
+    productUrl: "https://go.hotmart.com/P104187496K?dp=1",
+    checkoutUrl: "https://pay.hotmart.com/P104187496K?checkoutMode=2",
   },
   {
-    title: "Saúde: O Corpo como Templo",
+    title: "Saúde: O Corpo como um Templo",
     theme: "Energia",
-    text: "Seu corpo está sustentando seus sonhos ou está impedindo você de viver eles? A maioria espera adoecer para começar a cuidar. Espera sentir dor. Perder energia. Ganhar peso. Mas o corpo sempre avisa. Só que quase ninguém escuta. Seu corpo não é estética. É ferramenta. É energia para trabalhar. Construir patrimônio. Proteger quem você ama. Disciplina física não é vaidade. É responsabilidade. E o preço de ignorar isso quase sempre chega...",
+    text: "Seu corpo está sustentando seus sonhos ou impedindo você de vivê-los? A maioria espera adoecer para começar a cuidar. Espera sentir dor. Perder energia. Ganhar peso. Mas o corpo sempre avisa. Só que quase ninguém escuta. Seu corpo não é estética. É ferramenta. É energia para trabalhar. Construir patrimônio. Proteger quem você ama. Disciplina física não é vaidade. É responsabilidade. E o preço de ignorar isso quase sempre chega...",
+    productUrl: "https://go.hotmart.com/P104187564M?dp=1",
+    checkoutUrl: "https://pay.hotmart.com/P104187564M?checkoutMode=2",
   },
   {
-    title: "Trabalho, Estudo, Propósito e Renda",
+    title: "Trabalho e Estudo",
     theme: "Competência",
     text: "Existe uma mentira perigosa: quando eu tiver tempo, eu começo. Mas quase ninguém percebe. Quem espera tempo livre normalmente continua parado. O guerreiro moderno aprende algo diferente: ele constrói enquanto está cansado. Estuda enquanto trabalha. Aprende enquanto executa. Porque renda não nasce do desejo. Nasce da competência. Da repetição. Do desconforto. Você está construindo valor ou apenas trocando tempo por dinheiro?",
+    productUrl: "https://go.hotmart.com/O104187705K?dp=1",
+    checkoutUrl: "https://pay.hotmart.com/O104187705K?checkoutMode=2",
+  },
+  {
+    title: "Descansar também é Disciplina",
+    theme: "Recuperação",
+    text: "Descanso não é fuga da responsabilidade. É parte da disciplina que sustenta energia, clareza e presença. Quem ignora a recuperação começa a decidir cansado, reagir no automático e confundir exaustão com força. O guerreiro aprende a proteger o sono, a agenda e os limites para continuar avançando sem quebrar o próprio corpo no caminho.",
+    productUrl: "https://go.hotmart.com/W104187867C?dp=1",
+    checkoutUrl: "https://pay.hotmart.com/W104187867C?checkoutMode=2",
   },
 ];
 
@@ -128,21 +146,6 @@ const benefits = [
 ];
 
 const communityValues = ["Disciplina", "Família", "Responsabilidade", "Fé", "Propósito", "Execução"];
-
-const testimonials = [
-  {
-    quote: "Parei de tratar disciplina como inspiração. Hoje tenho um plano para o treino, o trabalho e a casa.",
-    name: "Aluno LifeForce",
-  },
-  {
-    quote: "O que mudou foi a clareza. Eu sabia o que fazer, mas não tinha uma estrutura para repetir.",
-    name: "Comprador DGΔD",
-  },
-  {
-    quote: "Entendi que não era só conteúdo. Era um compromisso com a minha evolução diária.",
-    name: "Guerreiro LifeForce",
-  },
-];
 
 const futureFeatures = ["App", "Agenda", "Metas", "Painel 360º", "Evolução"];
 
@@ -201,7 +204,7 @@ export function HomePage() {
         }}
         tabIndex={clone ? -1 : 0}
         aria-hidden={clone ? "true" : undefined}
-        aria-label={clone ? undefined : `${book.title}: abrir detalhes do e-book`}
+        aria-label={clone ? undefined : `${book.title}: abrir detalhes e compra individual do e-book`}
       >
         <div className="ebook-card__cover" aria-hidden="true">
           <img
@@ -296,7 +299,7 @@ export function HomePage() {
                 <strong>É sistema.</strong>
                 <Button asChild size="lg" className="cta-button h-12 w-fit px-5 active:scale-[0.96]">
                   <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-                    Quero aplicar o sistema
+                    Comprar a coleção completa
                     <ArrowRight data-icon="inline-end" />
                   </a>
                 </Button>
@@ -399,7 +402,7 @@ export function HomePage() {
           <p className="code-section__truth">O destino não acontece. Ele é construído.</p>
           <Button asChild size="lg" className="cta-button h-12 w-fit px-5 active:scale-[0.96]">
             <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-              Entrar no Código
+              Comprar a coleção completa
               <ArrowRight data-icon="inline-end" />
             </a>
           </Button>
@@ -434,7 +437,7 @@ export function HomePage() {
           <p className="section-kicker">Paulo Matos</p>
           <h2 id="founder-title">Antes do método, existe uma vida disciplinada na prática.</h2>
           <p>
-            Paulo Matos criou o DGAD a partir de uma lógica simples: disciplina não é discurso. É repetição,
+            Paulo Matos criou o DGΔD a partir de uma lógica simples: disciplina não é discurso. É repetição,
             responsabilidade e direção aplicada nas áreas que sustentam a vida.
           </p>
           <p>
@@ -442,7 +445,7 @@ export function HomePage() {
             360º.
           </p>
           <div className="founder-proof-grid" aria-label="Experiências que formam o método">
-            {["Jiu-Jitsu", "Família", "Vendas", "Empreendedorismo", "Recomeços"].map((item) => (
+            {["Jiu-Jitsu", "Família", "Marketing", "Vendas e Negociação", "Empreendedorismo", "Recomeços"].map((item) => (
               <span key={item}>{item}</span>
             ))}
           </div>
@@ -455,7 +458,7 @@ export function HomePage() {
             </Button>
             <Button asChild size="lg" className="cta-button h-12 w-fit px-5 active:scale-[0.96]">
               <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-                Entrar no Código
+                Comprar a coleção completa
                 <ArrowRight data-icon="inline-end" />
               </a>
             </Button>
@@ -465,7 +468,7 @@ export function HomePage() {
 
       <section className="lf-section books-preview-section" id="livros" aria-labelledby="books-title">
         <h2 className="sr-only" id="books-title">
-          E-books DGAD
+          E-books DGΔD
         </h2>
         <div className="ebook-stage" onMouseLeave={() => setActiveBook(null)}>
           <div className="ebook-carousel" aria-label="Carrossel dos sete e-books">
@@ -486,14 +489,22 @@ export function HomePage() {
                 <h3>{selectedBook.title}</h3>
                 <p className="ebook-card__text">{selectedBook.text}</p>
                 <div className="ebook-card__commerce">
-                  <strong>{offer.price}</strong>
-                  <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-                    Página de compras
+                  <strong>Checkout individual</strong>
+                  <a href={selectedBook.checkoutUrl} target="_blank" rel="noreferrer">
+                    Comprar este e-book
+                    <ArrowRight aria-hidden="true" />
+                  </a>
+                  <a href={selectedBook.productUrl} target="_blank" rel="noreferrer">
+                    Ver detalhes
                     <ArrowRight aria-hidden="true" />
                   </a>
                 </div>
+                <p className="ebook-card__commerce-note">
+                  Este checkout libera apenas o e-book selecionado. A coleção completa reúne os 7 materiais por{" "}
+                  {offer.price}.
+                </p>
                 <a className="ebook-card__bundle" href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-                  Comprar todos os 7 e-books
+                  Comprar a coleção completa
                   <ArrowRight aria-hidden="true" />
                 </a>
               </div>
@@ -542,7 +553,7 @@ export function HomePage() {
           <blockquote>Eu assumo responsabilidade pela minha evolução diária.</blockquote>
           <Button asChild size="lg" className="cta-button h-12 w-fit px-5 active:scale-[0.96]">
             <a href={offer.checkoutUrl} target="_blank" rel="noreferrer">
-              Assumir o compromisso
+              Comprar a coleção completa
               <ArrowRight data-icon="inline-end" />
             </a>
           </Button>
@@ -553,7 +564,7 @@ export function HomePage() {
         <Reveal className="lf-section__headline">
           <p className="section-kicker">Provas sociais</p>
           <h2 id="proof-title">Feedbacks reais de clientes satisfeitos.</h2>
-          <p>Relatos em vídeo e comentários curtos entram como evidência direta antes da decisão.</p>
+          <p>Assista aos relatos em vídeo antes de decidir pela coleção completa.</p>
         </Reveal>
         <div className="proof-grid proof-grid--feedback">
           {customerFeedbackVideos.map((video) => (
@@ -592,15 +603,6 @@ export function HomePage() {
               </div>
             </article>
           ))}
-          <div className="testimonial-rail" aria-label="Depoimentos curtos">
-            {testimonials.map((testimonial) => (
-              <article key={testimonial.quote}>
-                <MessageCircle aria-hidden="true" />
-                <p>“{testimonial.quote}”</p>
-                <strong>{testimonial.name}</strong>
-              </article>
-            ))}
-          </div>
         </div>
       </section>
 
