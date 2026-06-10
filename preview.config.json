@@ -6,7 +6,7 @@
   "basePath": "/projetos",
   "feedback": {
     "basePath": "/feedback",
-    "dir": "client-feedback"
+    "dir": "apps/platform/client-feedback"
   },
   "outputDir": "preview-dist",
   "projects": [
@@ -48,7 +48,10 @@
       "slug": "dois-irmaos",
       "name": "Dois Irmaos",
       "description": "Landing page de apresentacao para Dois Irmaos Tratamento Estetico.",
-      "dir": "dois-irmaos"
+      "dir": "apps/clients/official/dois-irmaos",
+      "routes": [
+        "/servicos"
+      ]
     },
     {
       "slug": "analitica",
