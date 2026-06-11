@@ -5,6 +5,7 @@ preview-dist/
 .wrangler/
 *.tsbuildinfo
 *.log
+*.zip
 .chrome-qa*/
 .hallmark/
 qa-*.png

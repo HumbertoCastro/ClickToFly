@@ -14,13 +14,13 @@
       "slug": "akatu",
       "name": "Akatu",
       "description": "Landing page de apresentacao da Akatu.",
-      "dir": "akatu-landing"
+      "dir": "apps/clients/official/akatu-landing"
     },
     {
       "slug": "clicktofly",
       "name": "ClickToFly",
       "description": "Landing page de captacao para ofertas de viagem.",
-      "dir": "clicktofly",
+      "dir": "apps/clients/official/clicktofly",
       "routes": [
         "/orcamento"
       ]
@@ -29,7 +29,7 @@
       "slug": "dgad",
       "name": "DGAD",
       "description": "Landing page do DGAD LifeForce 360 em homologacao.",
-      "dir": "DGAD",
+      "dir": "apps/clients/official/DGAD",
       "routes": [
         "/criador",
         "/codigo-completo",
@@ -42,7 +42,7 @@
       "slug": "sua-saude",
       "name": "Sua Saude",
       "description": "Landing page institucional para clinica medica adulta.",
-      "dir": "sua-saude"
+      "dir": "apps/clients/official/sua-saude"
     },
     {
       "slug": "dois-irmaos",
@@ -57,7 +57,7 @@
       "slug": "analitica",
       "name": "Analitica",
       "description": "Redesign de landing page para validacao visual.",
-      "dir": "analitica-redesign",
+      "dir": "apps/clients/official/analitica-redesign",
       "routes": [
         "/produtos"
       ]
@@ -66,7 +66,13 @@
       "slug": "dublin9",
       "name": "Dublin 9",
       "description": "Landing page premium de divulgacao da Dublin 9.",
-      "dir": "dublin9-landing"
+      "dir": "apps/clients/official/dublin9-landing"
+    },
+    {
+      "slug": "mirage",
+      "name": "Mirage",
+      "description": "Landing page de apresentacao da Mirage Eyewear.",
+      "dir": "Mirage"
     }
   ]
 }
