@@ -256,6 +256,13 @@ export const customerFeedbackVideos: VideoAsset[] = [
     src: toAssetUrl("/assets/feedbacks/depoimento-cliente-04.mp4"),
     poster: toAssetUrl("/assets/dgad-proof-01.jpeg"),
   },
+  {
+    id: "feedback-cliente-05",
+    title: "Feedback recente",
+    description: "Novo relato em video de cliente sobre a experiencia com o metodo e a colecao completa.",
+    src: toAssetUrl("/assets/feedbacks/Whatsapp Video 2026-06-17 At 17.12.35.mp4"),
+    poster: toAssetUrl("/assets/dgad-proof-03.jpeg"),
+  },
 ];
 
 export const stickyChapters = [
