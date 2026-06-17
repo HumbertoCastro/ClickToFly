@@ -9,6 +9,8 @@ Este projeto raiz gera um pacote unico para Cloudflare Pages em `preview-dist`.
 - `https://preview.hcwebsolutions.com.br/projetos/clicktofly/`
 - `https://preview.hcwebsolutions.com.br/projetos/dgad/`
 - `https://preview.hcwebsolutions.com.br/projetos/sua-saude/`
+- `https://preview.hcwebsolutions.com.br/projetos/prisma-enfermagem/`
+- `https://preview.hcwebsolutions.com.br/projetos/convite-encontro/`
 - `https://preview.hcwebsolutions.com.br/projetos/dois-irmaos/`
 - `https://preview.hcwebsolutions.com.br/projetos/analitica/`
 - `https://preview.hcwebsolutions.com.br/projetos/dublin9/`

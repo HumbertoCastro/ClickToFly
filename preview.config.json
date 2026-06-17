@@ -45,6 +45,18 @@
       "dir": "apps/clients/official/sua-saude"
     },
     {
+      "slug": "prisma-enfermagem",
+      "name": "Prisma Enfermagem",
+      "description": "Landing page para cuidados de enfermagem, feridas e educacao em saude.",
+      "dir": "apps/clients/official/prisma-enfermagem"
+    },
+    {
+      "slug": "convite-encontro",
+      "name": "Convite de Encontro",
+      "description": "Formulario interativo de convite de encontro.",
+      "dir": "apps/labs/convite-encontro"
+    },
+    {
       "slug": "dois-irmaos",
       "name": "Dois Irmaos",
       "description": "Landing page de apresentacao para Dois Irmaos Tratamento Estetico.",
