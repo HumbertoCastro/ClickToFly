@@ -14,6 +14,7 @@ Este projeto raiz gera um pacote unico para Cloudflare Pages em `preview-dist`.
 - `https://preview.hcwebsolutions.com.br/projetos/dois-irmaos/`
 - `https://preview.hcwebsolutions.com.br/projetos/analitica/`
 - `https://preview.hcwebsolutions.com.br/projetos/dublin9/`
+- `https://preview.hcwebsolutions.com.br/projetos/orkin/`
 - `https://preview.hcwebsolutions.com.br/projetos/mirage/`
 - `https://preview.hcwebsolutions.com.br/feedback/?token=<token>`
 

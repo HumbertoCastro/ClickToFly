@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ambiente Bio BH">
+  <rect width="64" height="64" rx="8" fill="#063a20"/>
+  <path d="M16 40c0-9 6-16 15-16 6 0 11 3 14 8l-7 4c-2-3-4-4-7-4-4 0-7 3-7 8s3 8 8 8c3 0 6-1 8-4l6 5c-3 5-8 7-15 7-9 0-15-7-15-16Z" fill="#ffffff"/>
+  <path d="M44 8h13v13H44z" fill="#e92317"/>
+</svg>

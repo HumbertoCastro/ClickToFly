@@ -81,6 +81,12 @@
       "dir": "apps/clients/official/dublin9-landing"
     },
     {
+      "slug": "orkin",
+      "name": "Ambiente Bio BH",
+      "description": "Landing page para controle integrado de pragas em Belo Horizonte.",
+      "dir": "ambiente-bio-bh"
+    },
+    {
       "slug": "mirage",
       "name": "Mirage",
       "description": "Landing page de apresentacao da Mirage Eyewear.",
