@@ -13,7 +13,6 @@ export function DashboardPage() {
   const { activeProfile, activeProfileId, joinedEntries } = useApp();
 
   if (!activeProfileId) return <Navigate to="/profiles" replace />;
-  if (activeProfileId === "house") return <Navigate to="/house" replace />;
   if (!activeProfile) return <Navigate to="/profiles" replace />;
 
   const entries = joinedEntries.filter(

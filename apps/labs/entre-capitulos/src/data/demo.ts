@@ -1,24 +1,8 @@
 import type { PersistedState } from "../types";
+import { fixedLocalProfiles } from "./fixedProfiles";
 
 export const demoState: PersistedState = {
-  profiles: [
-    {
-      id: "profile-ana",
-      name: "Ana",
-      initials: "AN",
-      color: "#4A5D4E",
-      archivedAt: null,
-      createdAt: "2026-01-05T12:00:00.000Z",
-    },
-    {
-      id: "profile-caio",
-      name: "Caio",
-      initials: "CA",
-      color: "#A85F3F",
-      archivedAt: null,
-      createdAt: "2026-01-08T12:00:00.000Z",
-    },
-  ],
+  profiles: fixedLocalProfiles,
   books: [
     {
       id: "book-torto-arado",
@@ -143,7 +127,7 @@ export const demoState: PersistedState = {
     },
     {
       id: "entry-mar",
-      profileId: "profile-caio",
+      profileId: "profile-humberto",
       bookId: "book-mar",
       status: "completed",
       categories: ["Clássico", "Novela"],
@@ -169,7 +153,7 @@ export const demoState: PersistedState = {
     },
     {
       id: "entry-memoria",
-      profileId: "profile-caio",
+      profileId: "profile-humberto",
       bookId: "book-memoria",
       status: "want_to_read",
       categories: ["Literatura latino-americana"],

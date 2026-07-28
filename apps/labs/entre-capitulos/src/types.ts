@@ -89,7 +89,7 @@ export interface JoinedEntry {
   averageRating: number | null;
 }
 
-export type ProfileContext = string | "house" | null;
+export type ProfileContext = string | null;
 
 export interface PersistedState {
   profiles: Profile[];

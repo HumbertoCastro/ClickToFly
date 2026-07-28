@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { sortFixedProfiles } from "../data/fixedProfiles";
 import { calculateAverageRating } from "../lib/rating";
 import { repository } from "../lib/repository";
 import type {
@@ -24,18 +25,12 @@ interface AppContextValue {
   mode: "supabase" | "local";
   isDemo: boolean;
   profiles: Profile[];
-  archivedProfiles: Profile[];
   joinedEntries: JoinedEntry[];
   activeProfileId: ProfileContext;
   activeProfile: Profile | null;
   signIn(password: string): Promise<void>;
   signOut(): Promise<void>;
   selectProfile(profileId: ProfileContext): void;
-  saveProfile(
-    input: Pick<Profile, "name" | "initials" | "color">,
-    id?: string,
-  ): Promise<Profile>;
-  archiveProfile(id: string, archived: boolean): Promise<void>;
   saveEntry(draft: LibraryEntryDraft, entryId?: string): Promise<{
     entryId: string;
     duplicate: boolean;
@@ -94,11 +89,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const profiles = useMemo(
-    () => state.profiles.filter((profile) => !profile.archivedAt),
-    [state.profiles],
-  );
-  const archivedProfiles = useMemo(
-    () => state.profiles.filter((profile) => profile.archivedAt),
+    () =>
+      sortFixedProfiles(
+        state.profiles.filter((profile) => !profile.archivedAt),
+      ),
     [state.profiles],
   );
   const joinedEntries = useMemo(
@@ -155,21 +149,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     else localStorage.removeItem(activeProfileKey);
   }
 
-  async function saveProfile(
-    input: Pick<Profile, "name" | "initials" | "color">,
-    id?: string,
-  ) {
-    const profile = await repository.saveProfile(input, id);
-    await refresh();
-    return profile;
-  }
-
-  async function archiveProfile(id: string, archived: boolean) {
-    await repository.archiveProfile(id, archived);
-    if (id === activeProfileId && archived) selectProfile(null);
-    await refresh();
-  }
-
   async function saveEntry(draft: LibraryEntryDraft, entryId?: string) {
     const result = await repository.saveEntry(draft, entryId);
     await refresh();
@@ -190,15 +169,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         mode: repository.mode,
         isDemo: repository.isDemo,
         profiles,
-        archivedProfiles,
         joinedEntries,
         activeProfileId,
         activeProfile,
         signIn,
         signOut,
         selectProfile,
-        saveProfile,
-        archiveProfile,
         saveEntry,
         deleteEntry,
         refresh,

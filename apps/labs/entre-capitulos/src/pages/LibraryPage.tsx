@@ -17,10 +17,13 @@ export function LibraryPage() {
   const [minimumRating, setMinimumRating] = useState("all");
   const [sort, setSort] = useState<SortKey>("recent");
 
-  const baseEntries =
-    activeProfileId === "house"
-      ? joinedEntries
-      : joinedEntries.filter((item) => item.profile.id === activeProfile?.id);
+  const baseEntries = useMemo(
+    () =>
+      joinedEntries.filter(
+        (item) => item.profile.id === activeProfile?.id,
+      ),
+    [activeProfile?.id, joinedEntries],
+  );
 
   const categories = [
     ...new Set(baseEntries.flatMap((item) => item.entry.categories)),
@@ -79,9 +82,7 @@ export function LibraryPage() {
       <header className="page-heading">
         <div>
           <p className="eyebrow">ACERVO PESSOAL</p>
-          <h1>
-            {activeProfileId === "house" ? "Estante da casa" : "Minha estante"}
-          </h1>
+          <h1>Minha estante</h1>
           <p>
             {baseEntries.length}{" "}
             {baseEntries.length === 1 ? "livro guardado" : "livros guardados"}{" "}
@@ -178,11 +179,7 @@ export function LibraryPage() {
           {entries.length > 0 ? (
             <div className="book-grid book-grid--library">
               {entries.map((item) => (
-                <BookCard
-                  item={item}
-                  key={item.entry.id}
-                  showProfile={activeProfileId === "house"}
-                />
+                <BookCard item={item} key={item.entry.id} />
               ))}
             </div>
           ) : (

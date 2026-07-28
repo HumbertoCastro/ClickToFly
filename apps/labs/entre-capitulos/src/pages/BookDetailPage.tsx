@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { BookCover } from "../components/BookCover";
+import { ProfileAvatar } from "../components/ProfileAvatar";
 import { RatingDisplay } from "../components/RatingDisplay";
 import { StatusBadge } from "../components/StatusBadge";
 import { ratingCriteria } from "../constants";
@@ -90,12 +91,11 @@ export function BookDetailPage() {
           <span className="detail-hero__index">ARQUIVO · {item.entry.id.slice(0, 4)}</span>
           <BookCover book={item.book} size="large" />
           <div className="profile-byline profile-byline--detail">
-            <span
+            <ProfileAvatar
+              profile={item.profile}
               className="profile-byline__avatar"
-              style={{ backgroundColor: item.profile.color }}
-            >
-              {item.profile.initials}
-            </span>
+              decorative
+            />
             Estante de {item.profile.name}
           </div>
         </div>

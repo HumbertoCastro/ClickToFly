@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
 
 test("selects a profile and browses the personal library", async ({ page }) => {
   await expect(
-    page.getByRole("heading", { name: "Quem está lendo?" }),
+    page.getByRole("heading", { name: "Quem vai ler agora?" }),
   ).toBeVisible();
   await page.getByRole("button", { name: /Ana/ }).click();
   await expect(page.getByRole("heading", { name: /Olá, Ana/ })).toBeVisible();
@@ -17,17 +17,30 @@ test("selects a profile and browses the personal library", async ({ page }) => {
   await expect(page.getByText("Torto Arado").first()).toBeVisible();
 });
 
-test("shows the household view with profile attribution", async ({ page }) => {
-  await page.getByRole("button", { name: /Casa/ }).click();
+test("keeps only the two fixed profiles", async ({ page }) => {
+  const profileCards = page.locator(".profile-card");
+  await expect(profileCards).toHaveCount(2);
+  await expect(page.getByRole("button", { name: /Humberto/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Ana/ })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: /Histórias da casa inteira/ }),
+    page.getByRole("button", { name: /Novo perfil/ }),
+  ).toHaveCount(0);
+});
+
+test("shows the shared library with both readers", async ({ page }) => {
+  await page.getByRole("button", { name: /Humberto/ }).click();
+  await page.getByRole("link", { name: "Biblioteca", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: /Duas estantes, uma biblioteca/ }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Ana", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Caio", exact: true }),
+    page.getByRole("heading", { name: "Humberto", exact: true }),
   ).toBeVisible();
+  await expect(page.getByText("Torto Arado").first()).toBeVisible();
+  await expect(page.getByText("O velho e o mar").first()).toBeVisible();
 });
 
 test("creates a manual book with an optional rating", async ({ page }) => {
@@ -54,7 +67,7 @@ test("creates a manual book with an optional rating", async ({ page }) => {
 });
 
 test("keeps spoiler content collapsed by default", async ({ page }) => {
-  await page.getByRole("button", { name: /Caio/ }).click();
+  await page.getByRole("button", { name: /Humberto/ }).click();
   await page.getByRole("link", { name: /Minha estante/ }).click();
   await page.getByText("O velho e o mar").first().click();
   const spoiler = page.getByText("Este texto contém spoilers");

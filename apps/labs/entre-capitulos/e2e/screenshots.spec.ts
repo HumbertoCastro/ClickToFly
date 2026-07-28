@@ -1,5 +1,5 @@
 import { mkdir } from "node:fs/promises";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const outputDir = "test-results/visual";
 
@@ -9,42 +9,44 @@ test.beforeAll(async () => {
   await mkdir(outputDir, { recursive: true });
 });
 
+async function capture(page: Page, fileName: string) {
+  await page.waitForTimeout(550);
+  await page.screenshot({
+    path: `${outputDir}/${fileName}`,
+    fullPage: true,
+  });
+}
+
 test("captures desktop flows", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1024 });
 
   await page.goto("/?demo=1#/profiles");
   await expect(
-    page.getByRole("heading", { name: "Quem está lendo?" }),
+    page.getByRole("heading", { name: "Quem vai ler agora?" }),
   ).toBeVisible();
-  await page.screenshot({
-    path: `${outputDir}/profile-picker-desktop.png`,
-    fullPage: true,
-  });
+  await capture(page, "profile-picker-desktop.png");
 
   await page.getByRole("button", { name: /Ana/ }).click();
   await expect(page.getByRole("heading", { name: /Olá, Ana/ })).toBeVisible();
-  await page.screenshot({
-    path: `${outputDir}/dashboard-desktop.png`,
-    fullPage: true,
-  });
+  await capture(page, "dashboard-desktop.png");
+
+  await page.getByRole("link", { name: "Biblioteca", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: /Duas estantes, uma biblioteca/ }),
+  ).toBeVisible();
+  await capture(page, "shared-library-desktop.png");
 
   await page.goto("/?demo=1#/library");
   await expect(
     page.getByRole("heading", { name: "Minha estante" }),
   ).toBeVisible();
-  await page.screenshot({
-    path: `${outputDir}/library-desktop.png`,
-    fullPage: true,
-  });
+  await capture(page, "library-desktop.png");
 
   await page.goto("/?demo=1#/books/entry-mar");
   await expect(
     page.getByRole("heading", { name: "O velho e o mar" }),
   ).toBeVisible();
-  await page.screenshot({
-    path: `${outputDir}/book-detail-desktop.png`,
-    fullPage: true,
-  });
+  await capture(page, "book-detail-desktop.png");
 
 });
 
@@ -52,21 +54,19 @@ test("captures mobile flows", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
   await page.goto("/?demo=1#/profiles");
+  await expect(
+    page.getByRole("heading", { name: "Quem vai ler agora?" }),
+  ).toBeVisible();
+  await capture(page, "profile-picker-mobile.png");
   await page.getByRole("button", { name: /Ana/ }).click();
   await expect(page.getByRole("heading", { name: /Olá, Ana/ })).toBeVisible();
-  await page.screenshot({
-    path: `${outputDir}/dashboard-mobile.png`,
-    fullPage: true,
-  });
+  await capture(page, "dashboard-mobile.png");
 
   await page.goto("/?demo=1#/library");
   await expect(
     page.getByRole("heading", { name: "Minha estante" }),
   ).toBeVisible();
-  await page.screenshot({
-    path: `${outputDir}/library-mobile.png`,
-    fullPage: true,
-  });
+  await capture(page, "library-mobile.png");
 
   await page.goto("/?demo=1#/books/new");
   await page
@@ -75,9 +75,6 @@ test("captures mobile flows", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Agora, faça deste livro o seu." }),
   ).toBeVisible();
-  await page.screenshot({
-    path: `${outputDir}/add-book-mobile.png`,
-    fullPage: true,
-  });
+  await capture(page, "add-book-mobile.png");
 
 });

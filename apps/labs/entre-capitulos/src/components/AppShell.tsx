@@ -1,22 +1,21 @@
 import {
   BookMarked,
   BookOpenText,
-  House,
+  ChevronsUpDown,
   LibraryBig,
   LogOut,
   Plus,
-  Settings2,
   Users,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
+import { LibraryBackdrop } from "./LibraryBackdrop";
 import { Logo } from "./Logo";
+import { ProfileAvatar } from "./ProfileAvatar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const {
     activeProfile,
-    activeProfileId,
-    profiles,
     mode,
     isDemo,
     selectProfile,
@@ -29,11 +28,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     navigate("/login");
   }
 
-  const profileLabel =
-    activeProfileId === "house" ? "Visão da casa" : activeProfile?.name;
+  const profileLabel = activeProfile?.name;
 
   return (
     <div className="app-layout">
+      <LibraryBackdrop variant="app" />
       <aside className="sidebar">
         <Logo />
         <div className="sidebar__chapter">
@@ -46,12 +45,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Início
           </NavLink>
           <NavLink to="/library">
-            <LibraryBig size={19} />
+            <BookMarked size={19} />
             Minha estante
           </NavLink>
-          <NavLink to="/house">
-            <House size={19} />
-            Casa
+          <NavLink to="/biblioteca">
+            <LibraryBig size={19} />
+            Biblioteca
           </NavLink>
         </nav>
 
@@ -70,30 +69,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               navigate("/profiles");
             }}
           >
-            {activeProfileId === "house" ? (
-              <span className="profile-switch__avatar profile-switch__avatar--house">
-                <Users size={18} />
-              </span>
-            ) : (
-              <span
+            {activeProfile ? (
+              <ProfileAvatar
+                profile={activeProfile}
                 className="profile-switch__avatar"
-                style={{ backgroundColor: activeProfile?.color ?? "#4A5D4E" }}
-              >
-                {activeProfile?.initials ?? "EC"}
-              </span>
+                decorative
+              />
+            ) : (
+              <span className="profile-switch__avatar">EC</span>
             )}
             <span>
               <small>Perfil atual</small>
               <strong>{profileLabel ?? "Escolher perfil"}</strong>
             </span>
-            <Settings2 size={16} aria-hidden="true" />
+            <ChevronsUpDown size={16} aria-hidden="true" />
           </button>
           <div className="sidebar__footnote">
             <span
               className={`connection-dot connection-dot--${mode}`}
               aria-hidden="true"
             />
-            {isDemo ? "Demonstração local" : mode === "supabase" ? "Nuvem ativa" : "Dados neste navegador"}
+            {isDemo
+              ? "Demonstração local"
+              : mode === "supabase"
+                ? "Nuvem ativa"
+                : "Dados neste navegador"}
           </div>
           <button
             className="sidebar__logout"
@@ -101,7 +101,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onClick={handleLogout}
           >
             <LogOut size={16} />
-            Sair da casa
+            Encerrar sessão
           </button>
         </div>
       </aside>
@@ -114,20 +114,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           onClick={() => navigate("/profiles")}
           aria-label={`Trocar perfil. Perfil atual: ${profileLabel}`}
         >
-          <span
-            style={{
-              backgroundColor:
-                activeProfileId === "house"
-                  ? "#DDE6DF"
-                  : activeProfile?.color ?? "#4A5D4E",
-            }}
-          >
-            {activeProfileId === "house" ? (
-              <Users size={16} />
-            ) : (
-              activeProfile?.initials ?? "EC"
-            )}
-          </span>
+          {activeProfile ? (
+            <ProfileAvatar
+              profile={activeProfile}
+              className="mobile-profile__avatar"
+              decorative
+            />
+          ) : (
+            <span className="mobile-profile__avatar">EC</span>
+          )}
           {profileLabel}
         </button>
       </header>
@@ -136,28 +131,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <nav className="mobile-nav" aria-label="Navegação móvel">
         <NavLink end to="/">
-          <BookMarked size={20} />
+          <BookOpenText size={20} />
           <span>Início</span>
         </NavLink>
         <NavLink to="/library">
-          <LibraryBig size={20} />
+          <BookMarked size={20} />
           <span>Estante</span>
         </NavLink>
         <NavLink className="mobile-nav__add" to="/books/new">
           <Plus size={23} />
           <span>Adicionar</span>
         </NavLink>
-        <NavLink to="/house">
-          <House size={20} />
-          <span>Casa</span>
+        <NavLink to="/biblioteca">
+          <LibraryBig size={20} />
+          <span>Biblioteca</span>
         </NavLink>
-        <NavLink to="/manage-profiles">
+        <NavLink to="/profiles">
           <Users size={20} />
-          <span>Perfis</span>
+          <span>Trocar</span>
         </NavLink>
       </nav>
-
-      {profiles.length === 0 && <span hidden>Nenhum perfil ativo</span>}
     </div>
   );
 }

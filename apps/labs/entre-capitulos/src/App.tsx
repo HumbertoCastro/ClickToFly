@@ -26,9 +26,9 @@ const DashboardPage = lazy(() =>
     default: module.DashboardPage,
   })),
 );
-const HousePage = lazy(() =>
-  import("./pages/HousePage").then((module) => ({
-    default: module.HousePage,
+const SharedLibraryPage = lazy(() =>
+  import("./pages/SharedLibraryPage").then((module) => ({
+    default: module.SharedLibraryPage,
   })),
 );
 const LibraryPage = lazy(() =>
@@ -46,12 +46,6 @@ const ProfilePickerPage = lazy(() =>
     default: module.ProfilePickerPage,
   })),
 );
-const ProfilesPage = lazy(() =>
-  import("./pages/ProfilesPage").then((module) => ({
-    default: module.ProfilesPage,
-  })),
-);
-
 function LoadingScreen() {
   return (
     <div className="loading-screen">
@@ -114,11 +108,14 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/profiles" element={<ProfilePickerPage />} />
             <Route element={<ShellRoute />}>
-              <Route path="/manage-profiles" element={<ProfilesPage />} />
+              <Route path="/biblioteca" element={<SharedLibraryPage />} />
+              <Route
+                path="/house"
+                element={<Navigate to="/biblioteca" replace />}
+              />
               <Route element={<LibraryRoute />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="/library" element={<LibraryPage />} />
-                <Route path="/house" element={<HousePage />} />
                 <Route path="/books/new" element={<BookFormPage />} />
                 <Route path="/books/:entryId" element={<BookDetailPage />} />
                 <Route path="/books/:entryId/edit" element={<BookFormPage />} />

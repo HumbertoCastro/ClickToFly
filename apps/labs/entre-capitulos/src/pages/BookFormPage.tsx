@@ -87,9 +87,7 @@ export function BookFormPage() {
   const navigate = useNavigate();
   const editingItem = joinedEntries.find((item) => item.entry.id === entryId);
   const initialProfileId =
-    editingItem?.profile.id ??
-    (activeProfileId !== "house" ? activeProfile?.id : profiles[0]?.id) ??
-    "";
+    editingItem?.profile.id ?? activeProfile?.id ?? profiles[0]?.id ?? "";
   const initialDraft = useMemo<LibraryEntryDraft | null>(
     () =>
       editingItem

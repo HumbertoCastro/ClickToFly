@@ -1,5 +1,10 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { demoState } from "../data/demo";
+import {
+  fixedLocalProfiles,
+  fixedProfileDefinitions,
+  getFixedProfileDefinition,
+} from "../data/fixedProfiles";
 import type {
   Book,
   LibraryEntry,
@@ -22,14 +27,12 @@ export interface AppRepository {
   signIn(password: string): Promise<void>;
   signOut(): Promise<void>;
   loadState(): Promise<PersistedState>;
-  saveProfile(input: Pick<Profile, "name" | "initials" | "color">, id?: string): Promise<Profile>;
-  archiveProfile(id: string, archived: boolean): Promise<void>;
   saveEntry(draft: LibraryEntryDraft, entryId?: string): Promise<SaveResult>;
   deleteEntry(id: string): Promise<void>;
 }
 
 const localStateKey = "entre-capitulos.state.v1";
-const localDemoStateKey = "entre-capitulos.demo-state.v1";
+const localDemoStateKey = "entre-capitulos.demo-state.v2";
 const localPasswordKey = "entre-capitulos.password.v1";
 const localSessionKey = "entre-capitulos.session.v1";
 
@@ -51,6 +54,38 @@ async function hashPassword(value: string): Promise<string> {
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function withFixedLocalProfiles(state: PersistedState): PersistedState {
+  const profiles = [...state.profiles];
+
+  fixedLocalProfiles.forEach((fixedProfile) => {
+    const fixedDefinition = getFixedProfileDefinition(fixedProfile);
+    const existingIndex = profiles.findIndex(
+      (profile) =>
+        getFixedProfileDefinition(profile)?.key === fixedDefinition?.key,
+    );
+
+    if (existingIndex >= 0) {
+      profiles[existingIndex] = {
+        ...profiles[existingIndex],
+        name: fixedProfile.name,
+        initials: fixedProfile.initials,
+        color: fixedProfile.color,
+        archivedAt: null,
+      };
+      return;
+    }
+
+    profiles.push({
+      ...fixedProfile,
+      id: profiles.some((profile) => profile.id === fixedProfile.id)
+        ? newId()
+        : fixedProfile.id,
+    });
+  });
+
+  return { ...state, profiles };
 }
 
 function matchesBook(left: Book, right: LibraryEntryDraft["book"]): boolean {
@@ -83,11 +118,17 @@ class LocalRepository implements AppRepository {
 
   private readState(): PersistedState {
     const stored = localStorage.getItem(this.storageKey);
-    if (stored) return JSON.parse(stored) as PersistedState;
+    if (stored) {
+      const state = withFixedLocalProfiles(
+        JSON.parse(stored) as PersistedState,
+      );
+      this.writeState(state);
+      return state;
+    }
 
     const initial = this.isDemo
       ? clone(demoState)
-      : { profiles: [], books: [], entries: [] };
+      : { profiles: clone(fixedLocalProfiles), books: [], entries: [] };
     this.writeState(initial);
     return initial;
   }
@@ -126,40 +167,6 @@ class LocalRepository implements AppRepository {
 
   async loadState(): Promise<PersistedState> {
     return clone(this.readState());
-  }
-
-  async saveProfile(
-    input: Pick<Profile, "name" | "initials" | "color">,
-    id?: string,
-  ): Promise<Profile> {
-    const state = this.readState();
-    const existing = id
-      ? state.profiles.find((profile) => profile.id === id)
-      : undefined;
-    const profile: Profile = {
-      id: existing?.id ?? newId(),
-      name: input.name.trim(),
-      initials: input.initials.trim().toUpperCase(),
-      color: input.color,
-      archivedAt: existing?.archivedAt ?? null,
-      createdAt: existing?.createdAt ?? now(),
-    };
-
-    state.profiles = existing
-      ? state.profiles.map((item) => (item.id === profile.id ? profile : item))
-      : [...state.profiles, profile];
-    this.writeState(state);
-    return profile;
-  }
-
-  async archiveProfile(id: string, archived: boolean): Promise<void> {
-    const state = this.readState();
-    state.profiles = state.profiles.map((profile) =>
-      profile.id === id
-        ? { ...profile, archivedAt: archived ? now() : null }
-        : profile,
-    );
-    this.writeState(state);
   }
 
   async saveEntry(
@@ -390,41 +397,74 @@ class SupabaseRepository implements AppRepository {
       ratingsResult.error;
     if (error) throw new Error(error.message);
 
+    let profileRows = (profilesResult.data ?? []) as ProfileRow[];
+    profileRows = await Promise.all(
+      profileRows.map(async (profile) => {
+        const definition = getFixedProfileDefinition({
+          name: profile.name,
+        });
+        if (!definition) return profile;
+
+        const isCurrent =
+          profile.name === definition.name &&
+          profile.initials === definition.initials &&
+          profile.color === definition.color &&
+          profile.archived_at === null;
+        if (isCurrent) return profile;
+
+        const syncResult = await this.client
+          .from("profiles")
+          .update({
+            name: definition.name,
+            initials: definition.initials,
+            color: definition.color,
+            archived_at: null,
+          })
+          .eq("id", profile.id)
+          .select("*")
+          .single();
+        if (syncResult.error) throw new Error(syncResult.error.message);
+        return syncResult.data as ProfileRow;
+      }),
+    );
+
+    const missingProfiles = fixedProfileDefinitions.filter(
+      (definition) =>
+        !profileRows.some(
+          (profile) =>
+            getFixedProfileDefinition({ name: profile.name })?.key ===
+            definition.key,
+        ),
+    );
+
+    if (missingProfiles.length > 0) {
+      const ownerId = await this.userId();
+      const createResult = await this.client
+        .from("profiles")
+        .insert(
+          missingProfiles.map((profile) => ({
+            owner_id: ownerId,
+            name: profile.name,
+            initials: profile.initials,
+            color: profile.color,
+          })),
+        )
+        .select("*");
+      if (createResult.error) throw new Error(createResult.error.message);
+      profileRows = [
+        ...profileRows,
+        ...((createResult.data ?? []) as ProfileRow[]),
+      ];
+    }
+
     const ratings = (ratingsResult.data ?? []) as RatingRow[];
     return {
-      profiles: ((profilesResult.data ?? []) as ProfileRow[]).map(mapProfile),
+      profiles: profileRows.map(mapProfile),
       books: ((booksResult.data ?? []) as BookRow[]).map(mapBook),
       entries: ((entriesResult.data ?? []) as EntryRow[]).map((entry) =>
         mapEntry(entry, ratings),
       ),
     };
-  }
-
-  async saveProfile(
-    input: Pick<Profile, "name" | "initials" | "color">,
-    id?: string,
-  ): Promise<Profile> {
-    const ownerId = await this.userId();
-    const payload = {
-      owner_id: ownerId,
-      name: input.name.trim(),
-      initials: input.initials.trim().toUpperCase(),
-      color: input.color,
-    };
-    const query = id
-      ? this.client.from("profiles").update(payload).eq("id", id)
-      : this.client.from("profiles").insert(payload);
-    const { data, error } = await query.select("*").single();
-    if (error) throw new Error(error.message);
-    return mapProfile(data as ProfileRow);
-  }
-
-  async archiveProfile(id: string, archived: boolean): Promise<void> {
-    const { error } = await this.client
-      .from("profiles")
-      .update({ archived_at: archived ? now() : null })
-      .eq("id", id);
-    if (error) throw new Error(error.message);
   }
 
   private async findBook(

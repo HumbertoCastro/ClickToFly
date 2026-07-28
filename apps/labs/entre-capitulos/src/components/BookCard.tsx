@@ -2,6 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { JoinedEntry } from "../types";
 import { BookCover } from "./BookCover";
+import { ProfileAvatar } from "./ProfileAvatar";
 import { RatingDisplay } from "./RatingDisplay";
 import { StatusBadge } from "./StatusBadge";
 
@@ -31,12 +32,11 @@ export function BookCard({
         <p className="book-card__author">{item.book.authors.join(", ")}</p>
         {showProfile && (
           <div className="profile-byline">
-            <span
+            <ProfileAvatar
+              profile={item.profile}
               className="profile-byline__avatar"
-              style={{ backgroundColor: item.profile.color }}
-            >
-              {item.profile.initials}
-            </span>
+              decorative
+            />
             Na estante de {item.profile.name}
           </div>
         )}
