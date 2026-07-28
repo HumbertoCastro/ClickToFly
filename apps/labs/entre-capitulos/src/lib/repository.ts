@@ -604,7 +604,10 @@ export const isSupabaseConfigured = Boolean(
     supabaseConfig.householdEmail,
 );
 
-export const repository: AppRepository = isSupabaseConfigured
+const isDemoMode =
+  new URLSearchParams(window.location.search).get("demo") === "1";
+
+export const repository: AppRepository = isSupabaseConfigured && !isDemoMode
   ? new SupabaseRepository(
       createClient(supabaseConfig.url, supabaseConfig.anonKey, {
         auth: { persistSession: true, autoRefreshToken: true },
