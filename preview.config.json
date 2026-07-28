@@ -57,6 +57,12 @@
       "dir": "apps/labs/convite-encontro"
     },
     {
+      "slug": "entre-capitulos",
+      "name": "Entre Capitulos",
+      "description": "Biblioteca domestica compartilhada para registrar leituras e avaliacoes.",
+      "dir": "apps/labs/entre-capitulos"
+    },
+    {
       "slug": "dois-irmaos",
       "name": "Dois Irmaos",
       "description": "Landing page de apresentacao para Dois Irmaos Tratamento Estetico.",
