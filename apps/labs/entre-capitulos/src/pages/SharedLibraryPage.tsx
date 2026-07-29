@@ -45,23 +45,33 @@ export function SharedLibraryPage() {
         </div>
       </header>
 
-      <section className="library-summary" aria-label="Resumo da biblioteca">
-        <div>
-          <Users size={22} />
+      <section className="stats-strip" aria-label="Resumo da biblioteca">
+        <article>
+          <span className="stats-strip__icon">
+            <Users size={22} aria-hidden="true" />
+          </span>
           <span>
             <strong>{profiles.length}</strong>
-            leitores
+            {profiles.length === 1 ? " leitor" : " leitores"}
+            <small>Estantes reunidas</small>
           </span>
-        </div>
-        <div>
-          <LibraryBig size={22} />
+        </article>
+        <article>
+          <span className="stats-strip__icon">
+            <LibraryBig size={22} aria-hidden="true" />
+          </span>
           <span>
             <strong>{joinedEntries.length}</strong>
-            livros registrados
+            {joinedEntries.length === 1
+              ? " livro registrado"
+              : " livros registrados"}
+            <small>Memórias compartilhadas</small>
           </span>
-        </div>
-        <div>
-          <BookOpenText size={22} />
+        </article>
+        <article>
+          <span className="stats-strip__icon">
+            <BookOpenText size={22} aria-hidden="true" />
+          </span>
           <span>
             <strong>
               {
@@ -71,10 +81,13 @@ export function SharedLibraryPage() {
               }
             </strong>
             lendo agora
+            <small>Leituras em andamento</small>
           </span>
-        </div>
-        <div className="library-summary__rating">
-          <Sparkles size={22} />
+        </article>
+        <article className="stats-strip__rating">
+          <span className="stats-strip__icon">
+            <Sparkles size={22} aria-hidden="true" />
+          </span>
           <span>
             <strong>
               {average?.toLocaleString("pt-BR", {
@@ -83,8 +96,15 @@ export function SharedLibraryPage() {
               }) ?? "—"}
             </strong>
             média da biblioteca
+            <small>
+              {rated.length > 0
+                ? `${rated.length} ${
+                    rated.length === 1 ? "avaliação reunida" : "avaliações reunidas"
+                  }`
+                : "Avalie suas leituras"}
+            </small>
           </span>
-        </div>
+        </article>
       </section>
 
       {joinedEntries.length === 0 ? (

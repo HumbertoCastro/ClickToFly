@@ -17,6 +17,13 @@ async function capture(page: Page, fileName: string) {
   });
 }
 
+async function captureViewport(page: Page, fileName: string) {
+  await page.waitForTimeout(550);
+  await page.screenshot({
+    path: `${outputDir}/${fileName}`,
+  });
+}
+
 test("captures desktop flows", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1024 });
 
@@ -29,6 +36,9 @@ test("captures desktop flows", async ({ page }) => {
   await page.getByRole("button", { name: /Ana/ }).click();
   await expect(page.getByRole("heading", { name: /Olá, Ana/ })).toBeVisible();
   await capture(page, "dashboard-desktop.png");
+  await page.setViewportSize({ width: 1708, height: 920 });
+  await captureViewport(page, "dashboard-reference-viewport.png");
+  await page.setViewportSize({ width: 1440, height: 1024 });
 
   await page.getByRole("link", { name: "Biblioteca", exact: true }).click();
   await expect(

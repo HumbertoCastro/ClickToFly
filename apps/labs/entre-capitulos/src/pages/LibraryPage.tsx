@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { Filter, Plus, Search, SlidersHorizontal } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
-import { BookCard } from "../components/BookCard";
 import { EmptyState } from "../components/EmptyState";
+import { WoodenShelf } from "../components/WoodenShelf";
 import { statusMeta } from "../constants";
 import { useApp } from "../context/AppContext";
 import type { BookStatus } from "../types";
@@ -177,11 +177,7 @@ export function LibraryPage() {
           </div>
 
           {entries.length > 0 ? (
-            <div className="book-grid book-grid--library">
-              {entries.map((item) => (
-                <BookCard item={item} key={item.entry.id} />
-              ))}
-            </div>
+            <WoodenShelf entries={entries} />
           ) : (
             <EmptyState
               action={false}

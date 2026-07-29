@@ -1,7 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { JoinedEntry } from "../types";
-import { BookCover } from "./BookCover";
+import { BookMockup } from "./BookMockup";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { RatingDisplay } from "./RatingDisplay";
 import { StatusBadge } from "./StatusBadge";
@@ -16,7 +16,7 @@ export function BookCard({
   return (
     <article className="book-card">
       <Link className="book-card__cover-link" to={`/books/${item.entry.id}`}>
-        <BookCover book={item.book} />
+        <BookMockup book={item.book} />
         <span className="book-card__open" aria-hidden="true">
           <ArrowUpRight size={18} />
         </span>

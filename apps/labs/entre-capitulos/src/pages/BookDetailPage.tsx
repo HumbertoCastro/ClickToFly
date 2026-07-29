@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -9,8 +9,8 @@ import {
   RotateCcw,
   Trash2,
 } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { BookCover } from "../components/BookCover";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { BookMockup } from "../components/BookMockup";
 import { ProfileAvatar } from "../components/ProfileAvatar";
 import { RatingDisplay } from "../components/RatingDisplay";
 import { StatusBadge } from "../components/StatusBadge";
@@ -21,9 +21,22 @@ import { formatDate, readingProgress } from "../lib/format";
 export function BookDetailPage() {
   const { entryId } = useParams();
   const { joinedEntries, deleteEntry } = useApp();
+  const location = useLocation();
   const navigate = useNavigate();
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const [deleting, setDeleting] = useState(false);
   const item = joinedEntries.find((candidate) => candidate.entry.id === entryId);
+  const locationState = location.state as
+    | { shelfTransitionEntryId?: string }
+    | null;
+  const arrivedFromShelf =
+    locationState?.shelfTransitionEntryId === item?.entry.id;
+
+  useEffect(() => {
+    if (arrivedFromShelf) {
+      titleRef.current?.focus({ preventScroll: true });
+    }
+  }, [arrivedFromShelf]);
 
   if (!item) {
     return (
@@ -62,7 +75,9 @@ export function BookDetailPage() {
   }
 
   return (
-    <div className="page book-detail-page">
+    <div
+      className={`page book-detail-page${arrivedFromShelf ? " book-detail-page--from-shelf" : ""}`}
+    >
       <div className="detail-topbar">
         <Link className="back-link" to="/library">
           <ArrowLeft size={17} /> Voltar para a estante
@@ -89,7 +104,16 @@ export function BookDetailPage() {
       <section className="detail-hero">
         <div className="detail-hero__cover">
           <span className="detail-hero__index">ARQUIVO · {item.entry.id.slice(0, 4)}</span>
-          <BookCover book={item.book} size="large" />
+          <div
+            className="detail-hero__book-transition"
+            style={
+              arrivedFromShelf
+                ? { viewTransitionName: "active-shelf-book" }
+                : undefined
+            }
+          >
+            <BookMockup book={item.book} />
+          </div>
           <div className="profile-byline profile-byline--detail">
             <ProfileAvatar
               profile={item.profile}
@@ -104,7 +128,9 @@ export function BookDetailPage() {
             <StatusBadge status={item.entry.status} />
             <RatingDisplay value={item.averageRating} />
           </div>
-          <h1>{item.book.title}</h1>
+          <h1 ref={titleRef} tabIndex={-1}>
+            {item.book.title}
+          </h1>
           {item.book.subtitle && <h2>{item.book.subtitle}</h2>}
           <p className="detail-hero__author">
             por {item.book.authors.join(", ")}

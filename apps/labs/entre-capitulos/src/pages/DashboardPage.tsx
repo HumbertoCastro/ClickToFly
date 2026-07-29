@@ -1,9 +1,15 @@
-import { ArrowRight, BookCheck, BookOpenText, Bookmark, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BookCheck,
+  BookOpenText,
+  Bookmark,
+  MoreHorizontal,
+  Star,
+} from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { BookCard } from "../components/BookCard";
-import { BookCover } from "../components/BookCover";
+import { BookMockup } from "../components/BookMockup";
 import { EmptyState } from "../components/EmptyState";
-import { RatingDisplay } from "../components/RatingDisplay";
 import { StatusBadge } from "../components/StatusBadge";
 import { useApp } from "../context/AppContext";
 import { readingProgress } from "../lib/format";
@@ -42,19 +48,72 @@ export function DashboardPage() {
 
   return (
     <div className="page dashboard-page">
-      <header className="page-heading page-heading--dashboard">
-        <div>
+      <header className="dashboard-hero">
+        <div className="dashboard-hero__copy">
           <p className="eyebrow">CAPÍTULO ATUAL</p>
           <h1>
             Olá, {activeProfile.name}.<br />
             <em>O que vamos ler hoje?</em>
           </h1>
         </div>
-        <p className="page-heading__aside">
-          Sua estante guarda {entries.length}{" "}
-          {entries.length === 1 ? "história" : "histórias"} até aqui.
-        </p>
+        <img
+          className="dashboard-hero__still-life"
+          src={`${import.meta.env.BASE_URL}illustrations/library-still-life.jpg`}
+          alt=""
+        />
       </header>
+
+      <section className="stats-strip" aria-label="Resumo da estante">
+        <article>
+          <span className="stats-strip__icon">
+            <BookOpenText size={22} aria-hidden="true" />
+          </span>
+          <span>
+            <strong>{currentlyReading ? 1 : 0}</strong>
+            lendo agora
+            <small>
+              {currentlyReading ? "Continue sua leitura" : "Comece uma leitura"}
+            </small>
+          </span>
+        </article>
+        <article>
+          <span className="stats-strip__icon">
+            <BookCheck size={22} aria-hidden="true" />
+          </span>
+          <span>
+            <strong>{completed.length}</strong>
+            {completed.length === 1 ? " livro lido" : " livros lidos"}
+            <small>{completed.length > 0 ? "Parabéns" : "Sua história começa aqui"}</small>
+          </span>
+        </article>
+        <article>
+          <span className="stats-strip__icon">
+            <Bookmark size={22} aria-hidden="true" />
+          </span>
+          <span>
+            <strong>{wishlist.length}</strong>
+            na lista
+            <small>Adicione livros</small>
+          </span>
+        </article>
+        <article className="stats-strip__rating">
+          <span className="stats-strip__icon">
+            <Star size={22} aria-hidden="true" />
+          </span>
+          <span>
+            <strong>
+              {householdAverage?.toLocaleString("pt-BR", {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              }) ?? "—"}
+            </strong>
+            média geral
+            <small>
+              {householdAverage === null ? "Avalie suas leituras" : "Muito bom"}
+            </small>
+          </span>
+        </article>
+      </section>
 
       {entries.length === 0 ? (
         <EmptyState
@@ -63,58 +122,18 @@ export function DashboardPage() {
         />
       ) : (
         <>
-          <section className="stats-strip" aria-label="Resumo da estante">
-            <div>
-              <BookOpenText size={20} />
-              <span>
-                <strong>{currentlyReading ? 1 : 0}</strong>
-                lendo agora
-              </span>
-            </div>
-            <div>
-              <BookCheck size={20} />
-              <span>
-                <strong>{completed.length}</strong>
-                {completed.length === 1 ? " livro lido" : " livros lidos"}
-              </span>
-            </div>
-            <div>
-              <Bookmark size={20} />
-              <span>
-                <strong>{wishlist.length}</strong>
-                na lista
-              </span>
-            </div>
-            <div className="stats-strip__rating">
-              <Sparkles size={20} />
-              <span>
-                <strong>
-                  {householdAverage?.toLocaleString("pt-BR", {
-                    minimumFractionDigits: 1,
-                    maximumFractionDigits: 1,
-                  }) ?? "—"}
-                </strong>
-                média geral
-              </span>
-            </div>
-          </section>
-
           {currentlyReading && (
             <section className="current-reading">
-              <div className="current-reading__index">
-                <span>EM LEITURA</span>
-                <strong>01</strong>
+              <span className="current-reading__flag">EM LEITURA</span>
+              <div className="current-reading__cover">
+                <BookMockup book={currentlyReading.book} />
               </div>
-              <BookCover book={currentlyReading.book} size="large" />
               <div className="current-reading__copy">
                 <StatusBadge status="reading" />
                 <h2>{currentlyReading.book.title}</h2>
                 <p className="current-reading__author">
                   {currentlyReading.book.authors.join(", ")}
                 </p>
-                {currentlyReading.entry.review && (
-                  <blockquote>“{currentlyReading.entry.review}”</blockquote>
-                )}
                 <div className="reading-progress">
                   <div className="reading-progress__label">
                     <span>
@@ -123,7 +142,7 @@ export function DashboardPage() {
                         ? ` de ${currentlyReading.book.pageCount}`
                         : ""}
                     </span>
-                    <strong>{progress !== null ? `${progress}%` : "Em andamento"}</strong>
+                    <strong>Em andamento</strong>
                   </div>
                   <div
                     className="reading-progress__track"
@@ -143,7 +162,19 @@ export function DashboardPage() {
                   >
                     Continuar leitura <ArrowRight size={17} />
                   </Link>
-                  <RatingDisplay value={currentlyReading.averageRating} />
+                  <Link
+                    className="button button--secondary current-reading__rating"
+                    to={`/books/${currentlyReading.entry.id}/edit`}
+                  >
+                    <Star size={17} aria-hidden="true" /> Avaliar livro
+                  </Link>
+                  <Link
+                    className="icon-button current-reading__more"
+                    to={`/books/${currentlyReading.entry.id}`}
+                    aria-label={`Ver detalhes de ${currentlyReading.book.title}`}
+                  >
+                    <MoreHorizontal size={18} aria-hidden="true" />
+                  </Link>
                 </div>
               </div>
             </section>

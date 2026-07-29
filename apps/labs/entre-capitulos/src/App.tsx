@@ -10,9 +10,10 @@ import {
 import { AppShell } from "./components/AppShell";
 import { Logo } from "./components/Logo";
 import { useApp } from "./context/AppContext";
+import { loadBookDetailPage } from "./lib/routeLoaders";
 
 const BookDetailPage = lazy(() =>
-  import("./pages/BookDetailPage").then((module) => ({
+  loadBookDetailPage().then((module) => ({
     default: module.BookDetailPage,
   })),
 );
@@ -85,6 +86,11 @@ function ShellRoute() {
   );
 }
 
+function BookFormRoute() {
+  const location = useLocation();
+  return <BookFormPage key={location.search} />;
+}
+
 function NotFoundPage() {
   return (
     <div className="page not-found">
@@ -116,9 +122,12 @@ export default function App() {
               <Route element={<LibraryRoute />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="/library" element={<LibraryPage />} />
-                <Route path="/books/new" element={<BookFormPage />} />
+                <Route path="/books/new" element={<BookFormRoute />} />
                 <Route path="/books/:entryId" element={<BookDetailPage />} />
-                <Route path="/books/:entryId/edit" element={<BookFormPage />} />
+                <Route
+                  path="/books/:entryId/edit"
+                  element={<BookFormRoute />}
+                />
               </Route>
             </Route>
           </Route>

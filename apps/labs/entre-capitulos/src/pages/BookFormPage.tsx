@@ -15,7 +15,13 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { BookCover } from "../components/BookCover";
 import { RatingDisplay } from "../components/RatingDisplay";
 import { ratingCriteria, statusMeta } from "../constants";
@@ -85,6 +91,8 @@ export function BookFormPage() {
     saveEntry,
   } = useApp();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get("query") ?? "";
   const editingItem = joinedEntries.find((item) => item.entry.id === entryId);
   const initialProfileId =
     editingItem?.profile.id ?? activeProfile?.id ?? profiles[0]?.id ?? "";
@@ -109,7 +117,7 @@ export function BookFormPage() {
   );
 
   const [step, setStep] = useState<1 | 2>(editingItem ? 2 : 1);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(entryId ? "" : queryParam);
   const [results, setResults] = useState<BookSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState("");

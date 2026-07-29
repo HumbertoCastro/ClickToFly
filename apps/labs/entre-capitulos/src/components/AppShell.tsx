@@ -1,13 +1,17 @@
+import { useState, type FormEvent } from "react";
 import {
+  Bell,
   BookMarked,
   BookOpenText,
   ChevronsUpDown,
   LibraryBig,
   LogOut,
   Plus,
+  Search,
+  UserRound,
   Users,
 } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { LibraryBackdrop } from "./LibraryBackdrop";
 import { Logo } from "./Logo";
@@ -16,12 +20,14 @@ import { ProfileAvatar } from "./ProfileAvatar";
 export function AppShell({ children }: { children: React.ReactNode }) {
   const {
     activeProfile,
+    joinedEntries,
     mode,
     isDemo,
     selectProfile,
     signOut,
   } = useApp();
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
   async function handleLogout() {
     await signOut();
@@ -29,6 +35,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   const profileLabel = activeProfile?.name;
+  const readingListCount = activeProfile
+    ? joinedEntries.filter(
+        (item) =>
+          item.profile.id === activeProfile.id &&
+          item.entry.status === "want_to_read",
+      ).length
+    : 0;
+
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    navigate(query ? `/books/new?query=${encodeURIComponent(query)}` : "/books/new");
+  }
 
   return (
     <div className="app-layout">
@@ -127,7 +146,49 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </button>
       </header>
 
-      <main className="main-content">{children}</main>
+      <div className="content-column">
+        <header className="app-toolbar">
+          <form className="app-search" role="search" onSubmit={handleSearch}>
+            <Search size={20} aria-hidden="true" />
+            <label className="sr-only" htmlFor="app-search-input">
+              Buscar livros ou autores
+            </label>
+            <input
+              id="app-search-input"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Buscar livros, autores..."
+            />
+          </form>
+          <Link
+            className="toolbar-action"
+            to="/library"
+            aria-label={`${readingListCount} ${
+              readingListCount === 1 ? "livro" : "livros"
+            } na lista de leitura`}
+          >
+            <Bell size={19} aria-hidden="true" />
+            {readingListCount > 0 && (
+              <span aria-hidden="true">{readingListCount}</span>
+            )}
+          </Link>
+          <button
+            className="toolbar-action"
+            type="button"
+            onClick={() => {
+              selectProfile(null);
+              navigate("/profiles");
+            }}
+            aria-label={`Trocar perfil. Perfil atual: ${
+              profileLabel ?? "nenhum"
+            }`}
+          >
+            <UserRound size={19} aria-hidden="true" />
+          </button>
+        </header>
+
+        <main className="main-content">{children}</main>
+      </div>
 
       <nav className="mobile-nav" aria-label="Navegação móvel">
         <NavLink end to="/">
