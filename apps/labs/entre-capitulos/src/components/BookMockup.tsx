@@ -15,10 +15,10 @@ interface BookMockupProps {
 }
 
 const projection = {
-  horizontalScale: 0.901388889,
-  topSlope: 0.009905372,
-  verticalScale: 0.891483516,
-  perspective: -0.098611111,
+  horizontalScale: 1.038095238,
+  topSlope: 0.00317460317,
+  verticalScale: 1,
+  perspective: 0.0380952381,
 } as const;
 
 function projectionMatrix(width: number, height: number) {

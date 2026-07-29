@@ -1316,9 +1316,9 @@ h3 {
 .book-mockup {
   position: relative;
   width: 100%;
-  aspect-ratio: 590 / 805;
+  aspect-ratio: 440 / 686;
   container-type: inline-size;
-  filter: drop-shadow(0 18px 18px rgba(51, 35, 22, 0.2));
+  filter: drop-shadow(1px 14px 14px rgba(51, 35, 22, 0.18));
   transform-style: preserve-3d;
 }
 
@@ -1332,33 +1332,22 @@ h3 {
 
 .book-mockup__shell {
   position: absolute;
-  top: -14.907%;
-  left: -35.593%;
-  width: 173.559%;
+  top: -25.9475%;
+  left: -125%;
+  width: 349.0909%;
   max-width: none;
-  height: 127.205%;
+  height: 149.2711%;
   object-fit: fill;
-  clip-path: polygon(
-    22.46% 14.75%,
-    27.34% 13.18%,
-    74.8% 15.82%,
-    76.46% 16.21%,
-    76.46% 83.79%,
-    74.8% 84.18%,
-    74.8% 85.55%,
-    72.46% 88.77%,
-    22.46% 80.96%
-  );
   user-select: none;
 }
 
 .book-mockup__print-area {
   position: absolute;
   z-index: 2;
-  top: 5.963%;
-  left: 7.966%;
-  width: 80.847%;
-  height: 90.435%;
+  top: 2.478134%;
+  left: 18.863636%;
+  width: 76.818182%;
+  height: 95.335277%;
   perspective: 1000px;
   pointer-events: none;
   transform-style: preserve-3d;
@@ -1376,7 +1365,7 @@ h3 {
 .book-mockup__page-plane {
   position: absolute;
   inset: 0;
-  border-radius: 2px 5px 5px 2px;
+  border-radius: 2px 3px 3px 2px;
   backface-visibility: hidden;
 }
 
@@ -1402,7 +1391,7 @@ h3 {
     inset 5px 0 0 rgba(39, 29, 20, 0.08),
     0 8px 16px rgba(50, 34, 22, 0.16);
   transform: rotateY(0deg) translateZ(1px);
-  transform-origin: 0 44.6%;
+  transform-origin: 0 50%;
   transform-style: preserve-3d;
   transition:
     box-shadow 420ms ease,
@@ -1415,11 +1404,11 @@ h3 {
   inset: 0;
   background:
     linear-gradient(
-      105deg,
-      rgba(255, 255, 255, 0.23),
-      transparent 18%,
-      transparent 71%,
-      rgba(65, 45, 28, 0.12)
+      96deg,
+      rgba(255, 255, 255, 0.2),
+      transparent 15%,
+      transparent 78%,
+      rgba(65, 45, 28, 0.09)
     ),
     linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 13%);
   content: "";
@@ -2020,32 +2009,52 @@ h3 {
 }
 
 .wooden-shelf {
+  --shelf-texture-width: 137%;
+  --shelf-texture-height: 219%;
   position: relative;
   width: 100%;
+  height: 340px;
   min-width: 0;
-  aspect-ratio: 2.12 / 1;
+  aspect-ratio: auto;
   padding: 0;
   overflow: visible;
   border: 0;
   border-radius: clamp(18px, 2.2vw, 34px);
   background-color: transparent;
   background-image: url("/textures/golden-shelf.png");
-  background-position: center;
+  background-position: center 49.4%;
   background-repeat: no-repeat;
-  background-size: 142% auto;
+  background-size:
+    var(--shelf-texture-width)
+    var(--shelf-texture-height);
   box-shadow: none;
   isolation: isolate;
 }
 
-.wooden-shelf::before,
-.wooden-shelf::after {
+.wooden-shelf::before {
   display: none;
+}
+
+.wooden-shelf::after {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url("/textures/golden-shelf.png");
+  background-position: center 49.4%;
+  background-repeat: no-repeat;
+  background-size:
+    var(--shelf-texture-width)
+    var(--shelf-texture-height);
+  clip-path: inset(90.2% 0 0);
+  content: "";
+  pointer-events: none;
 }
 
 .wooden-shelf__inner {
   position: absolute;
   z-index: 1;
-  inset: 9% 4% 11%;
+  inset: 9% 4% 9.4%;
   height: auto;
   padding: 0;
   border: 0;
@@ -2066,8 +2075,9 @@ h3 {
   width: 100%;
   height: 100%;
   min-width: 0;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(0.65rem, 2.2vw, 2.6rem);
+  grid-template-columns: repeat(4, 178px);
+  justify-content: center;
+  gap: clamp(0.45rem, 0.8vw, 0.75rem);
   align-items: stretch;
 }
 
@@ -2077,6 +2087,7 @@ h3 {
   display: flex;
   min-width: 0;
   height: 100%;
+  width: 178px;
   align-items: flex-end;
   justify-content: center;
   opacity: 1;
@@ -2102,8 +2113,8 @@ h3 {
 .shelf-book__link {
   position: relative;
   display: block;
-  width: min(100%, 210px);
-  aspect-ratio: 590 / 805;
+  width: min(100%, 174px);
+  aspect-ratio: 440 / 686;
   border-radius: 4px 9px 9px 4px;
   outline-offset: 7px;
   perspective: 1100px;
@@ -2112,17 +2123,23 @@ h3 {
 
 .shelf-book__link::after {
   position: absolute;
-  z-index: -1;
-  right: 6%;
-  bottom: -4%;
-  left: 5%;
-  height: 9%;
+  z-index: 0;
+  right: 18%;
+  bottom: 1px;
+  left: 22%;
+  height: 5px;
   border-radius: 50%;
-  background: rgba(37, 18, 9, 0.54);
-  filter: blur(8px);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(46, 24, 11, 0.34) 0%,
+    rgba(46, 24, 11, 0.16) 48%,
+    rgba(46, 24, 11, 0) 76%
+  );
+  filter: blur(1.5px);
   content: "";
+  opacity: 0.68;
   pointer-events: none;
-  transform: translateY(0) scaleX(1);
+  transform: scaleX(1);
   transition:
     opacity 240ms ease,
     transform 260ms cubic-bezier(0.2, 0.72, 0.2, 1);
@@ -2130,8 +2147,9 @@ h3 {
 
 .shelf-book__volume {
   position: absolute;
+  z-index: 1;
   inset: 0;
-  transform: rotateY(-5deg) translateZ(0);
+  transform: rotateY(-1.5deg) translateZ(0);
   transform-origin: center bottom;
   transform-style: preserve-3d;
   transition: transform 360ms cubic-bezier(0.2, 0.78, 0.2, 1);
@@ -2140,37 +2158,53 @@ h3 {
 .shelf-book:hover .shelf-book__volume,
 .shelf-book:focus-within .shelf-book__volume {
   will-change: transform;
-  transform: translateY(-11px) translateZ(34px) rotateY(-4deg);
+  transform: translateY(-6px) translateZ(22px) rotateY(-1deg) scale(1.01);
 }
 
 .shelf-book:hover .shelf-book__link::after,
 .shelf-book:focus-within .shelf-book__link::after {
-  opacity: 0.72;
-  transform: translateY(12px) scaleX(0.86);
+  opacity: 0.42;
+  transform: scaleX(0.86);
 }
 
 .shelf-book--opening .shelf-book__volume {
   will-change: transform;
-  transform: translateY(-18px) translateZ(78px) rotateY(-2deg) scale(1.025);
+  transform: translateY(-11px) translateZ(58px) rotateY(0deg) scale(1.018);
   transition-duration: 520ms;
 }
 
 .shelf-book--opening .shelf-book__link::after {
-  opacity: 0.46;
-  transform: translateY(20px) scaleX(0.72);
+  opacity: 0.22;
+  transform: scaleX(0.72);
 }
 
 .shelf-book__volume .book-mockup {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 13px 11px rgba(38, 21, 12, 0.26));
+  filter: drop-shadow(0 2px 2px rgba(38, 21, 12, 0.15));
+}
+
+.shelf-book__volume .book-mockup__shell-viewport {
+  clip-path: polygon(
+    3.86% 1.31%,
+    11.36% 1.17%,
+    96.82% 1.75%,
+    96.82% 95.19%,
+    18.18% 98.54%,
+    11.36% 98.98%,
+    3.86% 97.09%
+  );
+}
+
+.shelf-book__volume .book-mockup__cover-leaf {
+  box-shadow: inset 4px 0 0 rgba(39, 29, 20, 0.07);
 }
 
 .shelf-book__tooltip {
   position: absolute;
   z-index: 10;
   top: auto;
-  bottom: 300px;
+  bottom: 282px;
   left: 50%;
   width: min(222px, calc(100% + 4.5rem));
   min-width: 158px;
@@ -3130,8 +3164,25 @@ h3 {
 }
 
 @media (max-width: 1260px) {
+  .wooden-shelf {
+    height: clamp(220px, 27vw, 340px);
+  }
+
+  .wooden-shelf__books {
+    grid-template-columns: repeat(4, clamp(114px, 14.1vw, 178px));
+    gap: clamp(0.55rem, 0.8vw, 0.75rem);
+  }
+
+  .shelf-book {
+    width: clamp(114px, 14.1vw, 178px);
+  }
+
+  .shelf-book__link {
+    width: clamp(114px, 13.8vw, 174px);
+  }
+
   .shelf-book__tooltip {
-    bottom: 300px;
+    bottom: clamp(190px, 22.4vw, 282px);
   }
 
   .dashboard-hero {
@@ -3385,48 +3436,38 @@ h3 {
   }
 
   .wooden-shelf {
+    height: clamp(180px, 26.8vw, 220px);
     padding: 0;
     border-radius: 20px;
   }
 
   .wooden-shelf__inner {
-    inset: 9% 3.8% 11%;
+    inset: 9% 3.8% 9.4%;
     height: auto;
     padding: 0;
   }
 
   .wooden-shelf__books {
-    grid-template-columns: repeat(4, 132px);
+    grid-template-columns: repeat(4, clamp(88px, 13.9vw, 114px));
     justify-content: start;
-    gap: 1.35rem;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    padding: 0 1.4rem;
-    scroll-padding-inline: 1.4rem;
-    scroll-snap-type: inline mandatory;
-    scrollbar-width: none;
-  }
-
-  .wooden-shelf__books::-webkit-scrollbar {
-    display: none;
+    gap: clamp(0.6rem, 1.46vw, 0.75rem);
+    overflow: visible;
+    padding: 0 clamp(0.75rem, 1.95vw, 1rem);
   }
 
   .shelf-book {
-    width: 132px;
+    width: clamp(88px, 13.9vw, 114px);
   }
 
   .shelf-book__link {
-    width: 126px;
+    width: clamp(88px, 13.9vw, 114px);
   }
 
   .shelf-book__tooltip {
-    bottom: 184px;
+    bottom: clamp(145px, 23.2vw, 190px);
     width: 132px;
     min-width: 0;
     padding: 0.48rem 0.52rem 0.46rem;
-    opacity: 1;
-    transform: translate(-50%, 0) scale(1);
-    visibility: visible;
   }
 
   .shelf-book__tooltip > strong {
@@ -3685,37 +3726,37 @@ h3 {
   }
 
   .wooden-shelf {
+    height: clamp(116px, 30vw, 180px);
     margin-inline: -0.25rem;
     padding: 0;
     border-radius: 17px;
   }
 
   .wooden-shelf__inner {
-    inset: 9% 3.5% 11%;
+    inset: 9% 3.5% 9.4%;
     height: auto;
     padding: 0;
     border-radius: 0;
   }
 
   .wooden-shelf__books {
-    grid-template-columns: repeat(4, 82px);
-    gap: 0.75rem;
-    padding-right: 0.8rem;
-    padding-left: 0.8rem;
-    scroll-padding-inline: 0.8rem;
+    grid-template-columns: repeat(4, clamp(58px, 14.67vw, 88px));
+    gap: clamp(0.35rem, 1.55vw, 0.6rem);
+    padding-right: clamp(0.55rem, 2.5vw, 0.75rem);
+    padding-left: clamp(0.55rem, 2.5vw, 0.75rem);
   }
 
   .shelf-book {
-    width: 82px;
+    width: clamp(58px, 14.67vw, 88px);
   }
 
   .shelf-book__link {
-    width: 66px;
+    width: clamp(58px, 14.67vw, 88px);
   }
 
   .shelf-book__tooltip {
-    bottom: 102px;
-    width: 92px;
+    bottom: clamp(99px, 24vw, 145px);
+    width: 82px;
     padding: 0.22rem 0.3rem;
   }
 
