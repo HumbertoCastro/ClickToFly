@@ -65,6 +65,7 @@ export function StorefrontLayout() {
 
   return (
     <PublicStoreShell
+      provider="amazon"
       accountHref={
         authenticated ? (activeProfile ? "/" : "/profiles") : "/login"
       }

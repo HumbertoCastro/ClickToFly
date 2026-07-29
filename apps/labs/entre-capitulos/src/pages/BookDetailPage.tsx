@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -6,116 +6,66 @@ import {
   Edit3,
   Languages,
   Library,
+  MapPin,
   RotateCcw,
-  ShoppingBag,
   Trash2,
 } from "lucide-react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import type {
-  AmazonCatalogItem,
-  AmazonEdition,
-} from "../amazonTypes";
-import { AmazonOfferPanel } from "../components/AmazonOfferPanel";
+  CatalogEdition,
+  CatalogWork,
+  RetailerDestination,
+} from "../catalogTypes";
 import { BookMockup } from "../components/BookMockup";
+import { RetailerDestinations } from "../components/RetailerDestinations";
 import { ProfileAvatar } from "../components/ProfileAvatar";
 import { RatingDisplay } from "../components/RatingDisplay";
 import { StatusBadge } from "../components/StatusBadge";
 import { ratingCriteria } from "../constants";
 import { useApp } from "../context/AppContext";
 import {
-  amazonCatalogExpirations,
-  createAmazonCatalogClient,
-  getAmazonCatalogConfig,
-  isValidAsin,
-  loadAmazonCatalogItem,
-  sanitizeAmazonCatalogItem,
-} from "../lib/amazonCatalog";
+  isValidIsbn,
+  matchCatalogEdition,
+} from "../lib/bookCatalog";
+import { runtimeBookCatalogClient } from "../lib/catalogRuntime";
 import { formatDate, readingProgress } from "../lib/format";
-import { useAmazonExpiryClock } from "../lib/useAmazonExpiryClock";
-import { amazonCatalogAuthHeaders } from "../lib/repository";
 
-const personalCatalogClient = createAmazonCatalogClient(
-  {
-    ...getAmazonCatalogConfig(),
-    resolveHeaders: amazonCatalogAuthHeaders,
-  },
-);
-
-function mergeAmazonEditions(
-  items: AmazonCatalogItem[],
-  requestedAsin: string,
-): AmazonCatalogItem | null {
-  const primary =
-    items.find((candidate) => candidate.asin === requestedAsin) ??
-    items[0] ??
-    null;
-  if (!primary) return null;
-
-  const editions = new Map<string, AmazonEdition>();
-  for (const candidate of items) {
-    for (const edition of candidate.editions) {
-      editions.set(edition.asin, edition);
-    }
-  }
-
-  return { ...primary, editions: [...editions.values()] };
+interface PersonalCatalogResult {
+  requestKey: string;
+  work: CatalogWork | null;
+  editions: CatalogEdition[];
+  destinations: RetailerDestination[];
+  error: string;
 }
 
 export function BookDetailPage() {
   const { entryId } = useParams();
-  const { joinedEntries, deleteEntry } = useApp();
+  const {
+    joinedEntries,
+    deleteEntry,
+    linkCatalogResolution,
+  } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [deleting, setDeleting] = useState(false);
-  const [amazonReloadKey, setAmazonReloadKey] = useState(0);
+  const [catalogReloadKey, setCatalogReloadKey] = useState(0);
+  const catalogPersistedEntries = useRef(new Set<string>());
   const item = joinedEntries.find((candidate) => candidate.entry.id === entryId);
-  const [amazonResult, setAmazonResult] = useState<{
-    requestKey: string;
-    item: AmazonCatalogItem | null;
-    expiresAt: string | null;
-  } | null>(null);
-  const amazonAsins = useMemo(() => {
-    if (!item) return [];
-    return [
-      ...new Set(
-        [
-          ...(item.book.amazonAsins ?? []),
-          item.book.source === "amazon" ? item.book.sourceId : null,
-          item.book.isbn10,
-        ]
-          .filter((value): value is string => Boolean(value))
-          .map((value) => value.trim().toUpperCase())
-          .filter(isValidAsin),
-      ),
-    ];
-  }, [item]);
-  const primaryAmazonAsin = amazonAsins[0] ?? "";
-  const amazonRequestKey = `${primaryAmazonAsin}\u0000${amazonReloadKey}`;
-  const rawAmazonItem =
-    amazonResult?.requestKey === amazonRequestKey
-      ? amazonResult.item
-      : null;
-  const amazonExpirationValues = useMemo(
-    () =>
-      rawAmazonItem
-        ? amazonCatalogExpirations(
-            [rawAmazonItem],
-            amazonResult?.expiresAt,
-          )
-        : [],
-    [amazonResult?.expiresAt, rawAmazonItem],
-  );
-  const amazonFreshnessNow = useAmazonExpiryClock(
-    amazonExpirationValues,
-    () => setAmazonReloadKey((value) => value + 1),
-  );
-  const amazonItem = rawAmazonItem
-    ? sanitizeAmazonCatalogItem(rawAmazonItem, amazonFreshnessNow)
-    : null;
-  const amazonLoading =
-    Boolean(primaryAmazonAsin) &&
-    amazonResult?.requestKey !== amazonRequestKey;
+  const [catalogResult, setCatalogResult] =
+    useState<PersonalCatalogResult | null>(null);
+  const catalogRequestKey = item
+    ? [
+        item.book.catalogWorkKey,
+        item.book.isbn13,
+        item.book.isbn10,
+        item.book.sourceId,
+        item.book.title,
+        catalogReloadKey,
+      ].join("\u0000")
+    : "";
+  const catalogLoading =
+    Boolean(item) && catalogResult?.requestKey !== catalogRequestKey;
   const locationState = location.state as
     | { shelfTransitionEntryId?: string }
     | null;
@@ -129,25 +79,89 @@ export function BookDetailPage() {
   }, [arrivedFromShelf]);
 
   useEffect(() => {
-    if (!primaryAmazonAsin) return;
+    if (!item) return;
 
     let ignore = false;
-    loadAmazonCatalogItem(personalCatalogClient, primaryAmazonAsin)
-      .then((result) => {
+    const validIsbn = [item.book.isbn13, item.book.isbn10].find(isValidIsbn);
+    const legacyAsin =
+      item.book.source === "amazon" &&
+      /^[A-Z0-9]{10}$/i.test(item.book.sourceId ?? "")
+        ? item.book.sourceId ?? undefined
+        : item.book.amazonAsins?.find((candidate) =>
+            /^[A-Z0-9]{10}$/i.test(candidate),
+          );
+    const request = item.book.catalogWorkKey
+      ? runtimeBookCatalogClient.work(item.book.catalogWorkKey)
+      : runtimeBookCatalogClient.resolve({
+          ...(validIsbn ? { isbn: validIsbn } : {}),
+          ...(legacyAsin ? { legacyAsin } : {}),
+          title: item.book.title,
+          author: item.book.authors[0] ?? "",
+        });
+
+    request
+      .then(async (result) => {
+        const matchedEdition = matchCatalogEdition(
+          {
+            catalogEditionKey: item.book.catalogEditionKey,
+            isbn10: item.book.isbn10,
+            isbn13: item.book.isbn13,
+            legacyAsins: [
+              item.book.source === "amazon"
+                ? item.book.sourceId ?? ""
+                : "",
+              ...(item.book.amazonAsins ?? []),
+            ],
+          },
+          result.editions,
+          result.destinations,
+        );
+        if (
+          result.work &&
+          !item.book.catalogWorkKey &&
+          !catalogPersistedEntries.current.has(item.entry.id)
+        ) {
+          catalogPersistedEntries.current.add(item.entry.id);
+          try {
+            await linkCatalogResolution(
+              result.work,
+              matchedEdition,
+              {
+                bookId: item.book.id,
+                entryId: item.entry.id,
+              },
+            );
+          } catch (cause) {
+            catalogPersistedEntries.current.delete(item.entry.id);
+            console.error(
+              "Não foi possível persistir a resolução do catálogo.",
+              cause,
+            );
+          }
+        }
         if (!ignore) {
-          setAmazonResult({
-            requestKey: amazonRequestKey,
-            item: mergeAmazonEditions(result.items, primaryAmazonAsin),
-            expiresAt: result.expiresAt,
+          setCatalogResult({
+            requestKey: catalogRequestKey,
+            work: result.work,
+            editions: result.editions,
+            destinations: result.destinations,
+            error: result.work
+              ? ""
+              : "Ainda não encontramos uma correspondência segura.",
           });
         }
       })
-      .catch(() => {
+      .catch((cause) => {
         if (!ignore) {
-          setAmazonResult({
-            requestKey: amazonRequestKey,
-            item: null,
-            expiresAt: null,
+          setCatalogResult({
+            requestKey: catalogRequestKey,
+            work: null,
+            editions: [],
+            destinations: [],
+            error:
+              cause instanceof Error
+                ? cause.message
+                : "Não foi possível consultar o catálogo agora.",
           });
         }
       });
@@ -155,7 +169,7 @@ export function BookDetailPage() {
     return () => {
       ignore = true;
     };
-  }, [amazonRequestKey, primaryAmazonAsin]);
+  }, [catalogRequestKey, item, linkCatalogResolution]);
 
   if (!item) {
     return (
@@ -181,6 +195,30 @@ export function BookDetailPage() {
     linkBookId: item.book.id,
     linkEntryId: item.entry.id,
   }).toString();
+  const catalogEdition = catalogResult
+    ? matchCatalogEdition(
+        {
+          catalogEditionKey: item.book.catalogEditionKey,
+          isbn10: item.book.isbn10,
+          isbn13: item.book.isbn13,
+          legacyAsins: [
+            item.book.source === "amazon"
+              ? item.book.sourceId ?? ""
+              : "",
+            ...(item.book.amazonAsins ?? []),
+          ],
+        },
+        catalogResult.editions,
+        catalogResult.destinations,
+      )
+    : null;
+  const catalogDestinations = catalogResult
+    ? catalogResult.destinations.filter(
+        (destination) =>
+          destination.editionKey === null ||
+          destination.editionKey === catalogEdition?.editionKey,
+      )
+    : [];
 
   async function handleDelete() {
     if (
@@ -325,56 +363,50 @@ export function BookDetailPage() {
 
       <section className="personal-purchase-section">
         <div className="personal-purchase-section__intro">
-          <p className="eyebrow">EDIÇÃO NA AMAZON</p>
-          <h2>Continue da estante para a livraria.</h2>
+          <p className="eyebrow">ONDE ENCONTRAR</p>
+          <h2>Da sua estante para uma edição disponível no catálogo.</h2>
           <p>
-            A oferta é consultada agora e não fica gravada no seu registro de
-            leitura.
+            Abrimos buscas ou links diretos nas lojas externas. Preço, estoque,
+            entrega e atendimento são confirmados somente no destino.
           </p>
         </div>
-        {amazonLoading ? (
+        {catalogLoading ? (
           <aside
-            className="amazon-offer-panel personal-purchase-section__loading"
+            className="personal-purchase-section__loading"
             aria-busy="true"
           >
             <span />
             <span />
             <span />
-            <p className="sr-only">Consultando a oferta atual na Amazon</p>
+            <p className="sr-only">Localizando a obra e suas edições</p>
           </aside>
-        ) : amazonItem ? (
-          <AmazonOfferPanel
-            item={amazonItem}
-            defaultAsin={primaryAmazonAsin}
+        ) : catalogResult?.work && catalogDestinations.length > 0 ? (
+          <RetailerDestinations
+            title={
+              catalogEdition
+                ? `Onde encontrar esta edição`
+                : "Onde encontrar esta obra"
+            }
+            destinations={catalogDestinations}
           />
         ) : (
           <aside className="personal-purchase-section__empty">
-            <ShoppingBag size={24} aria-hidden="true" />
+            <MapPin size={24} aria-hidden="true" />
             <div>
               <strong>
-                {primaryAmazonAsin
-                  ? "A oferta atual não pôde ser consultada."
-                  : "Consulte o preço na Amazon pela Livraria."}
+                {catalogResult?.error ||
+                  "Esta obra ainda precisa ser localizada no catálogo."}
               </strong>
-              {primaryAmazonAsin ? (
-                <p>
-                  A edição {primaryAmazonAsin} continua vinculada a este
-                  registro. Nenhum preço vencido ou estimado será exibido.
-                </p>
-              ) : (
-                <p>
-                  Ainda não há uma edição Amazon vinculada a este registro.
-                  Nenhum preço estimado será exibido.
-                </p>
-              )}
+              <p>
+                O registro pessoal continua intacto. Faça uma busca assistida
+                por título, autor ou ISBN para escolher a obra correta.
+              </p>
             </div>
-            {primaryAmazonAsin ? (
+            {catalogResult?.error ? (
               <button
                 className="button button--secondary"
                 type="button"
-                onClick={() =>
-                  setAmazonReloadKey((value) => value + 1)
-                }
+                onClick={() => setCatalogReloadKey((value) => value + 1)}
               >
                 Tentar novamente
               </button>
@@ -383,7 +415,7 @@ export function BookDetailPage() {
                 className="button button--secondary"
                 to={`/livraria?${locateEditionSearch}`}
               >
-                Buscar edição
+                Localizar obra
               </Link>
             )}
           </aside>

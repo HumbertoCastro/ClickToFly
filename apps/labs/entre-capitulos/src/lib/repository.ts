@@ -34,7 +34,7 @@ export interface AppRepository {
 }
 
 const localStateKey = "entre-capitulos.state.v1";
-const localDemoStateKey = "entre-capitulos.demo-state.v2";
+const localDemoStateKey = "entre-capitulos.demo-state.v3";
 const localPasswordKey = "entre-capitulos.password.v1";
 const localSessionKey = "entre-capitulos.session.v1";
 
@@ -117,6 +117,14 @@ function withFixedLocalProfiles(state: PersistedState): PersistedState {
 }
 
 function matchesBook(left: Book, right: LibraryEntryDraft["book"]): boolean {
+  if (
+    left.catalogWorkKey &&
+    right.catalogWorkKey &&
+    left.catalogWorkKey === right.catalogWorkKey
+  ) {
+    return true;
+  }
+
   if (
     left.source === right.source &&
     left.sourceId &&
@@ -333,8 +341,10 @@ interface ProfileRow {
 
 interface BookRow {
   id: string;
-  source: "google_books" | "manual" | "amazon";
+  source: "google_books" | "open_library" | "manual" | "amazon";
   source_id: string | null;
+  catalog_work_key: string | null;
+  catalog_edition_key: string | null;
   title: string;
   subtitle: string;
   authors: string[];
@@ -401,6 +411,8 @@ function mapBook(row: BookRow, editions: AmazonEditionRow[] = []): Book {
     id: row.id,
     source: row.source,
     sourceId: row.source_id,
+    catalogWorkKey: row.catalog_work_key,
+    catalogEditionKey: row.catalog_edition_key,
     amazonAsins:
       amazonAsins.length > 0
         ? amazonAsins
@@ -613,6 +625,16 @@ class SupabaseRepository implements AppRepository {
       return data as BookRow | null;
     }
 
+    if (draft.catalogWorkKey) {
+      const { data, error } = await this.client
+        .from("books")
+        .select("*")
+        .eq("catalog_work_key", draft.catalogWorkKey)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      if (data) return data as BookRow;
+    }
+
     if (draft.sourceId) {
       const { data, error } = await this.client
         .from("books")
@@ -661,6 +683,8 @@ class SupabaseRepository implements AppRepository {
       owner_id: ownerId,
       source: draft.book.source,
       source_id: draft.book.sourceId,
+      catalog_work_key: draft.book.catalogWorkKey ?? null,
+      catalog_edition_key: draft.book.catalogEditionKey ?? null,
       title: draft.book.title.trim(),
       subtitle: draft.book.subtitle.trim(),
       authors: draft.book.authors.map((author) => author.trim()).filter(Boolean),
@@ -877,6 +901,8 @@ export async function amazonCatalogAuthHeaders(): Promise<
     ? { Authorization: `Bearer ${accessToken}` }
     : {};
 }
+
+export const bookCatalogAuthHeaders = amazonCatalogAuthHeaders;
 
 export const repository: AppRepository = isSupabaseConfigured && !isDemoMode
   ? new SupabaseRepository(

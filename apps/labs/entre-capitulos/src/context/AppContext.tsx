@@ -8,12 +8,13 @@ import {
   type ReactNode,
 } from "react";
 import type { AmazonCatalogItem } from "../amazonTypes";
+import type { CatalogEdition, CatalogWork } from "../catalogTypes";
 import { sortFixedProfiles } from "../data/fixedProfiles";
 import { createAmazonFallbackBook } from "../lib/amazonCatalog";
-import { searchGoogleBooks } from "../lib/googleBooks";
 import { calculateAverageRating } from "../lib/rating";
 import { repository } from "../lib/repository";
 import type {
+  Book,
   JoinedEntry,
   LibraryEntryDraft,
   PersistedState,
@@ -25,6 +26,8 @@ export interface AmazonInterestTarget {
   bookId: string;
   entryId: string;
 }
+
+export type CatalogInterestTarget = AmazonInterestTarget;
 
 interface AppContextValue {
   authenticated: boolean;
@@ -50,19 +53,60 @@ interface AppContextValue {
     entryId: string;
     duplicate: boolean;
   }>;
+  saveCatalogInterest(
+    work: CatalogWork,
+    edition?: CatalogEdition | null,
+    target?: CatalogInterestTarget,
+  ): Promise<{
+    entryId: string;
+    duplicate: boolean;
+  }>;
+  linkCatalogResolution(
+    work: CatalogWork,
+    edition: CatalogEdition | null,
+    target: CatalogInterestTarget,
+  ): Promise<{
+    entryId: string;
+    duplicate: boolean;
+  }>;
   deleteEntry(id: string): Promise<void>;
   refresh(): Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 const activeProfileKey = "entre-capitulos.active-profile.v1";
-const googleBooksKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY?.trim() ?? "";
-
 const emptyState: PersistedState = {
   profiles: [],
   books: [],
   entries: [],
 };
+
+function catalogBookFor(
+  work: CatalogWork,
+  edition?: CatalogEdition | null,
+): Omit<Book, "id" | "createdAt"> {
+  return {
+    source: "open_library",
+    sourceId: work.workKey,
+    catalogWorkKey: work.workKey,
+    catalogEditionKey: edition?.editionKey ?? null,
+    title: work.title,
+    subtitle: "",
+    authors:
+      work.authors.length > 0 ? work.authors : ["Autoria não informada"],
+    publisher: edition?.publisher ?? "",
+    publishedDate:
+      edition?.publishedDate ??
+      (work.firstPublishedYear ? String(work.firstPublishedYear) : ""),
+    pageCount: edition?.pageCount ?? null,
+    language: edition?.language ?? work.languages[0] ?? "",
+    description: work.description,
+    categories: work.subjects,
+    isbn10: edition?.isbn10 ?? "",
+    isbn13: edition?.isbn13 ?? "",
+    coverUrl: edition?.coverUrl || work.coverUrl,
+  };
+}
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -165,11 +209,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     else localStorage.removeItem(activeProfileKey);
   }
 
-  async function saveEntry(draft: LibraryEntryDraft, entryId?: string) {
-    const result = await repository.saveEntry(draft, entryId);
-    await refresh();
-    return result;
-  }
+  const saveEntry = useCallback(
+    async (draft: LibraryEntryDraft, entryId?: string) => {
+      const result = await repository.saveEntry(draft, entryId);
+      await refresh();
+      return result;
+    },
+    [refresh],
+  );
 
   async function saveAmazonInterest(
     item: AmazonCatalogItem,
@@ -241,29 +288,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }, isbnTarget.entry.id);
     }
 
-    let googleBook = null;
-    const isbn = item.isbn13 || item.isbn10;
-    if (googleBooksKey && isbn) {
-      try {
-        const results = await searchGoogleBooks(isbn, googleBooksKey);
-        googleBook =
-          results.find(
-            (candidate) =>
-              candidate.isbn13 === item.isbn13 ||
-              candidate.isbn10 === item.isbn10,
-          ) ??
-          results[0] ??
-          null;
-      } catch {
-        // The Amazon association is still saved without copying catalog data.
-      }
-    }
-
-    const personalBook = googleBook ?? createAmazonFallbackBook(item.asin);
+    const personalBook = createAmazonFallbackBook(item.asin);
 
     // Amazon metadata, price, offer, affiliate URL, description and image are
-    // kept only in the expiring catalog cache. Durable book metadata comes
-    // from the personal library or Google Books.
+    // kept only in the expiring catalog cache. The rollback never starts a new
+    // Google Books synchronization; durable legacy records remain readable.
     return saveEntry({
       profileId: activeProfileId,
       amazonEdition: amazonEditions[0],
@@ -280,6 +309,128 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ratings: {},
     });
   }
+
+  const persistCatalogMatch = useCallback(
+    async (
+      work: CatalogWork,
+      edition: CatalogEdition | null | undefined,
+      target: CatalogInterestTarget | undefined,
+      preservePersonalStatus: boolean,
+    ) => {
+      if (!activeProfileId) {
+        throw new Error("Escolha um perfil antes de adicionar a obra.");
+      }
+
+      const explicitTarget = target
+        ? joinedEntries.find(
+            (candidate) =>
+              candidate.profile.id === activeProfileId &&
+              candidate.book.id === target.bookId &&
+              candidate.entry.id === target.entryId,
+          )
+        : undefined;
+      if (target && !explicitTarget) {
+        throw new Error("O livro escolhido não pertence ao perfil ativo.");
+      }
+
+      const matchingEntry =
+        explicitTarget ??
+        joinedEntries.find(
+          (candidate) =>
+            candidate.profile.id === activeProfileId &&
+            (candidate.book.catalogWorkKey === work.workKey ||
+              Boolean(
+                edition?.isbn13 &&
+                  candidate.book.isbn13 === edition.isbn13,
+              ) ||
+              Boolean(
+                edition?.isbn10 &&
+                  candidate.book.isbn10 === edition.isbn10,
+              )),
+        );
+      const catalogBook = catalogBookFor(work, edition);
+
+      if (matchingEntry) {
+        const { createdAt: _createdAt, ...currentBook } = matchingEntry.book;
+        void _createdAt;
+        return saveEntry(
+          {
+            profileId: activeProfileId,
+            book: {
+              ...catalogBook,
+              ...currentBook,
+              id: matchingEntry.book.id,
+              catalogWorkKey: work.workKey,
+              catalogEditionKey:
+                edition?.editionKey ??
+                currentBook.catalogEditionKey ??
+                null,
+              description: currentBook.description || work.description,
+              categories:
+                currentBook.categories.length > 0
+                  ? currentBook.categories
+                  : work.subjects,
+              coverUrl:
+                currentBook.coverUrl ||
+                edition?.coverUrl ||
+                work.coverUrl,
+              isbn10: currentBook.isbn10 || edition?.isbn10 || "",
+              isbn13: currentBook.isbn13 || edition?.isbn13 || "",
+            },
+            status: preservePersonalStatus
+              ? matchingEntry.entry.status
+              : "want_to_read",
+            categories: matchingEntry.entry.categories,
+            startedAt: matchingEntry.entry.startedAt,
+            endedAt: matchingEntry.entry.endedAt,
+            currentPage: matchingEntry.entry.currentPage,
+            review: matchingEntry.entry.review,
+            storySummary: matchingEntry.entry.storySummary,
+            containsSpoilers: matchingEntry.entry.containsSpoilers,
+            ratings: matchingEntry.entry.ratings,
+          },
+          matchingEntry.entry.id,
+        );
+      }
+
+      if (preservePersonalStatus) {
+        throw new Error("O registro pessoal não foi encontrado.");
+      }
+
+      return saveEntry({
+        profileId: activeProfileId,
+        book: catalogBook,
+        status: "want_to_read",
+        categories: work.subjects,
+        startedAt: "",
+        endedAt: "",
+        currentPage: null,
+        review: "",
+        storySummary: "",
+        containsSpoilers: false,
+        ratings: {},
+      });
+    },
+    [activeProfileId, joinedEntries, saveEntry],
+  );
+
+  const saveCatalogInterest = useCallback(
+    (
+      work: CatalogWork,
+      edition?: CatalogEdition | null,
+      target?: CatalogInterestTarget,
+    ) => persistCatalogMatch(work, edition, target, false),
+    [persistCatalogMatch],
+  );
+
+  const linkCatalogResolution = useCallback(
+    (
+      work: CatalogWork,
+      edition: CatalogEdition | null,
+      target: CatalogInterestTarget,
+    ) => persistCatalogMatch(work, edition, target, true),
+    [persistCatalogMatch],
+  );
 
   async function deleteEntry(id: string) {
     await repository.deleteEntry(id);
@@ -303,6 +454,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         selectProfile,
         saveEntry,
         saveAmazonInterest,
+        saveCatalogInterest,
+        linkCatalogResolution,
         deleteEntry,
         refresh,
       }}

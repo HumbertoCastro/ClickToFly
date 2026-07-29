@@ -19,9 +19,10 @@ export default defineConfig({
       VITE_SUPABASE_URL: "",
       VITE_SUPABASE_ANON_KEY: "",
       VITE_HOUSEHOLD_EMAIL: "",
+      VITE_STOREFRONT_PROVIDER: "open_library",
+      VITE_BOOK_CATALOG_ENDPOINT: `${baseURL}/__book-catalog-fixture`,
       VITE_AMAZON_CATALOG_MODE: "creators",
       VITE_AMAZON_CATALOG_ENDPOINT: `${baseURL}/__amazon-catalog-fixture`,
-      VITE_GOOGLE_BOOKS_API_KEY: "e2e-google-books-key",
     },
   },
   projects: [

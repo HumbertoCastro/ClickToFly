@@ -67,6 +67,36 @@ const OffersRoute = lazy(() =>
     default: module.OffersRoute,
   })),
 );
+const CatalogStorefrontLayout = lazy(() =>
+  import("./routes/CatalogRoutes").then((module) => ({
+    default: module.CatalogStorefrontLayout,
+  })),
+);
+const CatalogBookstoreRoute = lazy(() =>
+  import("./routes/CatalogRoutes").then((module) => ({
+    default: module.CatalogBookstoreRoute,
+  })),
+);
+const CatalogWorkDetailRoute = lazy(() =>
+  import("./routes/CatalogRoutes").then((module) => ({
+    default: module.CatalogWorkDetailRoute,
+  })),
+);
+const LegacyCatalogRoute = lazy(() =>
+  import("./routes/CatalogRoutes").then((module) => ({
+    default: module.LegacyCatalogRoute,
+  })),
+);
+const WhereToBuyRoute = lazy(() =>
+  import("./routes/CatalogRoutes").then((module) => ({
+    default: module.WhereToBuyRoute,
+  })),
+);
+const CurationPage = lazy(() =>
+  import("./pages/CurationPage").then((module) => ({
+    default: module.CurationPage,
+  })),
+);
 const PrivacyPage = lazy(() =>
   import("./pages/LegalPages").then((module) => ({
     default: module.PrivacyPage,
@@ -90,9 +120,12 @@ function LoadingScreen() {
 function routeTitle(pathname: string): string {
   if (pathname === "/livraria") return "Livraria — Entre Capítulos";
   if (pathname.startsWith("/livraria/")) {
-    return "Detalhes do livro — Entre Capítulos";
+    return "Obra e edições — Entre Capítulos";
   }
-  if (pathname === "/ofertas") return "Ofertas da sua lista — Entre Capítulos";
+  if (pathname === "/onde-comprar") {
+    return "Onde comprar — Entre Capítulos";
+  }
+  if (pathname === "/curadoria") return "Curadoria — Entre Capítulos";
   if (pathname === "/privacidade") {
     return "Política de privacidade — Entre Capítulos";
   }
@@ -199,17 +232,35 @@ function NotFoundPage() {
 }
 
 export default function App() {
+  const useAmazonRollback =
+    import.meta.env.VITE_STOREFRONT_PROVIDER === "amazon";
+  const Storefront = useAmazonRollback
+    ? StorefrontLayout
+    : CatalogStorefrontLayout;
+  const StorefrontIndex = useAmazonRollback
+    ? BookstoreRoute
+    : CatalogBookstoreRoute;
+  const StorefrontDetail = useAmazonRollback
+    ? StoreBookDetailRoute
+    : LegacyCatalogRoute;
+
   return (
     <HashRouter>
       <RouteChangeManager />
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route element={<StorefrontLayout />}>
-            <Route path="/livraria" element={<BookstoreRoute />} />
+          <Route element={<Storefront />}>
+            <Route path="/livraria" element={<StorefrontIndex />} />
+            {!useAmazonRollback && (
+              <Route
+                path="/livraria/obra/:workKey"
+                element={<CatalogWorkDetailRoute />}
+              />
+            )}
             <Route
-              path="/livraria/:asin"
-              element={<StoreBookDetailRoute />}
+              path="/livraria/:legacyAsin"
+              element={<StorefrontDetail />}
             />
             <Route path="/privacidade" element={<PrivacyPage />} />
             <Route path="/termos" element={<TermsPage />} />
@@ -222,10 +273,20 @@ export default function App() {
                 path="/house"
                 element={<Navigate to="/biblioteca" replace />}
               />
+              <Route path="/curadoria" element={<CurationPage />} />
               <Route element={<LibraryRoute />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="/library" element={<LibraryPage />} />
-                <Route path="/ofertas" element={<OffersRoute />} />
+                <Route
+                  path="/onde-comprar"
+                  element={
+                    useAmazonRollback ? <OffersRoute /> : <WhereToBuyRoute />
+                  }
+                />
+                <Route
+                  path="/ofertas"
+                  element={<Navigate to="/onde-comprar" replace />}
+                />
                 <Route path="/books/new" element={<BookFormRoute />} />
                 <Route path="/books/:entryId" element={<BookDetailPage />} />
                 <Route

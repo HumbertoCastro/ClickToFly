@@ -48,19 +48,19 @@ export function PrivacyPage() {
       </section>
 
       <section>
-        <h2>Catálogos externos e Amazon</h2>
+        <h2>Catálogo aberto e lojas externas</h2>
         <p>
-          O Google Books pode fornecer metadados para cadastrar livros na
-          estante. A Livraria consulta conteúdo comercial da Amazon.com.br. Ao
-          abrir uma oferta, você deixa o Entre Capítulos e passa a estar sujeito
-          às políticas da Amazon.
+          O Open Library fornece dados bibliográficos, capas e relações entre
+          obras e edições. Quando você escolhe procurar uma edição em uma loja,
+          deixa o Entre Capítulos e passa a seguir as políticas daquele site.
+          Não consultamos preços, estoque, pagamento ou entrega.
         </p>
         <a
-          href="https://www.amazon.com.br/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ"
+          href="https://openlibrary.org/developers"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Consultar o aviso de privacidade da Amazon
+          Conhecer o Open Library
           <ExternalLink size={15} aria-hidden="true" />
         </a>
       </section>
@@ -69,9 +69,9 @@ export function PrivacyPage() {
         <h2>Retenção e segurança</h2>
         <p>
           Mantemos os dados da estante enquanto eles forem necessários ao uso
-          do produto. Dados comerciais da Amazon ficam apenas pelo período
-          permitido e informações vencidas não são exibidas. Não armazenamos
-          dados de pagamento ou entrega.
+          do produto. Respostas do catálogo aberto permanecem em cache por
+          períodos limitados para reduzir chamadas externas. Não armazenamos
+          dados de pagamento, estoque, preço ou entrega.
         </p>
       </section>
 
@@ -105,16 +105,17 @@ export function TermsPage() {
       </section>
 
       <section>
-        <h2>Ofertas da Amazon</h2>
+        <h2>Onde encontrar uma edição</h2>
         <p>
-          Preços, disponibilidade, vendedor e promoções podem mudar após a
-          consulta. O Entre Capítulos não vende, processa pagamentos, entrega ou
-          presta suporte aos produtos. A compra é concluída diretamente na
-          Amazon.com.br, conforme as condições apresentadas por ela.
+          O Entre Capítulos não vende livros, compara preços, confirma estoque,
+          processa pagamentos, entrega ou presta suporte aos produtos. Os botões
+          de busca apenas abrem Amazon, Estante Virtual ou Mercado Livre com o
+          ISBN, título ou autor da edição selecionada.
         </p>
         <p>
-          Alguns links de produto são links de associado. O endereço afiliado
-          recebido da Amazon é preservado, sem encurtamento ou alteração.
+          Alguns títulos curados podem conter links diretos de associado. Esses
+          links são identificados como publicidade e preservados sem
+          encurtamento ou alteração.
         </p>
       </section>
 
@@ -122,8 +123,9 @@ export function TermsPage() {
         <h2>Disponibilidade</h2>
         <p>
           O produto está em pré-produção e pode passar por ajustes ou
-          interrupções. Não oferecemos histórico de preços, garantia de desconto
-          nem alertas automáticos nesta versão.
+          interrupções. Metadados públicos podem conter lacunas ou duplicatas;
+          a curadoria da casa pode corrigir agrupamentos e cadastrar edições
+          manualmente.
         </p>
       </section>
 

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "cache.ts",
+    "config.ts",
+    "deno-shim.d.ts",
+    "handler.ts",
+    "identity.ts",
+    "index.ts",
+    "isbn.ts",
+    "openLibraryClient.ts",
+    "request.ts",
+    "retailers.ts",
+    "sanitize.ts",
+    "supabaseStore.ts",
+    "types.ts"
+  ]
+}

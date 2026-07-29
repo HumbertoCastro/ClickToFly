@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { installAmazonMocks } from "./amazonFixture";
+import { installBookCatalogMocks } from "./bookCatalogFixture";
 
 test.beforeEach(async ({ page }) => {
-  await installAmazonMocks(page);
+  await installBookCatalogMocks(page);
   await page.goto("/?demo=1#/profiles");
 });
 

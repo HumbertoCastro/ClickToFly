@@ -4,11 +4,12 @@ import {
   BookMarked,
   BookOpenText,
   ChevronsUpDown,
+  Compass,
   LibraryBig,
   LogOut,
   Plus,
   Search,
-  ShoppingBag,
+  SlidersHorizontal,
   UserRound,
 } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
@@ -70,12 +71,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Minha estante
           </NavLink>
           <NavLink to="/livraria">
-            <ShoppingBag size={19} />
+            <Compass size={19} />
             Livraria
           </NavLink>
           <NavLink to="/biblioteca">
             <LibraryBig size={19} />
             Biblioteca
+          </NavLink>
+          <NavLink to="/curadoria">
+            <SlidersHorizontal size={19} />
+            Curadoria
           </NavLink>
         </nav>
 
@@ -168,10 +173,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </form>
           <Link
             className="toolbar-action"
-            to="/ofertas"
+            to="/onde-comprar"
             aria-label={`${readingListCount} ${
               readingListCount === 1 ? "livro" : "livros"
-            } para acompanhar nas ofertas atuais`}
+            } para localizar em lojas externas`}
           >
             <Bell size={19} aria-hidden="true" />
             {readingListCount > 0 && (
@@ -191,6 +196,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <UserRound size={19} aria-hidden="true" />
           </button>
+          <Link
+            className="toolbar-action toolbar-action--curation"
+            to="/curadoria"
+            aria-label="Abrir o painel de curadoria"
+          >
+            <SlidersHorizontal size={19} aria-hidden="true" />
+          </Link>
         </header>
 
         <main className="main-content">{children}</main>
@@ -210,7 +222,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span>Adicionar</span>
         </NavLink>
         <NavLink to="/livraria">
-          <ShoppingBag size={20} />
+          <Compass size={20} />
           <span>Livraria</span>
         </NavLink>
         <NavLink to="/biblioteca">

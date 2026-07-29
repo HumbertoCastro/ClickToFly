@@ -18,15 +18,25 @@ export function LoginPage() {
   const profileRoute = returnTo
     ? `/profiles?returnTo=${encodeURIComponent(returnTo)}`
     : "/profiles";
+  const profileIndependentReturn = returnTo
+    ? ["/curadoria", "/biblioteca"].some(
+        (route) =>
+          returnTo === route || returnTo.startsWith(`${route}?`),
+      )
+    : false;
+  const destinationAfterLogin =
+    returnTo && profileIndependentReturn ? returnTo : profileRoute;
 
-  if (authenticated) return <Navigate to={profileRoute} replace />;
+  if (authenticated) {
+    return <Navigate to={destinationAfterLogin} replace />;
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError("");
     try {
       await signIn(password);
-      navigate(profileRoute);
+      navigate(destinationAfterLogin);
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Não foi possível entrar.",

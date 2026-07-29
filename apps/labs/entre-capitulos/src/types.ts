@@ -40,10 +40,18 @@ export interface AmazonBookEditionLink {
   format: StoredAmazonBookFormat;
 }
 
+export type BookSource =
+  | "google_books"
+  | "open_library"
+  | "manual"
+  | "amazon";
+
 export interface Book {
   id: string;
-  source: "google_books" | "manual" | "amazon";
+  source: BookSource;
   sourceId: string | null;
+  catalogWorkKey?: string | null;
+  catalogEditionKey?: string | null;
   amazonAsins?: string[];
   amazonEditions?: AmazonBookEditionLink[];
   title: string;
@@ -80,7 +88,7 @@ export interface LibraryEntry {
 
 export interface BookSearchResult
   extends Omit<Book, "id" | "createdAt" | "source"> {
-  source: "google_books";
+  source: "google_books" | "open_library";
 }
 
 export interface LibraryEntryDraft {

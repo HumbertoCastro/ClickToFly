@@ -1,6 +1,9 @@
 type PublicEnvironmentValue = string | boolean | undefined;
 
 export type PublicEnvironment = Record<string, PublicEnvironmentValue>;
+const browserPublicEnvironment: PublicEnvironment = {
+  VITE_SUPPORT_EMAIL: import.meta.env.VITE_SUPPORT_EMAIL,
+};
 
 export const DEFAULT_SUPPORT_EMAIL = "feedback@hcwebsolutions.com.br";
 
@@ -15,7 +18,7 @@ function environmentString(
 }
 
 export function getSupportEmail(
-  environment: PublicEnvironment = import.meta.env as PublicEnvironment,
+  environment: PublicEnvironment = browserPublicEnvironment,
 ): string {
   const configuredEmail = environmentString(environment, "VITE_SUPPORT_EMAIL");
   return EMAIL_PATTERN.test(configuredEmail)

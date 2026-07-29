@@ -19,6 +19,13 @@ const AMAZON_CATALOG_PATH = "/functions/v1/amazon-catalog";
 
 type EnvironmentValue = string | boolean | undefined;
 type AmazonCatalogEnvironment = Record<string, EnvironmentValue>;
+const browserAmazonCatalogEnvironment: AmazonCatalogEnvironment = {
+  VITE_AMAZON_CATALOG_MODE: import.meta.env.VITE_AMAZON_CATALOG_MODE,
+  VITE_AMAZON_CATALOG_ENDPOINT:
+    import.meta.env.VITE_AMAZON_CATALOG_ENDPOINT,
+  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+  VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
+};
 
 export interface AmazonCatalogConfig {
   mode: AmazonCatalogMode;
@@ -155,8 +162,7 @@ function catalogMode(value: string): AmazonCatalogMode {
 }
 
 export function getAmazonCatalogConfig(
-  environment: AmazonCatalogEnvironment = import.meta
-    .env as AmazonCatalogEnvironment,
+  environment: AmazonCatalogEnvironment = browserAmazonCatalogEnvironment,
 ): AmazonCatalogConfig {
   const mode = catalogMode(
     environmentString(environment, "VITE_AMAZON_CATALOG_MODE").toLowerCase(),

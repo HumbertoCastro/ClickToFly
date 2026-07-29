@@ -22,11 +22,12 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
+import type { CatalogEdition, CatalogWork } from "../catalogTypes";
 import { BookCover } from "../components/BookCover";
 import { RatingDisplay } from "../components/RatingDisplay";
 import { ratingCriteria, statusMeta } from "../constants";
 import { useApp } from "../context/AppContext";
-import { searchGoogleBooks } from "../lib/googleBooks";
+import { runtimeBookCatalogClient } from "../lib/catalogRuntime";
 import { calculateAverageRating } from "../lib/rating";
 import {
   hasValidationErrors,
@@ -35,13 +36,10 @@ import {
 } from "../lib/validation";
 import type {
   Book,
-  BookSearchResult,
   BookStatus,
   LibraryEntryDraft,
   RatingCriterionKey,
 } from "../types";
-
-const googleBooksKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY?.trim() ?? "";
 
 function emptyBook(): Omit<Book, "id" | "createdAt"> {
   return {
@@ -59,6 +57,33 @@ function emptyBook(): Omit<Book, "id" | "createdAt"> {
     isbn10: "",
     isbn13: "",
     coverUrl: "",
+  };
+}
+
+function bookFromCatalog(
+  work: CatalogWork,
+  edition?: CatalogEdition | null,
+): Omit<Book, "id" | "createdAt"> {
+  return {
+    source: "open_library",
+    sourceId: work.workKey,
+    catalogWorkKey: work.workKey,
+    catalogEditionKey: edition?.editionKey ?? null,
+    title: work.title,
+    subtitle: "",
+    authors:
+      work.authors.length > 0 ? work.authors : ["Autoria não informada"],
+    publisher: edition?.publisher ?? "",
+    publishedDate:
+      edition?.publishedDate ??
+      (work.firstPublishedYear ? String(work.firstPublishedYear) : ""),
+    pageCount: edition?.pageCount ?? null,
+    language: edition?.language ?? work.languages[0] ?? "",
+    description: work.description,
+    categories: work.subjects,
+    isbn10: edition?.isbn10 ?? "",
+    isbn13: edition?.isbn13 ?? "",
+    coverUrl: edition?.coverUrl || work.coverUrl,
   };
 }
 
@@ -118,8 +143,9 @@ export function BookFormPage() {
 
   const [step, setStep] = useState<1 | 2>(editingItem ? 2 : 1);
   const [query, setQuery] = useState(entryId ? "" : queryParam);
-  const [results, setResults] = useState<BookSearchResult[]>([]);
+  const [results, setResults] = useState<CatalogWork[]>([]);
   const [searching, setSearching] = useState(false);
+  const [selectingWorkKey, setSelectingWorkKey] = useState("");
   const [searchError, setSearchError] = useState("");
   const [draft, setDraft] = useState<LibraryEntryDraft | null>(initialDraft);
   const [authorsText, setAuthorsText] = useState(
@@ -137,24 +163,24 @@ export function BookFormPage() {
       return;
     }
 
-    const controller = new AbortController();
+    let ignore = false;
     const timeout = window.setTimeout(async () => {
       setSearching(true);
       setSearchError("");
       try {
-        const books = await searchGoogleBooks(
+        const result = await runtimeBookCatalogClient.search({
           query,
-          googleBooksKey,
-          controller.signal,
-        );
-        setResults(books);
-        if (books.length === 0) {
+          page: 1,
+        });
+        if (ignore) return;
+        setResults(result.works);
+        if (result.works.length === 0) {
           setSearchError(
-            "Nenhuma edição encontrada. Você pode cadastrar manualmente.",
+            "Nenhuma obra encontrada. Você pode cadastrar manualmente.",
           );
         }
       } catch (cause) {
-        if ((cause as Error).name !== "AbortError") {
+        if (!ignore) {
           setSearchError(
             cause instanceof Error
               ? cause.message
@@ -162,12 +188,12 @@ export function BookFormPage() {
           );
         }
       } finally {
-        setSearching(false);
+        if (!ignore) setSearching(false);
       }
     }, 350);
 
     return () => {
-      controller.abort();
+      ignore = true;
       window.clearTimeout(timeout);
     };
   }, [query, step]);
@@ -179,11 +205,23 @@ export function BookFormPage() {
     return <Navigate to="/library" replace />;
   }
 
-  function chooseBook(book: BookSearchResult) {
+  async function chooseBook(work: CatalogWork) {
+    setSelectingWorkKey(work.workKey);
+    setSearchError("");
+    let edition: CatalogEdition | null = null;
+    try {
+      edition =
+        (await runtimeBookCatalogClient.work(work.workKey, 1)).editions[0] ??
+        null;
+    } catch {
+      // The work remains usable even when its representative edition fails.
+    }
+    const book = bookFromCatalog(work, edition);
     const nextDraft = draftFromResult(book, initialProfileId);
     setDraft(nextDraft);
     setAuthorsText(book.authors.join(", "));
     setCategoriesText(book.categories.join(", "));
+    setSelectingWorkKey("");
     setStep(2);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -309,7 +347,7 @@ export function BookFormPage() {
             {searching && <LoaderCircle className="spin" size={20} />}
           </label>
           <p>
-            CATÁLOGO GOOGLE BOOKS <span>·</span> ATÉ 12 EDIÇÕES POR BUSCA
+            CATÁLOGO OPEN LIBRARY <span>·</span> OBRAS AGRUPADAS, EDIÇÕES PRESERVADAS
           </p>
         </section>
 
@@ -326,34 +364,47 @@ export function BookFormPage() {
           <section className="catalog-results">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">EDIÇÕES ENCONTRADAS</p>
-                <h2>Escolha a edição correta</h2>
+                <p className="eyebrow">OBRAS ENCONTRADAS</p>
+                <h2>Escolha a obra correta</h2>
               </div>
               <span>{results.length} resultados</span>
             </div>
             <div className="catalog-grid">
-              {results.map((book) => (
+              {results.map((work) => {
+                const preview = bookFromCatalog(work);
+                const selecting = selectingWorkKey === work.workKey;
+                return (
                 <button
                   className="catalog-card"
                   type="button"
-                  key={book.sourceId}
-                  onClick={() => chooseBook(book)}
+                  key={work.workKey}
+                  onClick={() => void chooseBook(work)}
+                  disabled={Boolean(selectingWorkKey)}
                 >
-                  <BookCover book={book} size="small" />
+                  <BookCover book={preview} size="small" />
                   <span className="catalog-card__copy">
-                    <strong>{book.title}</strong>
-                    <span>{book.authors.join(", ")}</span>
+                    <strong>{work.title}</strong>
+                    <span>{work.authors.join(", ")}</span>
                     <small>
-                      {[book.publisher, book.publishedDate]
-                        .filter(Boolean)
-                        .join(" · ") || "Edição sem data"}
+                      {work.editionCount === 1
+                        ? "1 edição conhecida"
+                        : `${work.editionCount} edições conhecidas`}
+                      {work.languages.length > 0
+                        ? ` · ${work.languages.length} idioma${work.languages.length === 1 ? "" : "s"}`
+                        : ""}
                     </small>
                     <em>
-                      Escolher edição <ArrowRight size={14} />
+                      {selecting ? "Abrindo edições…" : "Escolher obra"}
+                      {selecting ? (
+                        <LoaderCircle className="spin" size={14} />
+                      ) : (
+                        <ArrowRight size={14} />
+                      )}
                     </em>
                   </span>
                 </button>
-              ))}
+                );
+              })}
             </div>
           </section>
         ) : (

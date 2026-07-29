@@ -1,8 +1,15 @@
-import { BookHeart, LibraryBig, LogIn, ShoppingBag } from "lucide-react";
+import {
+  BookHeart,
+  Compass,
+  LibraryBig,
+  LogIn,
+  ShoppingBag,
+} from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import { AmazonDisclosure } from "./AmazonDisclosure";
 import { LibraryBackdrop } from "./LibraryBackdrop";
 import { Logo } from "./Logo";
+import { OpenLibraryDisclosure } from "./OpenLibraryDisclosure";
 import { getSupportEmail } from "../lib/publicConfig";
 
 export interface PublicStoreShellProps {
@@ -10,6 +17,7 @@ export interface PublicStoreShellProps {
   accountHref?: string;
   accountLabel?: string;
   offerCount?: number;
+  provider?: "open_library" | "amazon";
 }
 
 export function PublicStoreShell({
@@ -17,6 +25,7 @@ export function PublicStoreShell({
   accountHref = "/login",
   accountLabel = "Entrar",
   offerCount = 0,
+  provider = "open_library",
 }: PublicStoreShellProps) {
   const supportEmail = getSupportEmail();
 
@@ -31,10 +40,14 @@ export function PublicStoreShell({
           </div>
           <nav className="store-header__nav" aria-label="Navegação da livraria">
             <NavLink to="/livraria">
-              <ShoppingBag size={17} aria-hidden="true" />
+              {provider === "amazon" ? (
+                <ShoppingBag size={17} aria-hidden="true" />
+              ) : (
+                <Compass size={17} aria-hidden="true" />
+              )}
               Livraria
             </NavLink>
-            <NavLink to="/ofertas">
+            <NavLink to="/onde-comprar">
               <BookHeart size={17} aria-hidden="true" />
               Minha lista
               {offerCount > 0 && (
@@ -62,8 +75,9 @@ export function PublicStoreShell({
           <div>
             <Logo compact to="/livraria" />
             <p>
-              Descobertas para a próxima leitura, com compra concluída
-              diretamente na Amazon.
+              {provider === "amazon"
+                ? "Descobertas para a próxima leitura, com compra concluída diretamente na Amazon."
+                : "Obras para a próxima leitura, com edições e destinos externos reunidos em um catálogo aberto."}
             </p>
             <nav
               className="store-footer__legal"
@@ -74,7 +88,11 @@ export function PublicStoreShell({
               <a href={`mailto:${supportEmail}`}>Contato</a>
             </nav>
           </div>
-          <AmazonDisclosure />
+          {provider === "amazon" ? (
+            <AmazonDisclosure />
+          ) : (
+            <OpenLibraryDisclosure />
+          )}
         </div>
       </footer>
     </div>
