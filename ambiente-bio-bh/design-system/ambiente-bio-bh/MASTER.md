@@ -1,203 +1,201 @@
-# Design System Master File
+# Ambiente Orkin — Design System Master
 
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+**Projeto:** site institucional Ambiente Orkin
 
----
+**Direção:** verde editorial premium
 
-**Project:** Ambiente Bio BH
-**Generated:** 2026-06-15 19:17:04
-**Category:** Service Landing Page
+**Base pública:** `/projetos/orkin/`
 
----
+## 1. Tokens
 
-## Global Rules
+`tokens.css` é a fonte de verdade.
 
-### Color Palette
+| Token | Valor | Papel |
+| --- | --- | --- |
+| `--paper` | `#F6F4EC` | Leitura e respiro |
+| `--paper-deep` | `#EBE8DC` | Seções editoriais |
+| `--mint-soft` | `#EDF3EA` | Transições e painéis claros |
+| `--ink` | `#1E1E1C` | Texto principal |
+| `--ink-soft` | `#4B4B47` | Texto secundário |
+| `--forest` | `#06351A` | Superfícies institucionais |
+| `--forest-deep` | `#032612` | Hero, método e footer |
+| `--green` | `#066020` | Estado ativo |
+| `--red` | `#CD0102` | Ação principal |
+| `--red-soft` | `#FF7778` | Microdestaque sobre verde |
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#1E40AF` | `--color-primary` |
-| Secondary | `#3B82F6` | `--color-secondary` |
-| CTA/Accent | `#F97316` | `--color-cta` |
-| Background | `#EFF6FF` | `--color-background` |
-| Text | `#1E3A8A` | `--color-text` |
+Tipografia:
 
-**Color Notes:** Professional blue + urgent orange
+- Display: `Archivo`, peso 600.
+- Corpo/UI: `Source Sans 3`, pesos 400 e 600.
+- H1/H2: entrelinha `0.92–0.98`, tracking negativo e largura controlada.
+- Corpo: entrelinha `1.55–1.7`.
 
-### Typography
+## 2. Princípios
 
-- **Heading Font:** Poppins
-- **Body Font:** Open Sans
-- **Mood:** modern, professional, clean, corporate, friendly, approachable
-- **Google Fonts:** [Poppins + Open Sans](https://fonts.google.com/share?selection.family=Open+Sans:wght@300;400;500;600;700|Poppins:wght@400;500;600;700)
+1. A referência Raven orienta composição e hierarquia, não identidade.
+2. A página alterna papel, verde-claro e verde-escuro para criar ritmo.
+3. Títulos grandes, bordas finas e respiro têm prioridade sobre cards elevados.
+4. Assimetria deve ser intencional e nunca gerar overflow.
+5. Vermelho permanece concentrado em CTA, marcador e foco de ação.
+6. Conteúdo técnico não vira promessa absoluta.
+7. Imagem sintética nunca é apresentada como visita, cliente ou prova.
 
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
-```
+## 3. Grade
 
-### Spacing Variables
+- Container máximo: `1240px`.
+- Desktop: 12 colunas.
+- Tablet: 8 colunas.
+- Mobile: 4 colunas.
+- Gutters: `clamp(16px, 2.5vw, 36px)`.
+- Espaçamento de seção: `clamp(76px, 9vw, 144px)`.
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
+Breakpoints usados: `540`, `620`, `640`, `680`, `720`, `760`, `840`, `900` e `980px`. Os pontos adicionais são ajustes locais; `640`, `900` e `980px` governam as mudanças estruturais.
 
-### Shadow Depths
+## 4. Contrato da página
 
-| Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
+IDs únicos obrigatórios:
 
----
+- `#top`
+- `#sinais`
+- `#servicos`
+- `#metodo`
+- `#setores`
+- `#ocorrencias`
+- `#duvidas`
+- `#contato`
+- `#agendar-contato`
 
-## Component Specs
+Sequência:
 
-### Buttons
+1. Header sticky claro.
+2. Hero e credenciais.
+3. Sinais.
+4. Soluções em capítulos alternados.
+5. Serviços especializados.
+6. Inspeção anotada.
+7. Matriz A.I.M.
+8. Segmentos atendidos.
+9. Explorador de ocorrências.
+10. FAQ.
+11. Contato/formulário.
+12. Footer com CTA final.
 
-```css
-/* Primary Button */
-.btn-primary {
-  background: #F97316;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
+## 5. Componentes
 
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
+### Header
 
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #1E40AF;
-  border: 2px solid #1E40AF;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
+- Losango autêntico de `favicon.png`.
+- Cinco links editoriais.
+- Telefone e CTA.
+- Estado compacto por `data-header-compact`.
+- Até `980px`, menu acessível com `aria-expanded`.
 
-### Cards
+### Hero
 
-```css
-.card {
-  background: #EFF6FF;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
+- Grade desktop `5/7`.
+- Profissional Orkin sem moldura, ancorada na base.
+- CTA acima da dobra em `1280 × 720` e `1440 × 900`.
+- Copy e ações antes da figura no mobile.
 
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
+### Capítulos de solução
 
-### Inputs
+- Mídia/texto alternados.
+- Número, eyebrow, título, corpo, três pontos e link.
+- Zoom máximo sutil e removido com reduced motion.
 
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
+### Inspeção
 
-.input:focus {
-  border-color: #1E40AF;
-  outline: none;
-  box-shadow: 0 0 0 3px #1E40AF20;
-}
-```
+- Cena editorial ampla com três anotações.
+- Desktop: marcadores sobre a cena.
+- Mobile: marcadores em lista abaixo da imagem.
 
-### Modals
+### Método A.I.M.
 
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
+- Lista ordenada de três etapas.
+- Matriz horizontal no desktop e vertical no mobile.
+- A ordem permanece compreensível sem motion.
 
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
-```
+### Segmentos
 
----
+- Cinco itens em grade `2 + 3` no desktop.
+- Duas colunas no tablet, uma no mobile.
 
-## Style Guidelines
+### Ocorrências
 
-**Style:** Social Proof-Focused
+- Painel destacado mais seis seletores.
+- Seleção usa `aria-pressed`.
+- Thumbnail decorativa no seletor; imagem informativa no painel.
+- Nenhum texto equivale a diagnóstico.
 
-**Keywords:** Testimonials prominent, client logos displayed, case studies sections, reviews/ratings, user avatars, success metrics, credibility markers
+### FAQ
 
-**Best For:** B2B SaaS, professional services, premium products, e-commerce conversion pages, established brands
+- `details/summary` nativos.
+- Indicador “+” decorativo.
+- Resposta não remove as demais perguntas do fluxo.
 
-**Key Effects:** Testimonial carousel animations, logo grid fade-in, stat counter animations (number count-up), review star ratings
+### Contato
 
-### Page Pattern
+- Painel dividido claro/escuro.
+- Dois campos obrigatórios e duas preferências opcionais.
+- Mensagem de WhatsApp explicita que preferência não confirma visita.
 
-**Pattern Name:** Webinar Registration
+### Footer
 
-- **Conversion Strategy:**  speaker avatar float,  urgent ticker, Limited seats logic. 'Live' indicator. Auto-fill timezone.
-- **CTA Placement:** Hero (Right side form) + Bottom anchor
-- **Section Order:** 1. Hero (Topic + Timer + Form), 2. What you'll learn, 3. Speaker Bio, 4. Urgency/Bonuses, 5. Form (again)
+- CTA editorial amplo.
+- Marca, descrição, navegação e contato.
+- Meta final com política de privacidade e indicação de nova aba.
 
----
+## 6. Marca e imagens
 
-## Anti-Patterns (Do NOT Use)
+- Somente `favicon.png` funciona como logo visível.
+- O cutout do Hero preserva pixels da pessoa, uniforme e marca.
+- Assets de cenas editoriais e pragas são sintéticos e não comprovam fatos.
+- Todos os raster informativos usam `width`, `height`, WebP e `alt` objetivo.
+- Não gerar logos, clientes, uniformes ou selos.
 
-- ❌ Complex navigation
-- ❌ Hidden contact info
+## 7. Interação e movimento
 
-### Additional Forbidden Patterns
+- Reveals entram uma única vez por `IntersectionObserver`.
+- Conteúdo é visível por padrão e só é ocultado após `.motion-ready`.
+- Duração: `380–640ms`.
+- Stagger: `80ms`.
+- Hover: `180–240ms`.
+- Easing: `cubic-bezier(.22, 1, .36, 1)`.
+- Nenhuma animação controla estado de negócio.
+- `prefers-reduced-motion` remove deslocamento, smooth scroll e zoom.
 
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
+## 8. Acessibilidade
 
----
+- Contraste WCAG AA.
+- Alvo mínimo de `44 × 44px`.
+- Um `h1`.
+- `main[tabindex="-1"]` para o skip link.
+- Foco de `3px` em todos os controles.
+- Rótulos visíveis e erros associados por `aria-describedby`.
+- Navegação atual por `aria-current="location"`.
+- Menu por `aria-controls`/`aria-expanded`.
+- Seletor de ocorrência por `aria-label`/`aria-pressed`.
+- Status do formulário por `aria-live`.
+- Zero dependência de cor, hover ou motion.
 
-## Pre-Delivery Checklist
+## 9. Claims permitidos
 
-Before delivering any UI code, verify:
+- Desde 1980.
+- Integração à Orkin desde 2014.
+- Coordenação por biólogos.
+- Belo Horizonte.
+- A.I.M.
+- Anóxia para acervos como tratamento atóxico.
+- VitalClean como sanitização profissional.
 
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+Proibido sem nova evidência: depoimentos, métricas, certificações, clientes, garantias, disponibilidade imediata/24h, afirmação absoluta de segurança e cobertura geográfica adicional.
+
+## 10. Gate de entrega
+
+- `npm run build`
+- `npm run test:e2e`
+- `git diff --check`
+- QA visual em desktop, tablet e mobile
+- Teste do menu, explorador, FAQ e WhatsApp
+- Inspeção de console e `pageerror`
+- Verificação de imagens e overflow entre `320px` e `1440px`

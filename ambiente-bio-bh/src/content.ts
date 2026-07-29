@@ -1,192 +1,281 @@
 export const assetUrl = (path: string) =>
   `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
 
-export const whatsappUrl =
-  "https://api.whatsapp.com/send?phone=5531987930625&text=Ol%C3%A1%2C%20vim%20pela%20landing%20page%20da%20Ambiente%20Bio%20BH%20e%20gostaria%20de%20agendar%20uma%20visita.";
+export const contact = {
+  phonePrimary: "(31) 3344-6600",
+  phonePrimaryHref: "tel:+553133446600",
+  phoneSecondary: "(31) 3296-8966",
+  phoneSecondaryHref: "tel:+553132968966",
+  email: "bh@orkin.com.br",
+  address: "Rua Halley, 155, Santa Lúcia, Belo Horizonte — MG",
+  whatsappPhone: "5531987930625",
+} as const;
 
-export const phonePrimary = "(31) 3344-6600";
-export const phoneSecondary = "(31) 3296-8966";
-export const email = "bh@orkin.com.br";
-export const address = "Rua Halley, 155, Santa Lucia, Belo Horizonte - MG";
+export const navigationItems = [
+  { id: "servicos", href: "#servicos", label: "Soluções" },
+  { id: "metodo", href: "#metodo", label: "Método" },
+  { id: "setores", href: "#setores", label: "Atuação" },
+  { id: "ocorrencias", href: "#ocorrencias", label: "Ocorrências" },
+  { id: "duvidas", href: "#duvidas", label: "Dúvidas" },
+] as const;
 
-export const services = [
+export const trustPoints = [
   {
-    title: "Controle residencial",
-    body: "Diagnóstico em casas e apartamentos, com orientação para reduzir abrigo, acesso e alimento das pragas.",
-    tag: "Casa protegida",
+    value: "Desde 1980",
+    label: "experiência em controle de pragas",
   },
   {
-    title: "Controle comercial",
-    body: "Planos para alimentos, saúde, hotelaria, varejo, escritório, educação e indústria.",
-    tag: "Operação segura",
+    value: "Orkin desde 2014",
+    label: "integração à Orkin",
   },
   {
-    title: "MIP, Avaliar, Implantar e Monitorar",
-    body: "Programa de manejo integrado para tratar a causa, acompanhar sinais e prevenir retorno.",
-    tag: "Método técnico",
-  },
-  {
-    title: "Anóxia para acervos",
-    body: "Alternativa atóxica para bibliotecas, museus, igrejas, arquivos e galerias com risco de cupins e brocas.",
-    tag: "Acervo preservado",
-  },
-  {
-    title: "VitalClean",
-    body: "Sanitização e desinfecção profissional para superfícies de uso comercial e institucional.",
-    tag: "Ambiente higienizado",
-  },
-];
-
-export const riskPlans = [
-  {
-    eyebrow: "Risco operacional",
-    title: "Cozinha, estoque e areas tecnicas sem pontos cegos.",
-    body: "A vistoria percorre rodapes, equipamentos, ralos, frestas e pontos de calor para encontrar acesso, abrigo e alimento antes que a praga apareca no salao.",
-    detail: "Plano indicado para restaurantes, cozinhas industriais, hotelaria e alimentos e bebidas.",
-    image: assetUrl("/assets/plano-risco-cozinha-inspecao.png"),
-    imagePosition: "55% 50%",
-    alt: "Tecnico Orkin inspecionando equipamento de cozinha profissional.",
-  },
-  {
-    eyebrow: "Leitura tecnica",
-    title: "Checklist claro para transformar visita em plano de acao.",
-    body: "Cada inspecao registra areas avaliadas, armadilhas, pontos criticos, condicoes estruturais, higiene, armazenamento e residuos. O responsavel entende o que foi visto e o que precisa mudar.",
-    detail: "Relatorio objetivo para acompanhar evolucao, recorrencia e prioridade de correcao.",
-    image: assetUrl("/assets/plano-risco-checklist.png"),
-    imagePosition: "52% 50%",
-    alt: "Tablet com checklist de inspecao Ambiente Orkin em cozinha profissional.",
-  },
-  {
-    eyebrow: "Comunicacao direta",
-    title: "O plano e explicado para quem decide no local.",
-    body: "A equipe adapta a linguagem para residencia, condominio ou empresa, alinhando risco, prazo, cuidado com pessoas e rotina do ambiente atendido.",
-    detail: "Menos improviso no dia da aplicacao e mais previsibilidade para o cliente.",
-    image: assetUrl("/assets/plano-risco-visita.png"),
-    imagePosition: "50% 45%",
-    alt: "Tecnico Orkin cumprimentando cliente durante visita tecnica.",
-  },
-  {
-    eyebrow: "Protecao residencial",
-    title: "Casa protegida com prevencao, nao so resposta emergencial.",
-    body: "Em residencias, o plano combina orientacao de acesso, abrigo e alimento com intervencoes proporcionais ao risco, preservando rotina, criancas, pets e areas de convivencia.",
-    detail: "Ideal para quintais, caixas, ralos, frestas, areas umidas e pontos de entrada.",
-    image: assetUrl("/assets/plano-risco-residencial.png"),
-    imagePosition: "50% 42%",
-    alt: "Profissional Orkin em area residencial externa.",
-  },
-  {
-    eyebrow: "Monitoramento",
-    title: "Evidencia no ponto certo para decidir o proximo passo.",
-    body: "Armadilhas, capturas e sinais sao lidos como indicadores do plano. A equipe ajusta a estrategia conforme atividade, acesso e reincidencia observada.",
-    detail: "Acompanhamento util para baratas, roedores e outras pragas de alta recorrencia.",
-    image: assetUrl("/assets/plano-risco-monitoramento.png"),
-    imagePosition: "49% 50%",
-    alt: "Tecnico coletando inseto proximo a armadilha de monitoramento.",
+    value: "Biólogos",
+    label: "na coordenação técnica",
   },
 ] as const;
 
+export const signals = [
+  "Sinais recorrentes",
+  "Danos em madeira",
+  "Rastros ou fezes",
+  "Atividade perto de ralos",
+] as const;
+
+export const solutions = [
+  {
+    number: "01",
+    eyebrow: "Residencial",
+    title: "Proteção técnica para a rotina da sua casa.",
+    body: "Inspeção cuidadosa, orientação clara e tratamento proporcional ao risco, com atenção a crianças, pets e áreas de convivência.",
+    imageBase: "assets/editorial/residencial-inspecao",
+    alt: "Inspeção técnica cuidadosa em detalhe de uma residência.",
+    features: [
+      "Leitura dos sinais e pontos de acesso",
+      "Orientação adequada à rotina do imóvel",
+      "Acompanhamento conforme a resposta do ambiente",
+    ],
+  },
+  {
+    number: "02",
+    eyebrow: "Empresas",
+    title: "Controle que acompanha a sua operação.",
+    body: "Planos para comércios, condomínios, alimentos, hotelaria, saúde e instituições, com monitoramento dos pontos críticos.",
+    imageBase: "assets/editorial/comercial-inspecao",
+    alt: "Inspeção técnica em equipamento de uma cozinha profissional.",
+    features: [
+      "Avaliação dos pontos críticos da operação",
+      "Medidas compatíveis com o tipo de atividade",
+      "Monitoramento e ajuste do plano",
+    ],
+  },
+] as const;
+
+export const specialties = [
+  {
+    title: "Anóxia para acervos",
+    body: "Tratamento atóxico para peças e coleções sensíveis.",
+  },
+  {
+    title: "VitalClean",
+    body: "Sanitização profissional de superfícies e ambientes.",
+  },
+] as const;
+
+export const aimProcess = [
+  {
+    number: "01",
+    title: "Avaliar",
+    body: "Identificamos sinais, acessos e condições que favorecem a ocorrência.",
+  },
+  {
+    number: "02",
+    title: "Implantar",
+    body: "Aplicamos as medidas adequadas ao ambiente e à intensidade do risco.",
+  },
+  {
+    number: "03",
+    title: "Monitorar",
+    body: "Acompanhamos a atividade e ajustamos o plano quando necessário.",
+  },
+] as const;
+
+export const inspectionPoints = [
+  {
+    number: "01",
+    title: "Sinais",
+    body: "A atividade observada ajuda a dimensionar a necessidade.",
+  },
+  {
+    number: "02",
+    title: "Acessos",
+    body: "Frestas, ralos e passagens entram na leitura do ambiente.",
+  },
+  {
+    number: "03",
+    title: "Condições",
+    body: "Abrigo, umidade e rotina orientam a escolha das medidas.",
+  },
+] as const;
+
+export const servedSegments = [
+  {
+    number: "01",
+    title: "Residências e condomínios",
+    body: "Casas, apartamentos, áreas comuns e espaços de convivência.",
+  },
+  {
+    number: "02",
+    title: "Empresas e comércios",
+    body: "Operações que precisam conciliar controle e rotina de trabalho.",
+  },
+  {
+    number: "03",
+    title: "Alimentos e hospitalidade",
+    body: "Cozinhas, restaurantes, hotéis e pontos críticos de operação.",
+  },
+  {
+    number: "04",
+    title: "Saúde e instituições",
+    body: "Ambientes que exigem orientação e acompanhamento técnico.",
+  },
+  {
+    number: "05",
+    title: "Acervos e coleções",
+    body: "Contextos sensíveis que podem demandar tratamento por anóxia.",
+  },
+] as const;
+
+export type Pest = {
+  id: string;
+  title: string;
+  image: string;
+  alt: string;
+  summary: string;
+  signals: readonly string[];
+};
+
 export const pests = [
   {
-    id: "mosquitos",
-    title: "Mosquitos",
-    image: assetUrl("/assets/pests/mosquitos.png"),
-    alt: "Ilustracao monocromatica de mosquito",
-    description:
-      "Dipteros com um par de asas, pernas longas e proboscide; adultos variam de 3 a 9 mm.",
+    id: "baratas",
+    title: "Baratas",
+    image: "baratas.webp",
+    alt: "Barata-americana vista de perto em uma superfície urbana.",
+    summary:
+      "A inspeção observa áreas úmidas, pontos de passagem e condições que mantêm a atividade.",
+    signals: ["Áreas úmidas", "Frestas e ralos", "Atividade recorrente"],
   },
   {
     id: "cupins",
     title: "Cupins",
-    image: assetUrl("/assets/pests/cupins.png"),
-    alt: "Ilustracao monocromatica de cupim",
-    description:
-      "Insetos sociais em colonias e castas; poucas especies viram pragas, mas podem atacar madeira.",
+    image: "cupins.webp",
+    alt: "Cupins subterrâneos em detalhe sobre uma peça de madeira.",
+    summary:
+      "Danos e resíduos em madeira ajudam a direcionar a avaliação da origem e da extensão do problema.",
+    signals: ["Danos em madeira", "Resíduos próximos", "Portas e mobiliário"],
   },
   {
     id: "formigas",
     title: "Formigas",
-    image: assetUrl("/assets/pests/formigas.png"),
-    alt: "Ilustracao monocromatica de formiga",
-    description:
-      "Algumas especies picam ou mordem e podem causar dor, febre, sangramento e reacoes alergicas.",
+    image: "formigas.webp",
+    alt: "Formiga urbana preta fotografada em detalhe.",
+    summary:
+      "Trilhas recorrentes indicam rotas de entrada e pontos que merecem observação.",
+    signals: ["Trilhas visíveis", "Frestas", "Fontes de alimento"],
+  },
+  {
+    id: "mosquitos",
+    title: "Mosquitos",
+    image: "mosquitos.webp",
+    alt: "Mosquito Aedes aegypti visto de perto em uma superfície neutra.",
+    summary:
+      "A avaliação considera água acumulada, áreas externas e pontos de reprodução no entorno.",
+    signals: ["Água acumulada", "Áreas externas", "Atividade no entorno"],
   },
   {
     id: "roedores",
     title: "Roedores",
-    image: assetUrl("/assets/pests/roedores.png"),
-    alt: "Ilustracao monocromatica de roedor",
-    description:
-      "Mamiferos sinantropicos de habitos noturnos, alta reproducao e grande adaptacao ao ambiente urbano.",
-  },
-  {
-    id: "baratas",
-    title: "Baratas",
-    image: assetUrl("/assets/pests/baratas.png"),
-    alt: "Ilustracao monocromatica de barata",
-    description:
-      "Insetos resistentes e adaptaveis; as especies urbanas mais comuns incluem a americana e a germanica.",
+    image: "roedores.webp",
+    alt: "Rato-marrom em um corredor urbano limpo.",
+    summary:
+      "Rastros, ruídos e acessos orientam a busca por abrigo e circulação.",
+    signals: ["Rastros ou fezes", "Ruídos", "Pontos de acesso"],
   },
   {
     id: "escorpioes",
     title: "Escorpiões",
-    image: assetUrl("/assets/pests/escorpioes.png"),
-    alt: "Ilustracao monocromatica de escorpiao",
-    description:
-      "Predadores peconhentos com ferrao na cauda; acidentes exigem atencao pela frequencia e pelo risco.",
+    image: "escorpioes.webp",
+    alt: "Escorpião-amarelo visto de perto sobre uma superfície mineral.",
+    summary:
+      "Ralos, frestas e possíveis abrigos precisam ser avaliados com cuidado.",
+    signals: ["Ralos", "Frestas", "Locais de abrigo"],
+  },
+] as const satisfies readonly Pest[];
+
+export const faqItems = [
+  {
+    question: "Como começa uma avaliação?",
+    answer:
+      "A equipe começa entendendo o tipo de local e os sinais percebidos. Na avaliação técnica, observa acessos, condições do ambiente e intensidade da atividade antes de orientar as medidas.",
   },
   {
-    id: "aranhas",
-    title: "Aranhas",
-    image: assetUrl("/assets/pests/aranhas.png"),
-    alt: "Ilustracao monocromatica de aranha",
-    description:
-      "Aracnideos de oito patas, sem asas nem antenas; podem ocupar areas umidas, secas, quentes e escuras.",
+    question: "Vocês atendem residências e empresas?",
+    answer:
+      "Sim. O atendimento contempla residências, condomínios, empresas, comércios, alimentos, hotelaria, saúde, instituições e acervos, sempre considerando a rotina de cada ambiente.",
   },
   {
-    id: "moscas",
-    title: "Moscas",
-    image: assetUrl("/assets/pests/moscas.png"),
-    alt: "Ilustracao monocromatica de mosca",
-    description:
-      "Adultas costumam ter brilho metalico e pecas bucais esponjosas; larvas usam estruturas em forma de gancho.",
+    question: "O que significa o método A.I.M.?",
+    answer:
+      "A.I.M. organiza o trabalho em três etapas: Avaliar o cenário, Implantar as medidas adequadas e Monitorar a resposta do ambiente para ajustar o plano quando necessário.",
   },
   {
-    id: "vespas",
-    title: "Vespas, abelhas e marimbondos",
-    image: assetUrl("/assets/pests/vespas-abelhas-marimbondos.png"),
-    alt: "Ilustracao monocromatica de vespa, abelha e marimbondo",
-    description:
-      "Vespas, abelhas e marimbondos podem causar dor, inchaco e reacoes graves; colonias pedem remocao segura.",
+    question: "O que são Anóxia e VitalClean?",
+    answer:
+      "Anóxia é uma opção de tratamento atóxico para peças e coleções sensíveis. VitalClean é o serviço de sanitização profissional de superfícies e ambientes.",
+  },
+  {
+    question: "A solicitação pelo site já confirma uma visita?",
+    answer:
+      "Não. O formulário prepara a conversa no WhatsApp. A equipe confirma as informações, orienta os próximos passos e combina o atendimento quando necessário.",
   },
 ] as const;
 
-export type Pest = (typeof pests)[number];
-export type PestId = Pest["id"];
+export const placeTypes = [
+  "Residência",
+  "Condomínio",
+  "Empresa ou comércio",
+  "Alimentos e hospitalidade",
+  "Acervo ou instituição",
+  "Outro",
+] as const;
 
-export const sectors = [
-  "Residências",
-  "Condomínios",
-  "Alimentos e bebidas",
-  "Restaurantes",
-  "Hotelaria",
-  "Saúde",
-  "Farmacêuticas",
-  "Escritórios",
-  "Varejo",
-  "Educação",
-];
+export const preferredPeriods = [
+  "Manhã",
+  "Tarde",
+  "Sem preferência",
+] as const;
 
-export const process = [
-  {
-    step: "Avaliar",
-    body: "O especialista inspeciona o imóvel, identifica sinais e recomenda medidas físicas ou educacionais para reduzir risco.",
-  },
-  {
-    step: "Implantar",
-    body: "A equipe aplica técnicas e ferramentas adequadas ao ambiente, tratando a ocorrência sem perder de vista a prevenção.",
-  },
-  {
-    step: "Monitorar",
-    body: "O acompanhamento registra progresso, observa novos sinais e ajusta o plano para manter o controle ativo.",
-  },
-];
+export function buildWhatsappUrl(
+  placeType: string,
+  problem: string,
+  preferredDate = "",
+  preferredPeriod = "",
+) {
+  const message = [
+    "Olá, vim pelo site da Ambiente Orkin e gostaria de solicitar uma avaliação.",
+    `Tipo de local: ${placeType}.`,
+    `O que está acontecendo: ${problem.trim()}`,
+  ];
+
+  if (preferredDate) {
+    const formattedDate = preferredDate.split("-").reverse().join("/");
+    message.push(`Dia de preferência: ${formattedDate}.`);
+  }
+
+  if (preferredPeriod) {
+    message.push(`Período de preferência: ${preferredPeriod}.`);
+  }
+
+  message.push("Sei que a preferência está sujeita à confirmação da equipe.");
+
+  return `https://api.whatsapp.com/send?phone=${contact.whatsappPhone}&text=${encodeURIComponent(message.join("\n"))}`;
+}
