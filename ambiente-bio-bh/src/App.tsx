@@ -483,19 +483,19 @@ function App() {
                 <picture>
                   <source
                     srcSet={[
-                      `${assetUrl("assets/editorial/funcionario-orkin-cutout-640.webp")} 640w`,
-                      `${assetUrl("assets/editorial/funcionario-orkin-cutout-870.webp")} 870w`,
+                      `${assetUrl("assets/editorial/funcionario-orkin-cutout-v2-760.webp")} 760w`,
+                      `${assetUrl("assets/editorial/funcionario-orkin-cutout-v2-1040.webp")} 1040w`,
                     ].join(", ")}
                     sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 900px) 74vw, 52vw"
                     type="image/webp"
                   />
                   <HeroImage
                     src={assetUrl(
-                      "assets/editorial/funcionario-orkin-cutout-870.webp",
+                      "assets/editorial/funcionario-orkin-cutout-v2-1040.webp",
                     )}
                     alt="Profissional uniformizada da Orkin pronta para realizar uma avaliação técnica."
-                    width="870"
-                    height="994"
+                    width="1040"
+                    height="1213"
                     fetchPriority="high"
                     decoding="async"
                   />

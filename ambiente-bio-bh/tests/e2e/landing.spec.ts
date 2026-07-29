@@ -275,7 +275,7 @@ test("hero uses a transparent Orkin cutout without a visual frame", async ({
     (element) => new URL(element.currentSrc || element.src).pathname,
   );
   expect(assetPath.toLowerCase()).toMatch(
-    /\/assets\/editorial\/funcionario-orkin-cutout-(640|870)\.webp$/,
+    /\/assets\/editorial\/funcionario-orkin-cutout-v2-(760|1040)\.webp$/,
   );
 
   const presentation = await heroPerson.evaluate((element) => {
@@ -330,6 +330,20 @@ test("hero uses a transparent Orkin cutout without a visual frame", async ({
     objectFit: "contain",
   });
   expect(presentation.transparentRatio).toBeGreaterThan(0.25);
+
+  const mediaBox = await heroPerson.boundingBox();
+  const imageBox = await image.boundingBox();
+
+  expect(mediaBox).not.toBeNull();
+  expect(imageBox).not.toBeNull();
+  expect(
+    Math.abs(
+      imageBox!.y +
+        imageBox!.height -
+        (mediaBox!.y + mediaBox!.height),
+    ),
+  ).toBeLessThanOrEqual(1);
+  expect(imageBox!.height).toBeGreaterThan(mediaBox!.height);
 });
 
 test("hero keeps the primary CTA above the desktop fold and the mobile reading order intact", async ({

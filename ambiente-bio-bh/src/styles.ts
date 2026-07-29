@@ -740,16 +740,16 @@ export const HeroMedia = styled.figure`
   grid-column: 6 / -1;
   align-self: end;
   display: grid;
-  height: clamp(540px, calc(100svh - 120px), 710px);
+  height: clamp(570px, calc(100svh - 92px), 760px);
   place-items: end center;
   margin: 0;
 
   picture {
-    display: flex;
+    position: absolute;
+    inset: 0;
+    display: block;
     width: 100%;
     height: 100%;
-    align-items: flex-end;
-    justify-content: flex-end;
   }
 
   @media (max-width: 900px) {
@@ -769,6 +769,9 @@ export const HeroMedia = styled.figure`
 `;
 
 export const HeroImage = styled.img`
+  position: absolute;
+  right: 0;
+  bottom: 0;
   display: block;
   width: auto;
   max-width: 100%;
@@ -776,6 +779,18 @@ export const HeroImage = styled.img`
   object-fit: contain;
   object-position: bottom right;
   filter: drop-shadow(0 26px 28px rgba(0, 20, 9, 0.24));
+
+  @media (min-width: 901px) {
+    right: -3.5%;
+    height: 106%;
+    max-width: none;
+  }
+
+  @media (max-width: 900px) {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 `;
 
 export const TrustRail = styled.div`
