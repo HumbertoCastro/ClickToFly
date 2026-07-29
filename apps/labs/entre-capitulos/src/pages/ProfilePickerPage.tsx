@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { LibraryBackdrop } from "../components/LibraryBackdrop";
 import { Logo } from "../components/Logo";
 import { ProfileAvatar } from "../components/ProfileAvatar";
@@ -8,12 +8,18 @@ import { useApp } from "../context/AppContext";
 export function ProfilePickerPage() {
   const { authenticated, profiles, selectProfile, mode, isDemo } = useApp();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const requestedReturnTo = searchParams.get("returnTo");
+  const returnTo =
+    requestedReturnTo?.startsWith("/") && !requestedReturnTo.startsWith("//")
+      ? requestedReturnTo
+      : "/";
 
   if (!authenticated) return <Navigate to="/login" replace />;
 
   function chooseProfile(id: string) {
     selectProfile(id);
-    navigate("/");
+    navigate(returnTo);
   }
 
   return (

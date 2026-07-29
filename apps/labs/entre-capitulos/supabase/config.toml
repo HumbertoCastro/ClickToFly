@@ -1,0 +1,4 @@
+project_id = "nxacfcycarlvfhneanvq"
+
+[functions.amazon-catalog]
+verify_jwt = false

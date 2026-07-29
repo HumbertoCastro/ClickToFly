@@ -7,7 +7,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { AmazonCatalogItem } from "../amazonTypes";
 import { sortFixedProfiles } from "../data/fixedProfiles";
+import { createAmazonFallbackBook } from "../lib/amazonCatalog";
+import { searchGoogleBooks } from "../lib/googleBooks";
 import { calculateAverageRating } from "../lib/rating";
 import { repository } from "../lib/repository";
 import type {
@@ -17,6 +20,11 @@ import type {
   Profile,
   ProfileContext,
 } from "../types";
+
+export interface AmazonInterestTarget {
+  bookId: string;
+  entryId: string;
+}
 
 interface AppContextValue {
   authenticated: boolean;
@@ -35,12 +43,20 @@ interface AppContextValue {
     entryId: string;
     duplicate: boolean;
   }>;
+  saveAmazonInterest(
+    item: AmazonCatalogItem,
+    target?: AmazonInterestTarget,
+  ): Promise<{
+    entryId: string;
+    duplicate: boolean;
+  }>;
   deleteEntry(id: string): Promise<void>;
   refresh(): Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 const activeProfileKey = "entre-capitulos.active-profile.v1";
+const googleBooksKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY?.trim() ?? "";
 
 const emptyState: PersistedState = {
   profiles: [],
@@ -155,6 +171,116 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return result;
   }
 
+  async function saveAmazonInterest(
+    item: AmazonCatalogItem,
+    target?: AmazonInterestTarget,
+  ) {
+    if (!activeProfileId) {
+      throw new Error("Escolha um perfil antes de adicionar o livro.");
+    }
+
+    const explicitTarget = target
+      ? joinedEntries.find(
+          (candidate) =>
+            candidate.profile.id === activeProfileId &&
+            candidate.book.id === target.bookId &&
+            candidate.entry.id === target.entryId,
+        )
+      : undefined;
+    if (target && !explicitTarget) {
+      throw new Error("O livro escolhido não pertence ao perfil ativo.");
+    }
+
+    const isbnTarget =
+      explicitTarget ??
+      joinedEntries.find(
+        (candidate) =>
+          candidate.profile.id === activeProfileId &&
+          ((item.isbn13 &&
+            candidate.book.isbn13 === item.isbn13) ||
+            (item.isbn10 &&
+              candidate.book.isbn10 === item.isbn10)),
+      );
+    const amazonEditions = [
+      {
+        asin: item.asin,
+        parentAsin: item.parentAsin,
+        format: item.format === "unknown" ? "other" as const : item.format,
+      },
+      ...item.editions.map((edition) => ({
+        asin: edition.asin,
+        parentAsin: item.parentAsin,
+        format:
+          edition.format === "unknown"
+            ? "other" as const
+            : edition.format,
+      })),
+    ].filter(
+      (edition, index, editions) =>
+        editions.findIndex((candidate) => candidate.asin === edition.asin) ===
+        index,
+    );
+
+    if (isbnTarget) {
+      const { createdAt: _createdAt, ...book } = isbnTarget.book;
+      void _createdAt;
+      return saveEntry({
+        profileId: activeProfileId,
+        amazonEdition: amazonEditions[0],
+        amazonEditions,
+        book,
+        status: "want_to_read",
+        categories: isbnTarget.entry.categories,
+        startedAt: isbnTarget.entry.startedAt,
+        endedAt: isbnTarget.entry.endedAt,
+        currentPage: isbnTarget.entry.currentPage,
+        review: isbnTarget.entry.review,
+        storySummary: isbnTarget.entry.storySummary,
+        containsSpoilers: isbnTarget.entry.containsSpoilers,
+        ratings: isbnTarget.entry.ratings,
+      }, isbnTarget.entry.id);
+    }
+
+    let googleBook = null;
+    const isbn = item.isbn13 || item.isbn10;
+    if (googleBooksKey && isbn) {
+      try {
+        const results = await searchGoogleBooks(isbn, googleBooksKey);
+        googleBook =
+          results.find(
+            (candidate) =>
+              candidate.isbn13 === item.isbn13 ||
+              candidate.isbn10 === item.isbn10,
+          ) ??
+          results[0] ??
+          null;
+      } catch {
+        // The Amazon association is still saved without copying catalog data.
+      }
+    }
+
+    const personalBook = googleBook ?? createAmazonFallbackBook(item.asin);
+
+    // Amazon metadata, price, offer, affiliate URL, description and image are
+    // kept only in the expiring catalog cache. Durable book metadata comes
+    // from the personal library or Google Books.
+    return saveEntry({
+      profileId: activeProfileId,
+      amazonEdition: amazonEditions[0],
+      amazonEditions,
+      book: personalBook,
+      status: "want_to_read",
+      categories: personalBook.categories,
+      startedAt: "",
+      endedAt: "",
+      currentPage: null,
+      review: "",
+      storySummary: "",
+      containsSpoilers: false,
+      ratings: {},
+    });
+  }
+
   async function deleteEntry(id: string) {
     await repository.deleteEntry(id);
     await refresh();
@@ -176,6 +302,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         signOut,
         selectProfile,
         saveEntry,
+        saveAmazonInterest,
         deleteEntry,
         refresh,
       }}

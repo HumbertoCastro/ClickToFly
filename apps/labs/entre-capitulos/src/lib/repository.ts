@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { shouldBlockProductionWithoutSupabase } from "./publicConfig";
 import { demoState } from "../data/demo";
 import {
   fixedLocalProfiles,
@@ -6,6 +7,7 @@ import {
   getFixedProfileDefinition,
 } from "../data/fixedProfiles";
 import type {
+  AmazonBookEditionLink,
   Book,
   LibraryEntry,
   LibraryEntryDraft,
@@ -56,6 +58,32 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
+function mergeAmazonEdition(
+  editions: AmazonBookEditionLink[] | undefined,
+  draft: LibraryEntryDraft,
+): AmazonBookEditionLink[] | undefined {
+  const incoming = amazonEditionsForDraft(draft);
+  if (incoming.length === 0) return editions;
+
+  const merged = new Map(
+    (editions ?? []).map((edition) => [edition.asin, edition]),
+  );
+  for (const edition of incoming) merged.set(edition.asin, edition);
+  return [...merged.values()];
+}
+
+function amazonEditionsForDraft(
+  draft: LibraryEntryDraft,
+): AmazonBookEditionLink[] {
+  const incoming = [
+    ...(draft.amazonEdition ? [draft.amazonEdition] : []),
+    ...(draft.amazonEditions ?? []),
+  ];
+  return [
+    ...new Map(incoming.map((edition) => [edition.asin, edition])).values(),
+  ];
+}
+
 function withFixedLocalProfiles(state: PersistedState): PersistedState {
   const profiles = [...state.profiles];
 
@@ -90,8 +118,7 @@ function withFixedLocalProfiles(state: PersistedState): PersistedState {
 
 function matchesBook(left: Book, right: LibraryEntryDraft["book"]): boolean {
   if (
-    left.source === "google_books" &&
-    right.source === "google_books" &&
+    left.source === right.source &&
     left.sourceId &&
     right.sourceId
   ) {
@@ -186,16 +213,77 @@ class LocalRepository implements AppRepository {
         (entry) =>
           entry.profileId === draft.profileId && entry.bookId === book?.id,
       );
-      if (duplicate) return { entryId: duplicate.id, duplicate: true };
+      if (duplicate) {
+        const amazonEditions = amazonEditionsForDraft(draft);
+        if (amazonEditions.length > 0) {
+          const linkedBook: Book = {
+            ...book,
+            amazonAsins: [
+              ...new Set([
+                ...(book.amazonAsins ?? []),
+                ...amazonEditions.map((edition) => edition.asin),
+              ]),
+            ],
+            amazonEditions: mergeAmazonEdition(
+              book.amazonEditions,
+              draft,
+            ),
+          };
+          state.books = state.books.map((item) =>
+            item.id === linkedBook.id ? linkedBook : item,
+          );
+          state.entries = state.entries.map((entry) =>
+            entry.id === duplicate.id
+              ? {
+                  ...entry,
+                  status: "want_to_read",
+                  categories: draft.categories,
+                  updatedAt: now(),
+                }
+              : entry,
+          );
+          this.writeState(state);
+        }
+        return { entryId: duplicate.id, duplicate: true };
+      }
     }
 
-    const bookValue: Book = {
-      ...draft.book,
-      id: book?.id ?? draft.book.id ?? newId(),
-      title: draft.book.title.trim(),
-      authors: draft.book.authors.map((author) => author.trim()).filter(Boolean),
-      createdAt: book?.createdAt ?? now(),
-    };
+    const draftAmazonEditions = amazonEditionsForDraft(draft);
+    const amazonAsins =
+      draftAmazonEditions.length > 0
+        ? [
+            ...new Set([
+              ...(book?.amazonAsins ?? []),
+              ...draftAmazonEditions.map((edition) => edition.asin),
+            ]),
+          ]
+        : book?.amazonAsins;
+    const preserveExistingMetadata =
+      book !== undefined &&
+      draftAmazonEditions.length > 0;
+    const bookValue: Book = preserveExistingMetadata
+      ? {
+          ...(book as Book),
+          amazonAsins,
+          amazonEditions: mergeAmazonEdition(
+            book?.amazonEditions,
+            draft,
+          ),
+        }
+      : {
+          ...draft.book,
+          id: book?.id ?? draft.book.id ?? newId(),
+          amazonAsins,
+          amazonEditions: mergeAmazonEdition(
+            book?.amazonEditions,
+            draft,
+          ),
+          title: draft.book.title.trim(),
+          authors: draft.book.authors
+            .map((author) => author.trim())
+            .filter(Boolean),
+          createdAt: book?.createdAt ?? now(),
+        };
     book = bookValue;
 
     state.books = state.books.some((item) => item.id === bookValue.id)
@@ -245,7 +333,7 @@ interface ProfileRow {
 
 interface BookRow {
   id: string;
-  source: "google_books" | "manual";
+  source: "google_books" | "manual" | "amazon";
   source_id: string | null;
   title: string;
   subtitle: string;
@@ -295,11 +383,41 @@ function mapProfile(row: ProfileRow): Profile {
   };
 }
 
-function mapBook(row: BookRow): Book {
+interface AmazonEditionRow {
+  book_id: string;
+  asin: string;
+  parent_asin: string | null;
+  format: AmazonBookEditionLink["format"];
+  is_primary: boolean;
+}
+
+function mapBook(row: BookRow, editions: AmazonEditionRow[] = []): Book {
+  const amazonAsins = editions
+    .filter((edition) => edition.book_id === row.id)
+    .sort((left, right) => Number(right.is_primary) - Number(left.is_primary))
+    .map((edition) => edition.asin);
+
   return {
     id: row.id,
     source: row.source,
     sourceId: row.source_id,
+    amazonAsins:
+      amazonAsins.length > 0
+        ? amazonAsins
+        : row.source === "amazon" && row.source_id
+          ? [row.source_id]
+          : [],
+    amazonEditions: editions
+      .filter((edition) => edition.book_id === row.id)
+      .sort(
+        (left, right) =>
+          Number(right.is_primary) - Number(left.is_primary),
+      )
+      .map((edition) => ({
+        asin: edition.asin,
+        parentAsin: edition.parent_asin,
+        format: edition.format,
+      })),
     title: row.title,
     subtitle: row.subtitle ?? "",
     authors: row.authors ?? [],
@@ -380,7 +498,13 @@ class SupabaseRepository implements AppRepository {
   }
 
   async loadState(): Promise<PersistedState> {
-    const [profilesResult, booksResult, entriesResult, ratingsResult] =
+    const [
+      profilesResult,
+      booksResult,
+      entriesResult,
+      ratingsResult,
+      amazonEditionsResult,
+    ] =
       await Promise.all([
         this.client.from("profiles").select("*").order("created_at"),
         this.client.from("books").select("*").order("created_at"),
@@ -388,13 +512,17 @@ class SupabaseRepository implements AppRepository {
           ascending: false,
         }),
         this.client.from("rating_scores").select("*"),
+        this.client
+          .from("amazon_book_editions")
+          .select("book_id, asin, parent_asin, format, is_primary"),
       ]);
 
     const error =
       profilesResult.error ??
       booksResult.error ??
       entriesResult.error ??
-      ratingsResult.error;
+      ratingsResult.error ??
+      amazonEditionsResult.error;
     if (error) throw new Error(error.message);
 
     let profileRows = (profilesResult.data ?? []) as ProfileRow[];
@@ -458,9 +586,13 @@ class SupabaseRepository implements AppRepository {
     }
 
     const ratings = (ratingsResult.data ?? []) as RatingRow[];
+    const amazonEditions =
+      (amazonEditionsResult.data ?? []) as AmazonEditionRow[];
     return {
       profiles: profileRows.map(mapProfile),
-      books: ((booksResult.data ?? []) as BookRow[]).map(mapBook),
+      books: ((booksResult.data ?? []) as BookRow[]).map((book) =>
+        mapBook(book, amazonEditions),
+      ),
       entries: ((entriesResult.data ?? []) as EntryRow[]).map((entry) =>
         mapEntry(entry, ratings),
       ),
@@ -542,16 +674,77 @@ class SupabaseRepository implements AppRepository {
       isbn_13: draft.book.isbn13.trim(),
       cover_url: draft.book.coverUrl.trim(),
     };
-    const bookResult = existingBook
-      ? await this.client
-          .from("books")
-          .update(bookPayload)
-          .eq("id", existingBook.id)
-          .select("*")
-          .single()
-      : await this.client.from("books").insert(bookPayload).select("*").single();
-    if (bookResult.error) throw new Error(bookResult.error.message);
-    const book = bookResult.data as BookRow;
+    const draftAmazonEditions = amazonEditionsForDraft(draft);
+    let book: BookRow;
+    if (existingBook && draftAmazonEditions.length > 0) {
+      book = existingBook;
+    } else {
+      const bookResult = existingBook
+        ? await this.client
+            .from("books")
+            .update(bookPayload)
+            .eq("id", existingBook.id)
+            .select("*")
+            .single()
+        : await this.client
+            .from("books")
+            .insert(bookPayload)
+            .select("*")
+            .single();
+      if (bookResult.error) throw new Error(bookResult.error.message);
+      book = bookResult.data as BookRow;
+    }
+
+    if (draftAmazonEditions.length > 0) {
+      const editionsResult = await this.client
+        .from("amazon_book_editions")
+        .select("asin, parent_asin, format, is_primary")
+        .eq("book_id", book.id);
+      if (editionsResult.error) throw new Error(editionsResult.error.message);
+
+      const editions =
+        (editionsResult.data ?? []) as Pick<
+          AmazonEditionRow,
+          "asin" | "parent_asin" | "format" | "is_primary"
+        >[];
+      for (const amazonEdition of draftAmazonEditions) {
+        const storedEdition = editions.find(
+          (edition) => edition.asin === amazonEdition.asin,
+        );
+        if (!storedEdition) {
+          const editionResult = await this.client
+            .from("amazon_book_editions")
+            .insert({
+              owner_id: ownerId,
+              book_id: book.id,
+              asin: amazonEdition.asin,
+              parent_asin: amazonEdition.parentAsin,
+              format: amazonEdition.format,
+              is_primary: editions.length === 0,
+            });
+          if (editionResult.error) throw new Error(editionResult.error.message);
+          editions.push({
+            asin: amazonEdition.asin,
+            parent_asin: amazonEdition.parentAsin,
+            format: amazonEdition.format,
+            is_primary: editions.length === 0,
+          });
+        } else if (
+          storedEdition.parent_asin !== amazonEdition.parentAsin ||
+          storedEdition.format !== amazonEdition.format
+        ) {
+          const editionResult = await this.client
+            .from("amazon_book_editions")
+            .update({
+              parent_asin: amazonEdition.parentAsin,
+              format: amazonEdition.format,
+            })
+            .eq("book_id", book.id)
+            .eq("asin", amazonEdition.asin);
+          if (editionResult.error) throw new Error(editionResult.error.message);
+        }
+      }
+    }
 
     if (!editingEntry) {
       const duplicateResult = await this.client
@@ -562,8 +755,21 @@ class SupabaseRepository implements AppRepository {
         .maybeSingle();
       if (duplicateResult.error) throw new Error(duplicateResult.error.message);
       if (duplicateResult.data) {
+        const duplicateId = (duplicateResult.data as { id: string }).id;
+        if (draftAmazonEditions.length > 0) {
+          const updateDuplicate = await this.client
+            .from("library_entries")
+            .update({
+              status: "want_to_read",
+              categories: draft.categories,
+            })
+            .eq("id", duplicateId);
+          if (updateDuplicate.error) {
+            throw new Error(updateDuplicate.error.message);
+          }
+        }
         return {
-          entryId: (duplicateResult.data as { id: string }).id,
+          entryId: duplicateId,
           duplicate: true,
         };
       }
@@ -644,14 +850,37 @@ export const isSupabaseConfigured = Boolean(
     supabaseConfig.householdEmail,
 );
 
-const isDemoMode =
+export const isDemoMode =
   new URLSearchParams(window.location.search).get("demo") === "1";
+
+export const isProductionDataConfigurationBlocked =
+  shouldBlockProductionWithoutSupabase({
+    isProduction: import.meta.env.PROD,
+    isDemoMode,
+    isSupabaseConfigured,
+  });
+
+const supabaseClient =
+  isSupabaseConfigured && !isDemoMode
+    ? createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+        auth: { persistSession: true, autoRefreshToken: true },
+      })
+    : null;
+
+export async function amazonCatalogAuthHeaders(): Promise<
+  Record<string, string>
+> {
+  if (!supabaseClient) return {};
+  const { data } = await supabaseClient.auth.getSession();
+  const accessToken = data.session?.access_token;
+  return accessToken
+    ? { Authorization: `Bearer ${accessToken}` }
+    : {};
+}
 
 export const repository: AppRepository = isSupabaseConfigured && !isDemoMode
   ? new SupabaseRepository(
-      createClient(supabaseConfig.url, supabaseConfig.anonKey, {
-        auth: { persistSession: true, autoRefreshToken: true },
-      }),
+      supabaseClient!,
       supabaseConfig.householdEmail,
     )
   : new LocalRepository();

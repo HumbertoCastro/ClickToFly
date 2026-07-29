@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import { installAmazonMocks } from "./amazonFixture";
 
 test.beforeEach(async ({ page }) => {
+  await installAmazonMocks(page);
   await page.goto("/?demo=1#/profiles");
 });
 
@@ -122,7 +124,7 @@ test("starts a catalog search from the dashboard toolbar", async ({ page }) => {
   const globalSearch = page.getByLabel("Buscar livros ou autores");
   await globalSearch.fill("Clarice Lispector");
   await globalSearch.press("Enter");
-  await expect(page.getByLabel("Buscar no catálogo")).toHaveValue(
+  await expect(page.getByLabel("Buscar livros, autores ou ISBN")).toHaveValue(
     "Clarice Lispector",
   );
 });
@@ -165,7 +167,12 @@ test("creates a manual book with an optional rating", async ({ page }) => {
     .fill("Adolfo Bioy Casares");
   await page
     .getByLabel("URL da capa")
-    .fill("http://127.0.0.1:4173/illustrations/library-still-life.jpg");
+    .fill(
+      new URL(
+        "/illustrations/library-still-life.jpg",
+        page.url(),
+      ).toString(),
+    );
   await page.getByLabel("Status *").selectOption("completed");
   await page
     .getByRole("button", { name: "Avaliar este critério" })

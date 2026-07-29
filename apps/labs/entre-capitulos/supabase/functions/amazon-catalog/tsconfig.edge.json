@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "amazonClient.ts",
+    "cache.ts",
+    "config.ts",
+    "deno-shim.d.ts",
+    "handler.ts",
+    "index.ts",
+    "normalize.ts",
+    "request.ts",
+    "supabaseStore.ts",
+    "types.ts"
+  ]
+}

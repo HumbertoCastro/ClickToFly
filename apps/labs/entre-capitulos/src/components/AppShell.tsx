@@ -8,8 +8,8 @@ import {
   LogOut,
   Plus,
   Search,
+  ShoppingBag,
   UserRound,
-  Users,
 } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
@@ -46,7 +46,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const query = searchQuery.trim();
-    navigate(query ? `/books/new?query=${encodeURIComponent(query)}` : "/books/new");
+    navigate(
+      query ? `/livraria?q=${encodeURIComponent(query)}` : "/livraria",
+    );
   }
 
   return (
@@ -66,6 +68,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <NavLink to="/library">
             <BookMarked size={19} />
             Minha estante
+          </NavLink>
+          <NavLink to="/livraria">
+            <ShoppingBag size={19} />
+            Livraria
           </NavLink>
           <NavLink to="/biblioteca">
             <LibraryBig size={19} />
@@ -162,10 +168,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </form>
           <Link
             className="toolbar-action"
-            to="/library"
+            to="/ofertas"
             aria-label={`${readingListCount} ${
               readingListCount === 1 ? "livro" : "livros"
-            } na lista de leitura`}
+            } para acompanhar nas ofertas atuais`}
           >
             <Bell size={19} aria-hidden="true" />
             {readingListCount > 0 && (
@@ -203,13 +209,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Plus size={23} />
           <span>Adicionar</span>
         </NavLink>
+        <NavLink to="/livraria">
+          <ShoppingBag size={20} />
+          <span>Livraria</span>
+        </NavLink>
         <NavLink to="/biblioteca">
           <LibraryBig size={20} />
           <span>Biblioteca</span>
-        </NavLink>
-        <NavLink to="/profiles">
-          <Users size={20} />
-          <span>Trocar</span>
         </NavLink>
       </nav>
     </div>
