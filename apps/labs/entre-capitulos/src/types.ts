@@ -27,10 +27,25 @@ export interface Profile {
   createdAt: string;
 }
 
+export type StoredAmazonBookFormat =
+  | "kindle"
+  | "paperback"
+  | "hardcover"
+  | "audiobook"
+  | "other";
+
+export interface AmazonBookEditionLink {
+  asin: string;
+  parentAsin: string | null;
+  format: StoredAmazonBookFormat;
+}
+
 export interface Book {
   id: string;
-  source: "google_books" | "manual";
+  source: "google_books" | "manual" | "amazon";
   sourceId: string | null;
+  amazonAsins?: string[];
+  amazonEditions?: AmazonBookEditionLink[];
   title: string;
   subtitle: string;
   authors: string[];
@@ -71,6 +86,8 @@ export interface BookSearchResult
 export interface LibraryEntryDraft {
   profileId: string;
   book: Omit<Book, "id" | "createdAt"> & { id?: string };
+  amazonEdition?: AmazonBookEditionLink;
+  amazonEditions?: AmazonBookEditionLink[];
   status: BookStatus;
   categories: string[];
   startedAt: string;

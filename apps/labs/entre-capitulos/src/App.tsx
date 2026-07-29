@@ -47,6 +47,26 @@ const ProfilePickerPage = lazy(() =>
     default: module.ProfilePickerPage,
   })),
 );
+const StorefrontLayout = lazy(() =>
+  import("./routes/AmazonRoutes").then((module) => ({
+    default: module.StorefrontLayout,
+  })),
+);
+const BookstoreRoute = lazy(() =>
+  import("./routes/AmazonRoutes").then((module) => ({
+    default: module.BookstoreRoute,
+  })),
+);
+const StoreBookDetailRoute = lazy(() =>
+  import("./routes/AmazonRoutes").then((module) => ({
+    default: module.StoreBookDetailRoute,
+  })),
+);
+const OffersRoute = lazy(() =>
+  import("./routes/AmazonRoutes").then((module) => ({
+    default: module.OffersRoute,
+  })),
+);
 function LoadingScreen() {
   return (
     <div className="loading-screen">
@@ -57,24 +77,84 @@ function LoadingScreen() {
   );
 }
 
-function ScrollToTop() {
+function routeTitle(pathname: string): string {
+  if (pathname === "/livraria") return "Livraria — Entre Capítulos";
+  if (pathname.startsWith("/livraria/")) {
+    return "Detalhes do livro — Entre Capítulos";
+  }
+  if (pathname === "/ofertas") return "Ofertas da sua lista — Entre Capítulos";
+  if (pathname === "/library") return "Minha estante — Entre Capítulos";
+  if (pathname === "/biblioteca") return "Biblioteca — Entre Capítulos";
+  if (pathname === "/profiles") return "Escolher perfil — Entre Capítulos";
+  if (pathname === "/login") return "Entrar — Entre Capítulos";
+  if (pathname.startsWith("/books/")) return "Livro — Entre Capítulos";
+  return "Entre Capítulos";
+}
+
+function RouteChangeManager() {
   const location = useLocation();
+  const title = routeTitle(location.pathname);
+
   useEffect(() => {
+    document.title = title;
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [location.pathname]);
-  return null;
+
+    const root = document.getElementById("root") ?? document.body;
+    const focusHeading = () => {
+      const heading = root.querySelector<HTMLElement>("main h1");
+      if (!heading) return false;
+      heading.setAttribute("tabindex", "-1");
+      heading.focus({ preventScroll: true });
+      return true;
+    };
+    if (focusHeading()) return;
+
+    const observer = new MutationObserver(() => {
+      if (focusHeading()) observer.disconnect();
+    });
+    observer.observe(root, { childList: true, subtree: true });
+    const timeout = window.setTimeout(() => observer.disconnect(), 3_000);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timeout);
+    };
+  }, [location.pathname, title]);
+
+  return (
+    <span className="sr-only" aria-live="polite" aria-atomic="true">
+      {title}
+    </span>
+  );
 }
 
 function ProtectedRoute() {
   const { authenticated, loading } = useApp();
+  const location = useLocation();
   if (loading) return <LoadingScreen />;
-  if (!authenticated) return <Navigate to="/login" replace />;
+  if (!authenticated) {
+    const returnTo = `${location.pathname}${location.search}`;
+    return (
+      <Navigate
+        to={`/login?returnTo=${encodeURIComponent(returnTo)}`}
+        replace
+      />
+    );
+  }
   return <Outlet />;
 }
 
 function LibraryRoute() {
   const { activeProfileId } = useApp();
-  if (!activeProfileId) return <Navigate to="/profiles" replace />;
+  const location = useLocation();
+  if (!activeProfileId) {
+    const returnTo = `${location.pathname}${location.search}`;
+    return (
+      <Navigate
+        to={`/profiles?returnTo=${encodeURIComponent(returnTo)}`}
+        replace
+      />
+    );
+  }
   return <Outlet />;
 }
 
@@ -107,10 +187,17 @@ function NotFoundPage() {
 export default function App() {
   return (
     <HashRouter>
-      <ScrollToTop />
+      <RouteChangeManager />
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route element={<StorefrontLayout />}>
+            <Route path="/livraria" element={<BookstoreRoute />} />
+            <Route
+              path="/livraria/:asin"
+              element={<StoreBookDetailRoute />}
+            />
+          </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/profiles" element={<ProfilePickerPage />} />
             <Route element={<ShellRoute />}>
@@ -122,6 +209,7 @@ export default function App() {
               <Route element={<LibraryRoute />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="/library" element={<LibraryPage />} />
+                <Route path="/ofertas" element={<OffersRoute />} />
                 <Route path="/books/new" element={<BookFormRoute />} />
                 <Route path="/books/:entryId" element={<BookDetailPage />} />
                 <Route

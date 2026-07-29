@@ -1,23 +1,32 @@
 import { useState } from "react";
 import { ArrowRight, BookOpen, LockKeyhole } from "lucide-react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Logo } from "../components/Logo";
 import { useApp } from "../context/AppContext";
 
 export function LoginPage() {
   const { authenticated, loading, mode, isDemo, signIn } = useApp();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const requestedReturnTo = searchParams.get("returnTo");
+  const returnTo =
+    requestedReturnTo?.startsWith("/") && !requestedReturnTo.startsWith("//")
+      ? requestedReturnTo
+      : null;
+  const profileRoute = returnTo
+    ? `/profiles?returnTo=${encodeURIComponent(returnTo)}`
+    : "/profiles";
 
-  if (authenticated) return <Navigate to="/profiles" replace />;
+  if (authenticated) return <Navigate to={profileRoute} replace />;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError("");
     try {
       await signIn(password);
-      navigate("/profiles");
+      navigate(profileRoute);
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Não foi possível entrar.",

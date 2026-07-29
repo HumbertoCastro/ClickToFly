@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
 
-export function Logo({ compact = false }: { compact?: boolean }) {
+export function Logo({
+  compact = false,
+  to = "/",
+}: {
+  compact?: boolean;
+  to?: string;
+}) {
   return (
-    <Link className={`logo ${compact ? "logo--compact" : ""}`} to="/">
+    <Link className={`logo ${compact ? "logo--compact" : ""}`} to={to}>
       <span className="logo__mark" aria-hidden="true">
         <span>EC</span>
       </span>

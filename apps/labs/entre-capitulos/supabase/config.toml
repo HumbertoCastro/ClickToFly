@@ -1,0 +1,2 @@
+[functions.amazon-catalog]
+verify_jwt = false

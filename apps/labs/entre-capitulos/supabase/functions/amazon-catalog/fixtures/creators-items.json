@@ -1,0 +1,144 @@
+{
+  "itemsResult": {
+    "items": [
+      {
+        "asin": "B0ABC12345",
+        "parentASIN": "B0PARENT12",
+        "detailPageURL": "https://www.amazon.com.br/dp/B0ABC12345?tag=entre-20&linkCode=ogi",
+        "images": {
+          "primary": {
+            "large": {
+              "url": "https://m.media-amazon.com/images/I/example.jpg"
+            }
+          }
+        },
+        "itemInfo": {
+          "title": {
+            "displayValue": "O livro de teste"
+          },
+          "byLineInfo": {
+            "contributors": [
+              {
+                "name": "Autora Teste",
+                "role": "Autor",
+                "roleType": "Author"
+              },
+              {
+                "name": "Tradutora Teste",
+                "role": "Tradutor",
+                "roleType": "Translator"
+              }
+            ],
+            "manufacturer": {
+              "displayValue": "Editora Teste"
+            }
+          },
+          "classifications": {
+            "binding": {
+              "displayValue": "Capa comum"
+            }
+          },
+          "contentInfo": {
+            "publicationDate": {
+              "displayValue": "2026-07-01"
+            },
+            "pagesCount": {
+              "displayValue": 320
+            },
+            "languages": {
+              "displayValues": [
+                {
+                  "displayValue": "Português"
+                }
+              ]
+            }
+          },
+          "externalIds": {
+            "isbns": {
+              "displayValues": [
+                "6580309311",
+                "9786580309313"
+              ]
+            }
+          }
+        },
+        "browseNodeInfo": {
+          "websiteSalesRank": {
+            "salesRank": 42
+          },
+          "browseNodes": [
+            {
+              "id": "7872748011",
+              "displayName": "Literatura e Ficção",
+              "salesRank": 7
+            }
+          ]
+        },
+        "offersV2": {
+          "listings": [
+            {
+              "availability": {
+                "type": "IN_STOCK"
+              },
+              "condition": {
+                "value": "New"
+              },
+              "dealDetails": {
+                "accessType": "PRIME_EXCLUSIVE",
+                "badge": "Oferta exclusiva Prime",
+                "startTime": "2026-07-01T00:00:00Z",
+                "endTime": "2099-08-01T00:00:00Z"
+              },
+              "isBuyBoxWinner": true,
+              "merchantInfo": {
+                "name": "Livraria Parceira"
+              },
+              "price": {
+                "money": {
+                  "amount": 39.9,
+                  "currency": "BRL",
+                  "displayAmount": "R$ 39,90"
+                },
+                "savingBasis": {
+                  "money": {
+                    "amount": 59.9,
+                    "currency": "BRL",
+                    "displayAmount": "R$ 59,90"
+                  }
+                },
+                "savings": {
+                  "money": {
+                    "amount": 20,
+                    "currency": "BRL",
+                    "displayAmount": "R$ 20,00"
+                  },
+                  "percentage": 33
+                }
+              }
+            }
+          ]
+        },
+        "variationAttributes": [
+          {
+            "name": "Formato",
+            "value": "Capa comum"
+          }
+        ]
+      },
+      {
+        "asin": "B0KINDLE12",
+        "detailPageURL": "https://www.amazon.com.br/dp/B0KINDLE12?tag=entre-20&linkCode=ogi",
+        "itemInfo": {
+          "title": {
+            "displayValue": "Edição digital"
+          },
+          "classifications": {
+            "binding": {
+              "displayValue": "Kindle"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

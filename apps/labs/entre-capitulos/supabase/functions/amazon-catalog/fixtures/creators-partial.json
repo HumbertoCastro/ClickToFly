@@ -1,0 +1,24 @@
+{
+  "itemsResult": {
+    "items": [
+      {
+        "asin": "B0PARTIAL1",
+        "detailPageURL": "https://www.amazon.com.br/dp/B0PARTIAL1?tag=entre-20"
+      },
+      {
+        "asin": "INVALID",
+        "detailPageURL": "https://www.amazon.com.br/dp/INVALID?tag=entre-20"
+      },
+      {
+        "asin": "B0WRONGURL",
+        "detailPageURL": "https://example.com/dp/B0WRONGURL?tag=entre-20"
+      }
+    ]
+  },
+  "errors": [
+    {
+      "code": "ItemNotAccessible",
+      "message": "One item was not accessible"
+    }
+  ]
+}
